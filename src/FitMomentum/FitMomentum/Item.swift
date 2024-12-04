@@ -1,8 +1,8 @@
 //
 //  Item.swift
-//  FitMomemtum
+//  FitMomentum
 //
-//  Created by Lincoln Quick on 12/3/24.
+//  Created by Lincoln Quick on 12/4/24.
 //
 
 import Foundation

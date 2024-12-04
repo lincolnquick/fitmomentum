@@ -7,75 +7,75 @@
 	objects = {
 
 /* Begin PBXContainerItemProxy section */
-		12AAA3E32D00149E00A83AAC /* PBXContainerItemProxy */ = {
+		12AAA4322D01004D00A83AAC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 12AAA3C62D00147200A83AAC /* Project object */;
+			containerPortal = 12AAA4152D01004B00A83AAC /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 12AAA3CD2D00147200A83AAC;
-			remoteInfo = FitMomemtum;
+			remoteGlobalIDString = 12AAA41C2D01004B00A83AAC;
+			remoteInfo = FitMomentum;
 		};
-		12AAA3ED2D00149E00A83AAC /* PBXContainerItemProxy */ = {
+		12AAA43C2D01004D00A83AAC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 12AAA3C62D00147200A83AAC /* Project object */;
+			containerPortal = 12AAA4152D01004B00A83AAC /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 12AAA3CD2D00147200A83AAC;
-			remoteInfo = FitMomemtum;
+			remoteGlobalIDString = 12AAA41C2D01004B00A83AAC;
+			remoteInfo = FitMomentum;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		12AAA3CE2D00147200A83AAC /* FitMomemtum.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FitMomemtum.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		12AAA3E22D00149E00A83AAC /* FitMomemtumTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FitMomemtumTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		12AAA3EC2D00149E00A83AAC /* FitMomemtumUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FitMomemtumUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		12AAA41D2D01004B00A83AAC /* FitMomentum.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FitMomentum.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		12AAA4312D01004D00A83AAC /* FitMomentumTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FitMomentumTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		12AAA43B2D01004D00A83AAC /* FitMomentumUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FitMomentumUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		12AAA3F42D00149E00A83AAC /* Exceptions for "FitMomemtum" folder in "FitMomemtum" target */ = {
+		12AAA4432D01004D00A83AAC /* Exceptions for "FitMomentum" folder in "FitMomentum" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 12AAA3CD2D00147200A83AAC /* FitMomemtum */;
+			target = 12AAA41C2D01004B00A83AAC /* FitMomentum */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		12AAA3D02D00147200A83AAC /* FitMomemtum */ = {
+		12AAA41F2D01004B00A83AAC /* FitMomentum */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				12AAA3F42D00149E00A83AAC /* Exceptions for "FitMomemtum" folder in "FitMomemtum" target */,
+				12AAA4432D01004D00A83AAC /* Exceptions for "FitMomentum" folder in "FitMomentum" target */,
 			);
-			path = FitMomemtum;
+			path = FitMomentum;
 			sourceTree = "<group>";
 		};
-		12AAA3E52D00149E00A83AAC /* FitMomemtumTests */ = {
+		12AAA4342D01004D00A83AAC /* FitMomentumTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = FitMomemtumTests;
+			path = FitMomentumTests;
 			sourceTree = "<group>";
 		};
-		12AAA3EF2D00149E00A83AAC /* FitMomemtumUITests */ = {
+		12AAA43E2D01004D00A83AAC /* FitMomentumUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = FitMomemtumUITests;
+			path = FitMomentumUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		12AAA3CB2D00147200A83AAC /* Frameworks */ = {
+		12AAA41A2D01004B00A83AAC /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		12AAA3DF2D00149E00A83AAC /* Frameworks */ = {
+		12AAA42E2D01004D00A83AAC /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		12AAA3E92D00149E00A83AAC /* Frameworks */ = {
+		12AAA4382D01004D00A83AAC /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -85,22 +85,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		12AAA3C52D00147200A83AAC = {
+		12AAA4142D01004B00A83AAC = {
 			isa = PBXGroup;
 			children = (
-				12AAA3D02D00147200A83AAC /* FitMomemtum */,
-				12AAA3E52D00149E00A83AAC /* FitMomemtumTests */,
-				12AAA3EF2D00149E00A83AAC /* FitMomemtumUITests */,
-				12AAA3CF2D00147200A83AAC /* Products */,
+				12AAA41F2D01004B00A83AAC /* FitMomentum */,
+				12AAA4342D01004D00A83AAC /* FitMomentumTests */,
+				12AAA43E2D01004D00A83AAC /* FitMomentumUITests */,
+				12AAA41E2D01004B00A83AAC /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		12AAA3CF2D00147200A83AAC /* Products */ = {
+		12AAA41E2D01004B00A83AAC /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				12AAA3CE2D00147200A83AAC /* FitMomemtum.app */,
-				12AAA3E22D00149E00A83AAC /* FitMomemtumTests.xctest */,
-				12AAA3EC2D00149E00A83AAC /* FitMomemtumUITests.xctest */,
+				12AAA41D2D01004B00A83AAC /* FitMomentum.app */,
+				12AAA4312D01004D00A83AAC /* FitMomentumTests.xctest */,
+				12AAA43B2D01004D00A83AAC /* FitMomentumUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -108,134 +108,134 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		12AAA3CD2D00147200A83AAC /* FitMomemtum */ = {
+		12AAA41C2D01004B00A83AAC /* FitMomentum */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 12AAA3F52D00149E00A83AAC /* Build configuration list for PBXNativeTarget "FitMomemtum" */;
+			buildConfigurationList = 12AAA4442D01004D00A83AAC /* Build configuration list for PBXNativeTarget "FitMomentum" */;
 			buildPhases = (
-				12AAA3CA2D00147200A83AAC /* Sources */,
-				12AAA3CB2D00147200A83AAC /* Frameworks */,
-				12AAA3CC2D00147200A83AAC /* Resources */,
+				12AAA4192D01004B00A83AAC /* Sources */,
+				12AAA41A2D01004B00A83AAC /* Frameworks */,
+				12AAA41B2D01004B00A83AAC /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				12AAA3D02D00147200A83AAC /* FitMomemtum */,
+				12AAA41F2D01004B00A83AAC /* FitMomentum */,
 			);
-			name = FitMomemtum;
+			name = FitMomentum;
 			packageProductDependencies = (
 			);
-			productName = FitMomemtum;
-			productReference = 12AAA3CE2D00147200A83AAC /* FitMomemtum.app */;
+			productName = FitMomentum;
+			productReference = 12AAA41D2D01004B00A83AAC /* FitMomentum.app */;
 			productType = "com.apple.product-type.application";
 		};
-		12AAA3E12D00149E00A83AAC /* FitMomemtumTests */ = {
+		12AAA4302D01004D00A83AAC /* FitMomentumTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 12AAA3FA2D00149E00A83AAC /* Build configuration list for PBXNativeTarget "FitMomemtumTests" */;
+			buildConfigurationList = 12AAA4492D01004D00A83AAC /* Build configuration list for PBXNativeTarget "FitMomentumTests" */;
 			buildPhases = (
-				12AAA3DE2D00149E00A83AAC /* Sources */,
-				12AAA3DF2D00149E00A83AAC /* Frameworks */,
-				12AAA3E02D00149E00A83AAC /* Resources */,
+				12AAA42D2D01004D00A83AAC /* Sources */,
+				12AAA42E2D01004D00A83AAC /* Frameworks */,
+				12AAA42F2D01004D00A83AAC /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				12AAA3E42D00149E00A83AAC /* PBXTargetDependency */,
+				12AAA4332D01004D00A83AAC /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				12AAA3E52D00149E00A83AAC /* FitMomemtumTests */,
+				12AAA4342D01004D00A83AAC /* FitMomentumTests */,
 			);
-			name = FitMomemtumTests;
+			name = FitMomentumTests;
 			packageProductDependencies = (
 			);
-			productName = FitMomemtumTests;
-			productReference = 12AAA3E22D00149E00A83AAC /* FitMomemtumTests.xctest */;
+			productName = FitMomentumTests;
+			productReference = 12AAA4312D01004D00A83AAC /* FitMomentumTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		12AAA3EB2D00149E00A83AAC /* FitMomemtumUITests */ = {
+		12AAA43A2D01004D00A83AAC /* FitMomentumUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 12AAA3FD2D00149E00A83AAC /* Build configuration list for PBXNativeTarget "FitMomemtumUITests" */;
+			buildConfigurationList = 12AAA44C2D01004D00A83AAC /* Build configuration list for PBXNativeTarget "FitMomentumUITests" */;
 			buildPhases = (
-				12AAA3E82D00149E00A83AAC /* Sources */,
-				12AAA3E92D00149E00A83AAC /* Frameworks */,
-				12AAA3EA2D00149E00A83AAC /* Resources */,
+				12AAA4372D01004D00A83AAC /* Sources */,
+				12AAA4382D01004D00A83AAC /* Frameworks */,
+				12AAA4392D01004D00A83AAC /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				12AAA3EE2D00149E00A83AAC /* PBXTargetDependency */,
+				12AAA43D2D01004D00A83AAC /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				12AAA3EF2D00149E00A83AAC /* FitMomemtumUITests */,
+				12AAA43E2D01004D00A83AAC /* FitMomentumUITests */,
 			);
-			name = FitMomemtumUITests;
+			name = FitMomentumUITests;
 			packageProductDependencies = (
 			);
-			productName = FitMomemtumUITests;
-			productReference = 12AAA3EC2D00149E00A83AAC /* FitMomemtumUITests.xctest */;
+			productName = FitMomentumUITests;
+			productReference = 12AAA43B2D01004D00A83AAC /* FitMomentumUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		12AAA3C62D00147200A83AAC /* Project object */ = {
+		12AAA4152D01004B00A83AAC /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1610;
 				LastUpgradeCheck = 1610;
 				TargetAttributes = {
-					12AAA3CD2D00147200A83AAC = {
+					12AAA41C2D01004B00A83AAC = {
 						CreatedOnToolsVersion = 16.1;
 					};
-					12AAA3E12D00149E00A83AAC = {
+					12AAA4302D01004D00A83AAC = {
 						CreatedOnToolsVersion = 16.1;
-						TestTargetID = 12AAA3CD2D00147200A83AAC;
+						TestTargetID = 12AAA41C2D01004B00A83AAC;
 					};
-					12AAA3EB2D00149E00A83AAC = {
+					12AAA43A2D01004D00A83AAC = {
 						CreatedOnToolsVersion = 16.1;
-						TestTargetID = 12AAA3CD2D00147200A83AAC;
+						TestTargetID = 12AAA41C2D01004B00A83AAC;
 					};
 				};
 			};
-			buildConfigurationList = 12AAA3C92D00147200A83AAC /* Build configuration list for PBXProject "FitMomemtum" */;
+			buildConfigurationList = 12AAA4182D01004B00A83AAC /* Build configuration list for PBXProject "FitMomentum" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 			);
-			mainGroup = 12AAA3C52D00147200A83AAC;
+			mainGroup = 12AAA4142D01004B00A83AAC;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 12AAA3CF2D00147200A83AAC /* Products */;
+			productRefGroup = 12AAA41E2D01004B00A83AAC /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				12AAA3CD2D00147200A83AAC /* FitMomemtum */,
-				12AAA3E12D00149E00A83AAC /* FitMomemtumTests */,
-				12AAA3EB2D00149E00A83AAC /* FitMomemtumUITests */,
+				12AAA41C2D01004B00A83AAC /* FitMomentum */,
+				12AAA4302D01004D00A83AAC /* FitMomentumTests */,
+				12AAA43A2D01004D00A83AAC /* FitMomentumUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		12AAA3CC2D00147200A83AAC /* Resources */ = {
+		12AAA41B2D01004B00A83AAC /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		12AAA3E02D00149E00A83AAC /* Resources */ = {
+		12AAA42F2D01004D00A83AAC /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		12AAA3EA2D00149E00A83AAC /* Resources */ = {
+		12AAA4392D01004D00A83AAC /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -245,21 +245,21 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		12AAA3CA2D00147200A83AAC /* Sources */ = {
+		12AAA4192D01004B00A83AAC /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		12AAA3DE2D00149E00A83AAC /* Sources */ = {
+		12AAA42D2D01004D00A83AAC /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		12AAA3E82D00149E00A83AAC /* Sources */ = {
+		12AAA4372D01004D00A83AAC /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -269,31 +269,35 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		12AAA3E42D00149E00A83AAC /* PBXTargetDependency */ = {
+		12AAA4332D01004D00A83AAC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 12AAA3CD2D00147200A83AAC /* FitMomemtum */;
-			targetProxy = 12AAA3E32D00149E00A83AAC /* PBXContainerItemProxy */;
+			target = 12AAA41C2D01004B00A83AAC /* FitMomentum */;
+			targetProxy = 12AAA4322D01004D00A83AAC /* PBXContainerItemProxy */;
 		};
-		12AAA3EE2D00149E00A83AAC /* PBXTargetDependency */ = {
+		12AAA43D2D01004D00A83AAC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 12AAA3CD2D00147200A83AAC /* FitMomemtum */;
-			targetProxy = 12AAA3ED2D00149E00A83AAC /* PBXContainerItemProxy */;
+			target = 12AAA41C2D01004B00A83AAC /* FitMomentum */;
+			targetProxy = 12AAA43C2D01004D00A83AAC /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		12AAA3F62D00149E00A83AAC /* Debug */ = {
+		12AAA4452D01004D00A83AAC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = FitMomemtum/FitMomemtum.entitlements;
+				CODE_SIGN_ENTITLEMENTS = FitMomentum/FitMomentum.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"FitMomemtum/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"FitMomentum/Preview Content\"";
+				DEVELOPMENT_TEAM = 3CEE4EL467;
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = FitMomemtum/Info.plist;
+				INFOPLIST_FILE = FitMomentum/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = FitMomentum;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -304,34 +308,38 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = app.fitmomentum.FitMomemtum;
+				PRODUCT_BUNDLE_IDENTIFIER = app.fitmomentum.FitMomentum;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				XROS_DEPLOYMENT_TARGET = 2.1;
+				XROS_DEPLOYMENT_TARGET = 2.0;
 			};
 			name = Debug;
 		};
-		12AAA3F72D00149E00A83AAC /* Release */ = {
+		12AAA4462D01004D00A83AAC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = FitMomemtum/FitMomemtum.entitlements;
+				CODE_SIGN_ENTITLEMENTS = FitMomentum/FitMomentum.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"FitMomemtum/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"FitMomentum/Preview Content\"";
+				DEVELOPMENT_TEAM = 3CEE4EL467;
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = FitMomemtum/Info.plist;
+				INFOPLIST_FILE = FitMomentum/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = FitMomentum;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -342,23 +350,23 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = app.fitmomentum.FitMomemtum;
+				PRODUCT_BUNDLE_IDENTIFIER = app.fitmomentum.FitMomentum;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				XROS_DEPLOYMENT_TARGET = 2.1;
+				XROS_DEPLOYMENT_TARGET = 2.0;
 			};
 			name = Release;
 		};
-		12AAA3F82D00149E00A83AAC /* Debug */ = {
+		12AAA4472D01004D00A83AAC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -419,7 +427,7 @@
 			};
 			name = Debug;
 		};
-		12AAA3F92D00149E00A83AAC /* Release */ = {
+		12AAA4482D01004D00A83AAC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -472,88 +480,92 @@
 			};
 			name = Release;
 		};
-		12AAA3FB2D00149E00A83AAC /* Debug */ = {
+		12AAA44A2D01004D00A83AAC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3CEE4EL467;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
 				MACOSX_DEPLOYMENT_TARGET = 15.1;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = app.fitmomentum.FitMomemtumTests;
+				PRODUCT_BUNDLE_IDENTIFIER = app.fitmomentum.FitMomentumTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FitMomemtum.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FitMomemtum";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FitMomentum.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FitMomentum";
 				XROS_DEPLOYMENT_TARGET = 2.1;
 			};
 			name = Debug;
 		};
-		12AAA3FC2D00149E00A83AAC /* Release */ = {
+		12AAA44B2D01004D00A83AAC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3CEE4EL467;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
 				MACOSX_DEPLOYMENT_TARGET = 15.1;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = app.fitmomentum.FitMomemtumTests;
+				PRODUCT_BUNDLE_IDENTIFIER = app.fitmomentum.FitMomentumTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FitMomemtum.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FitMomemtum";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FitMomentum.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FitMomentum";
 				XROS_DEPLOYMENT_TARGET = 2.1;
 			};
 			name = Release;
 		};
-		12AAA3FE2D00149E00A83AAC /* Debug */ = {
+		12AAA44D2D01004D00A83AAC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3CEE4EL467;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
 				MACOSX_DEPLOYMENT_TARGET = 15.1;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = app.fitmomentum.FitMomemtumUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = app.fitmomentum.FitMomentumUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_TARGET_NAME = FitMomemtum;
+				TEST_TARGET_NAME = FitMomentum;
 				XROS_DEPLOYMENT_TARGET = 2.1;
 			};
 			name = Debug;
 		};
-		12AAA3FF2D00149E00A83AAC /* Release */ = {
+		12AAA44E2D01004D00A83AAC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3CEE4EL467;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
 				MACOSX_DEPLOYMENT_TARGET = 15.1;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = app.fitmomentum.FitMomemtumUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = app.fitmomentum.FitMomentumUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_TARGET_NAME = FitMomemtum;
+				TEST_TARGET_NAME = FitMomentum;
 				XROS_DEPLOYMENT_TARGET = 2.1;
 			};
 			name = Release;
@@ -561,43 +573,43 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		12AAA3C92D00147200A83AAC /* Build configuration list for PBXProject "FitMomemtum" */ = {
+		12AAA4182D01004B00A83AAC /* Build configuration list for PBXProject "FitMomentum" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				12AAA3F82D00149E00A83AAC /* Debug */,
-				12AAA3F92D00149E00A83AAC /* Release */,
+				12AAA4472D01004D00A83AAC /* Debug */,
+				12AAA4482D01004D00A83AAC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		12AAA3F52D00149E00A83AAC /* Build configuration list for PBXNativeTarget "FitMomemtum" */ = {
+		12AAA4442D01004D00A83AAC /* Build configuration list for PBXNativeTarget "FitMomentum" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				12AAA3F62D00149E00A83AAC /* Debug */,
-				12AAA3F72D00149E00A83AAC /* Release */,
+				12AAA4452D01004D00A83AAC /* Debug */,
+				12AAA4462D01004D00A83AAC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		12AAA3FA2D00149E00A83AAC /* Build configuration list for PBXNativeTarget "FitMomemtumTests" */ = {
+		12AAA4492D01004D00A83AAC /* Build configuration list for PBXNativeTarget "FitMomentumTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				12AAA3FB2D00149E00A83AAC /* Debug */,
-				12AAA3FC2D00149E00A83AAC /* Release */,
+				12AAA44A2D01004D00A83AAC /* Debug */,
+				12AAA44B2D01004D00A83AAC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		12AAA3FD2D00149E00A83AAC /* Build configuration list for PBXNativeTarget "FitMomemtumUITests" */ = {
+		12AAA44C2D01004D00A83AAC /* Build configuration list for PBXNativeTarget "FitMomentumUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				12AAA3FE2D00149E00A83AAC /* Debug */,
-				12AAA3FF2D00149E00A83AAC /* Release */,
+				12AAA44D2D01004D00A83AAC /* Debug */,
+				12AAA44E2D01004D00A83AAC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 12AAA3C62D00147200A83AAC /* Project object */;
+	rootObject = 12AAA4152D01004B00A83AAC /* Project object */;
 }

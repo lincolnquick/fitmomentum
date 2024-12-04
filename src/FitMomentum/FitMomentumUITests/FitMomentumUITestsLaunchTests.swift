@@ -1,13 +1,13 @@
 //
-//  FitMomemtumUITestsLaunchTests.swift
-//  FitMomemtumUITests
+//  FitMomentumUITestsLaunchTests.swift
+//  FitMomentumUITests
 //
-//  Created by Lincoln Quick on 12/3/24.
+//  Created by Lincoln Quick on 12/4/24.
 //
 
 import XCTest
 
-final class FitMomemtumUITestsLaunchTests: XCTestCase {
+final class FitMomentumUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true

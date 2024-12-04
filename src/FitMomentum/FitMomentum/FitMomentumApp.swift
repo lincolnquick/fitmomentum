@@ -1,15 +1,15 @@
 //
-//  FitMomemtumApp.swift
-//  FitMomemtum
+//  FitMomentumApp.swift
+//  FitMomentum
 //
-//  Created by Lincoln Quick on 12/3/24.
+//  Created by Lincoln Quick on 12/4/24.
 //
 
 import SwiftUI
 import SwiftData
 
 @main
-struct FitMomemtumApp: App {
+struct FitMomentumApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self,

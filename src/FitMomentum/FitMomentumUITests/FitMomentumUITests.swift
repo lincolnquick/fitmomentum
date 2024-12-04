@@ -1,13 +1,13 @@
 //
-//  FitMomemtumUITests.swift
-//  FitMomemtumUITests
+//  FitMomentumUITests.swift
+//  FitMomentumUITests
 //
-//  Created by Lincoln Quick on 12/3/24.
+//  Created by Lincoln Quick on 12/4/24.
 //
 
 import XCTest
 
-final class FitMomemtumUITests: XCTestCase {
+final class FitMomentumUITests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
