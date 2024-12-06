@@ -1,7 +1,8 @@
 # Scope Document: FitMomentum
 
 ## Project Overview
-**FitMomentum** is an iPhone app designed to empower users on their weight loss journeys by providing visualizations, trend predictions, and goal-setting features using Apple HealthKit. The app aims to offer intuitive insights while maintaining privacy and data security.
+**FitMomentum** is an iPhone app designed to empower users on their weight loss journeys by providing visualizations, trend predictions, goal-setting features, and motivational tools using Apple HealthKit. The app aims to offer intuitive insights, maintain privacy and data security, and encourage consistency through engaging features.
+
 
 ---
 
@@ -24,29 +25,34 @@ For the initial release, the app will include the following **Minimum Viable Pro
    - Graph trends to estimate goal and milestone completion dates.
    - Allow users to modify assumptions in predictive models for more personalized insights.
 
-5. **User Interface:**
+5. **Motivational Features:**
+   - Display progress visualization with a hemiellipse-shaped progress bar ("rainbow arc") that fills as the user approaches their goal.
+   - Animate the progress bar growth when progress is made, and celebrate milestone or goal completion with visual effects (e.g., stars, confetti) and haptic feedback.
+   - Display motivational messages on the main dashboard, sliding into view when weight measurements are recorded or progress is updated.
+   - Include a daily checklist for key tasks (e.g., log weight, log meals, hit step goal) that resets automatically each day.
+
+6. **User Interface:**
    - Include subtle animations for a fluid, pleasant user experience.
    - Use a tabbed navigation layout consistent with Apple’s design guidelines.
+
+7. **Notifications:**
+   - Provide daily notifications to remind users to log their weight or complete checklist tasks if unfinished by the end of the day.
 
 ---
 
 ## Out-of-Scope Features (for Initial Release)
 The following features may be added post-launch:
-1. **Motivational Elements:**
-   - Achievements or badge systems.
-   - Export options for PDFs or Excel spreadsheets.
+1. **Achievements System:**
+   - Unlock badges for consistent logging or reaching milestones.
 
-2. **Data Analysis Enhancements:**
-   - Analyze the accuracy of Apple’s Active and Rest Calories metrics based on input data.
+2. **Data Export:**
+   - Options to export data as PDFs or Excel spreadsheets.
 
-3. **Additional Data Entry Options:**
-   - Enable manual entry of data (e.g., activity from Apple Watch, metrics from Withings, or MyFitnessPal calorie logs).
+3. **Advanced Dietary Guidance:**
+   - Customize recommendations based on specific diets or detailed macronutrient preferences.
 
-4. **Advanced UI/UX:**
-   - Onboarding tutorials for new users.
-
-5. **Cloud Integration:**
-   - Saving app preferences or milestones to iCloud.
+4. **Enhanced Onboarding Tutorials:**
+   - Guided walkthroughs for new users.
 
 ---
 
@@ -118,6 +124,8 @@ The following features may be added post-launch:
    - Completion and publication of the app on the Apple App Store.
 
 2. Post-Launch Metrics:
+   - User feedback specifically highlighting motivational features and user engagement.
+   - Metrics for checklist completion rates and notification effectiveness.
    - Number of downloads.
    - User review scores (target: 4+ stars).
    - Conversion rate for premium features.
