@@ -11,7 +11,6 @@
    - Incorporate colors and shading to indicate progress:
      - **Green shading:** Indicates weight loss, proportional to the amount lost.
      - **Red shading:** Indicates weight gain.
-   - Allow users to customize graph colors, metric combinations, and shading preferences.
    - Provide default time intervals for viewing data: 7 days, 30 days, 90 days, 180 days, and 1 year, with an option for custom intervals.
 
 2. **Goal Setting:**
@@ -24,7 +23,6 @@
      - HealthKit activity levels (adjusted for overestimation bias).
      - User-defined activity level options (e.g., sedentary, moderately active).
      - Weight and caloric intake data for more precise estimations.
-   - Allow users to adjust milestones incrementally (e.g., by weight or percentage of total target).
 
 3. **Predictive Analytics:**
    - Graph projected weight trends with user-defined parameters.
@@ -44,7 +42,30 @@
    - Store manual entries in CloudKit rather than HealthKit for the initial release.
    - Enable users to edit or delete manually entered data while preventing direct edits to HealthKit-provided data.
 
-6. **Security and Privacy:**
+6. **Motivational Features:**
+   - Display a hemiellipse-shaped progress bar ("rainbow arc") on the main dashboard to visualize progress toward milestones and goals.
+     - Show current weight (using the smoothing algorithm), percentage completed, pounds to goal, and current date below the progress bar.
+     - Include animations for bar growth when new progress is recorded.
+   - Celebrate milestones and goal completion with:
+     - Visual effects (e.g., stars, confetti).
+     - Haptic feedback using the device’s Haptic Engine.
+   - Display motivational messages when new weight measurements are recorded or progress is updated:
+     - Messages slide into view with subtle animations and include a dismiss button (e.g., an "X" in the corner).
+     - Messages are overwritten by new updates or disappear when the app is restarted.
+
+7. **Daily Checklist:**
+   - Display a small, resettable checklist of key daily tasks:
+     - Log weight.
+     - Log meals.
+     - Hit step goal.
+   - Automatically check off items upon completion with a checkmark and animation.
+   - Allow users to set their daily step goal.
+
+8. **Notifications:**
+   - Provide daily reminders for logging weight and completing checklist tasks.
+   - Allow users to set notification times or disable reminders entirely.
+
+9. **Security and Privacy:**
    - Allow users to secure the app with a PIN, FaceID, or TouchID.
    - Warn users if goals fall outside recommended health guidelines (e.g., weight loss > 2 lbs/week).
    - Avoid storing sensitive health data outside of HealthKit or the user's iCloud.
@@ -115,30 +136,22 @@
 
 ---
 
-## 5. Assumptions and Constraints
-
-### Assumptions
-- Users will enable HealthKit permissions for the app.
-- Users provide accurate and consistent data for better predictions.
-
-### Constraints
-- The app must not store sensitive health data outside HealthKit or CloudKit.
-- The project must be completed within a 1-year timeline.
-
----
-
 ## 6. Success Metrics
 
 1. **Initial Success:**
    - The app is published on the Apple App Store.
    - The app meets Apple’s design and functionality standards.
 
-2. **Post-Launch Metrics:**
+2. **Motivational Features Metrics:**
+   - High engagement with progress visualizations and checklist completion rates.
+   - Positive feedback highlighting motivational elements in App Store reviews.
+
+3. **Post-Launch Metrics:**
    - Number of downloads and active users.
    - User feedback via App Store reviews (target: 4+ stars).
    - Premium feature adoption rate (conversion to paid users).
 
-3. **Feedback:**
+4. **Feedback:**
    - User reviews on the App Store.
    - Direct links to studies and methods on the support website.
 
