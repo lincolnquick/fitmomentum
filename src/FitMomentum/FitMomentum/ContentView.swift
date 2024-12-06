@@ -39,6 +39,23 @@ struct ContentView: View {
                     }
                 }
                 .onDelete(perform: deleteItems)
+                
+                // Add buttons to trigger HealthKit actions
+                Button("Request HealthKit Authorization") {
+                    requestHealthKitAuthorization()
+                }
+                
+                
+                Button("Fetch Weight Data") {
+                    fetchWeightSamples()
+                }
+                
+                
+                Button("Save Weight Sample") {
+                    saveWeightSample(weightInKg: 70.0, date: Date())
+                }
+            
+                
             }
 #if os(macOS)
             .navigationSplitViewColumnWidth(min: 180, ideal: 200)
@@ -59,20 +76,7 @@ struct ContentView: View {
             VStack {
                 Text("Select an item")
                 
-                // Add buttons to trigger HealthKit actions
-                Button("Request HealthKit Authorization") {
-                    requestHealthKitAuthorization()
-                }
-                .padding()
-
-                Button("Fetch Weight Data") {
-                    fetchWeightSamples()
-                }
-                .padding()
                 
-                Button("Save Weight Sample") {
-                    saveWeightSample(weightInKg: 70.0, date: Date())
-                }
                 .padding()
             }
         }
