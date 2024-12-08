@@ -3,7 +3,7 @@
 ### How is a calorie deficit related to fat loss?
 A calorie deficit of approximately 3,500 calories is commonly associated with the loss of 1 pound of fat. This is based on the energy content of adipose tissue, though individual factors such as metabolism and activity level can affect accuracy.  
  
-$ \text{Weight Change (lbs)} = \frac{\text{Total Calorie Deficit}}{3,500} $
+$\text{Weight Change (lbs)} = \frac{\text{Total Calorie Deficit}}{3,500}$
 * 3,500 kcal deficit → 1 lb weight loss 
 * 7,700 kcal deficit → 1 kg weight loss  
 
@@ -51,10 +51,10 @@ Despite its inaccuracies, the Wishnofsky Model serves as a helpful **rule of thu
 ## 3. Body Mass Index (BMI)
 ### How do you calculate BMI?
 BMI is calculated by dividing a person’s weight in kilograms by the square of their height in meters.  
-$ \text{BMI} = \frac{W}{H^2} $
+$\text{BMI} = \frac{W}{H^2}$
 > Where:  
-> $ W $ = Weight in kg  
-> $ H $ = Height in meters  
+> $W$ = Weight in kg  
+> $H$ = Height in meters  
 
 **References:**  
 - World Health Organization. (2005). *The SURF Report 2* [Report]. [https://iris.who.int/bitstream/handle/10665/43190/9241593024_eng.pdf]
@@ -65,13 +65,13 @@ $ \text{BMI} = \frac{W}{H^2} $
 ### How is BMR calculated?
 The Mifflin-St Jeor Equation is one of the most reliable methods:  
 
-$ \text{BMR} = 10W + 6.25H - 5A + S $
+$\text{BMR} = 10W + 6.25H - 5A + S$
 
 > Where:  
-> $ W $ = Weight in kg  
-> $ H $ = Height in cm  
-> $ A $ = Age in years  
-> $ S $ = +5 for males, -161 for females  
+> $W$ = Weight in kg  
+> $H$ = Height in cm  
+> $A$ = Age in years  
+> $S$ = +5 for males, -161 for females  
 
 
 **References:**  
@@ -86,24 +86,24 @@ The Thomas model is a dynamic formula used to predict changes in body compositio
 
 ### Equations
 #### Females:
-$ FFM(t) = -72.1 + 2.5F(t) - 0.04(A_0 + \frac{t}{365}) + 0.7H - 0.002F(t)(A_0 + \frac{t}{365}) - 0.01F(t)H - 0.04F(t)^2 + 0.0003F(t)^2(A_0 + \frac{t}{365}) + 0.0000004F(t)^4 + 0.0002F(t)^3 + 0.0003F(t)^2H - 0.000002F(t)^3H $
+$FFM(t) = -72.1 + 2.5F(t) - 0.04(A_0 + \frac{t}{365}) + 0.7H - 0.002F(t)(A_0 + \frac{t}{365}) - 0.01F(t)H - 0.04F(t)^2 + 0.0003F(t)^2(A_0 + \frac{t}{365}) + 0.0000004F(t)^4 + 0.0002F(t)^3 + 0.0003F(t)^2H - 0.000002F(t)^3H$
 
 
 #### Males:
-$ FFM(t) = -71.7 + 3.6F(t) - 0.04(A_0 + \frac{t}{365}) + 0.7H - 0.002F(t)(A_0 + \frac{t}{365}) - 0.01F(t)H + 0.00003F(t)^2(A_0 + \frac{t}{365}) - 0.07F(t)^2 + 0.0006F(t)^3 - 0.000002F(t)^4 + 0.0003F(t)^2H - 0.000002F(t)^3H $
+$FFM(t) = -71.7 + 3.6F(t) - 0.04(A_0 + \frac{t}{365}) + 0.7H - 0.002F(t)(A_0 + \frac{t}{365}) - 0.01F(t)H + 0.00003F(t)^2(A_0 + \frac{t}{365}) - 0.07F(t)^2 + 0.0006F(t)^3 - 0.000002F(t)^4 + 0.0003F(t)^2H - 0.000002F(t)^3H$
 
 
 ### Terms and Variables
 
-- $ FFM(t) $: Fat-free mass (kg) at time $ t $ (in days).
-- $ F(t) $: Fat mass (kg) at time $ t $.
-- $ H $: Height (cm).
-- $ A_0 $: Baseline age (years).
-- $ t $: Time (days) since the start of the weight change period.
+- $FFM(t)$: Fat-free mass (kg) at time $t$ (in days).
+- $F(t)$: Fat mass (kg) at time $t$.
+- $H$: Height (cm).
+- $A_0$: Baseline age (years).
+- $t$: Time (days) since the start of the weight change period.
 
 
 ### Key Features
-- The model separates fat mass $ F(t) $ and fat-free mass $ FFM(t) $, offering more precise predictions of body composition.
+- The model separates fat mass $F(t)$ and fat-free mass $FFM(t)$, offering more precise predictions of body composition.
 - It accounts for age-related and height-related differences in weight change.
 - The dynamic nature of the model allows for realistic, time-dependent weight predictions.
 
@@ -115,7 +115,7 @@ $ FFM(t) = -71.7 + 3.6F(t) - 0.04(A_0 + \frac{t}{365}) + 0.7H - 0.002F(t)(A_0 + 
 ## 6. Energy Balance Principle
 ### How is energy balance calculated?
 The Energy Balance Principle is defined as:
-$ R = I - E $
+$R = I - E$
 
 Where:  
 - $R$: Rate of weight change (caloric balance, kcal/day).  
@@ -133,7 +133,7 @@ This principle demonstrates that weight loss occurs when energy expenditure exce
 ### What are the components of energy expenditure?
 The rate of energy expenditure, $E$, is composed of four main factors:
 
-$ E = DIT + PA + RMR + SPA $
+$E = DIT + PA + RMR + SPA$
 
 Where:  
 - $DIT$: Dietary-induced thermogenesis (kcal/day).  
@@ -144,8 +144,8 @@ Where:
 This equation breaks down energy expenditure into measurable components that can be adjusted to understand how changes in diet or activity affect total caloric burn.
 
 ### How can this be applied in FitMomentum?
-- **Caloric Balance:** Display users' caloric balance using \(R = I - E\).  
-- **Activity Breakdown:** Show a breakdown of caloric expenditure into \(DIT\), \(PA\), \(RMR\), and \(SPA\), helping users understand which areas contribute most to their energy use.  
+- **Caloric Balance:** Display users' caloric balance using $R = I - E$.  
+- **Activity Breakdown:** Show a breakdown of caloric expenditure into $DIT$, $PA$, $RMR$, and $SPA$, helping users understand which areas contribute most to their energy use.  
 
 **References:**  
 - Gropper, S., Smith, J., & Groff, J. (2005). *Advanced Nutrition and Human Metabolism.* Thomson Wadsworth Publishing.
@@ -168,9 +168,9 @@ Weight data often fluctuates daily due to factors such as water retention, dieta
 - **Application:**
   - Ideal for short-term trend smoothing in early versions of the app.
 - **Formula:**
- $ SMA_t = \frac{1}{n} \sum_{i=t-n+1}^t x_i $
+ $SMA_t = \frac{1}{n} \sum_{i=t-n+1}^t x_i$
 
-  Where $ n $ is the window size and $ x_i $ is the weight at day $ i $.
+  Where $n$ is the window size and $x_i$ is the weight at day $i$.
 - **Pros:**
   - Simple to implement and interpret.
 - **Cons:**
@@ -183,9 +183,9 @@ Weight data often fluctuates daily due to factors such as water retention, dieta
 - **Application:**
   - Useful for users who want more responsive trend data.
 - **Formula:**
-  $ EMA_t = \alpha x_t + (1 - \alpha) EMA_{t-1} $
+  $EMA_t = \alpha x_t + (1 - \alpha) EMA_{t-1}$
 
-  Where $ \alpha $ is the smoothing factor $ 0 < \alpha \leq 1$.
+  Where $\alpha$ is the smoothing factor $0 < \alpha \leq 1$.
 - **Pros:**
   - More responsive than SMA.
 - **Cons:**
@@ -244,7 +244,7 @@ Weight data often fluctuates daily due to factors such as water retention, dieta
    - Explore **Savitzky-Golay Filter** for advanced visualization options.
 
 3. **Customization:**
-   - Allow users to toggle between methods and adjust parameters (e.g., window size for SMA, $ \alpha $ for EMA) to suit their preferences.
+   - Allow users to toggle between methods and adjust parameters (e.g., window size for SMA, $\alpha$ for EMA) to suit their preferences.
 
 ---
 
