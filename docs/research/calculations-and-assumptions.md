@@ -2,10 +2,11 @@
 ## 1. Caloric Deficit and Weight Loss
 ### How is a calorie deficit related to fat loss?
 A calorie deficit of approximately 3,500 calories is commonly associated with the loss of 1 pound of fat. This is based on the energy content of adipose tissue, though individual factors such as metabolism and activity level can affect accuracy.  
-*Formula:*  
-> Weight Change (lbs) = Total Calorie Deficit / 3,500  
-> 3,500 kcal deficit → 1 lb weight loss or 7,700 kcal deficit → 1 kg weight loss  
-*(Wishnofsky, 1958)*
+ 
+$ \text{Weight Change (lbs)} = \frac{\text{Total Calorie Deficit}}{3,500} $
+* 3,500 kcal deficit → 1 lb weight loss 
+* 7,700 kcal deficit → 1 kg weight loss  
+
 
 **References:**  
 - Wishnofsky, M. (1958). Caloric equivalents of gained or lost weight. *The American Journal of Clinical Nutrition.* [https://www.sciencedirect.com/science/article/abs/pii/S0002916523151082?via%3Dihub]
@@ -50,11 +51,10 @@ Despite its inaccuracies, the Wishnofsky Model serves as a helpful **rule of thu
 ## 3. Body Mass Index (BMI)
 ### How do you calculate BMI?
 BMI is calculated by dividing a person’s weight in kilograms by the square of their height in meters.  
-*Formula:*  
-> BMI = W / H^2  
+$ \text{BMI} = \frac{W}{H^2} $
 > Where:  
-> W = Weight in kg  
-> H = Height in meters  
+> $ W $ = Weight in kg  
+> $ H $ = Height in meters  
 
 **References:**  
 - World Health Organization. (2005). *The SURF Report 2* [Report]. [https://iris.who.int/bitstream/handle/10665/43190/9241593024_eng.pdf]
@@ -64,15 +64,15 @@ BMI is calculated by dividing a person’s weight in kilograms by the square of 
 ## 4. Basal Metabolic Rate (BMR)
 ### How is BMR calculated?
 The Mifflin-St Jeor Equation is one of the most reliable methods:  
-*Formula:*  
-> BMR = 10 * W + 6.25 * H - 5 * A + S  
-> Where:  
-> W = Weight in kg  
-> H = Height in cm  
-> A = Age in years  
-> S = +5 for males, -161 for females  
 
-*(Mifflin et al., 1990)*
+$ \text{BMR} = 10W + 6.25H - 5A + S $
+
+> Where:  
+> $ W $ = Weight in kg  
+> $ H $ = Height in cm  
+> $ A $ = Age in years  
+> $ S $ = +5 for males, -161 for females  
+
 
 **References:**  
 - Mifflin, M., St Jeor, S., Hill, L., Scott, B., Daugherty, S., & Koh, Y. (1990). A new predictive equation for resting energy expenditure in healthy individuals. *American Journal of Clinical Nutrition, 51*(2), 241–247. [https://doi.org/10.1093/ajcn/51.2.241]
@@ -86,24 +86,24 @@ The Thomas model is a dynamic formula used to predict changes in body compositio
 
 ### Equations
 #### Females:
-\[
-FFM(t) = -72.1 + 2.5F(t) - 0.04(A_0 + t/365) + 0.7H - 0.002F(t)(A_0 + t/365) - 0.01F(t)H - 0.04F(t)^2 + 0.0003F(t)^2(A_0 + t/365) + 0.0000004F(t)^4 + 0.0002F(t)^3 + 0.0003F(t)^2H - 0.000002F(t)^3H
-\]
+$ FFM(t) = -72.1 + 2.5F(t) - 0.04(A_0 + \frac{t}{365}) + 0.7H - 0.002F(t)(A_0 + \frac{t}{365}) - 0.01F(t)H - 0.04F(t)^2 + 0.0003F(t)^2(A_0 + \frac{t}{365}) + 0.0000004F(t)^4 + 0.0002F(t)^3 + 0.0003F(t)^2H - 0.000002F(t)^3H $
+
 
 #### Males:
-\[
-FFM(t) = -71.7 + 3.6F(t) - 0.04(A_0 + t/365) + 0.7H - 0.002F(t)(A_0 + t/365) - 0.01F(t)H + 0.00003F(t)^2(A_0 + t/365) - 0.07F(t)^2 + 0.0006F(t)^3 - 0.000002F(t)^4 + 0.0003F(t)^2H - 0.000002F(t)^3H
-\]
+$ FFM(t) = -71.7 + 3.6F(t) - 0.04(A_0 + \frac{t}{365}) + 0.7H - 0.002F(t)(A_0 + \frac{t}{365}) - 0.01F(t)H + 0.00003F(t)^2(A_0 + \frac{t}{365}) - 0.07F(t)^2 + 0.0006F(t)^3 - 0.000002F(t)^4 + 0.0003F(t)^2H - 0.000002F(t)^3H $
+
 
 ### Terms and Variables
-- \(FFM(t)\): Fat-free mass (kg) at time \(t\) (in days).
-- \(F(t)\): Fat mass (kg) at time \(t\).
-- \(H\): Height (cm).
-- \(A_0\): Baseline age (years).
-- \(t\): Time (days) since the start of the weight change period.
+
+- $ FFM(t) $: Fat-free mass (kg) at time $ t $ (in days).
+- $ F(t) $: Fat mass (kg) at time $ t $.
+- $ H $: Height (cm).
+- $ A_0 $: Baseline age (years).
+- $ t $: Time (days) since the start of the weight change period.
+
 
 ### Key Features
-- The model separates fat mass (\(F(t)\)) and fat-free mass (\(FFM(t)\)), offering more precise predictions of body composition.
+- The model separates fat mass $ F(t) $ and fat-free mass $ FFM(t) $, offering more precise predictions of body composition.
 - It accounts for age-related and height-related differences in weight change.
 - The dynamic nature of the model allows for realistic, time-dependent weight predictions.
 
@@ -115,13 +115,12 @@ FFM(t) = -71.7 + 3.6F(t) - 0.04(A_0 + t/365) + 0.7H - 0.002F(t)(A_0 + t/365) - 0
 ## 6. Energy Balance Principle
 ### How is energy balance calculated?
 The Energy Balance Principle is defined as:
-\[
-R = I - E
-\]
+$ R = I - E $
+
 Where:  
-- \(R\): Rate of weight change (caloric balance, kcal/day).  
-- \(I\): Caloric intake (kcal/day).  
-- \(E\): Caloric expenditure (kcal/day).  
+- $R$: Rate of weight change (caloric balance, kcal/day).  
+- $I$: Caloric intake (kcal/day).  
+- $E$: Caloric expenditure (kcal/day).  
 
 This principle demonstrates that weight loss occurs when energy expenditure exceeds energy intake.
 
@@ -132,15 +131,15 @@ This principle demonstrates that weight loss occurs when energy expenditure exce
 
 ## 7. Rate of Energy Expenditure
 ### What are the components of energy expenditure?
-The rate of energy expenditure (\(E\)) is composed of four main factors:
-\[
-E = DIT + PA + RMR + SPA
-\]
+The rate of energy expenditure, $E$, is composed of four main factors:
+
+$ E = DIT + PA + RMR + SPA $
+
 Where:  
-- \(DIT\): Dietary-induced thermogenesis (kcal/day).  
-- \(PA\): Volitional physical activity (kcal/day).  
-- \(RMR\): Resting metabolic rate (kcal/day).  
-- \(SPA\): Spontaneous physical activity (kcal/day).  
+- $DIT$: Dietary-induced thermogenesis (kcal/day).  
+- $PA$: Volitional physical activity (kcal/day).  
+- $RMR$: Resting metabolic rate (kcal/day).  
+- $SPA$: Spontaneous physical activity (kcal/day).  
 
 This equation breaks down energy expenditure into measurable components that can be adjusted to understand how changes in diet or activity affect total caloric burn.
 
@@ -151,7 +150,7 @@ This equation breaks down energy expenditure into measurable components that can
 **References:**  
 - Gropper, S., Smith, J., & Groff, J. (2005). *Advanced Nutrition and Human Metabolism.* Thomson Wadsworth Publishing.
 
---
+---
 
 ## 8. Trend-Smoothing Algorithms for FitMomentum
 
@@ -169,10 +168,9 @@ Weight data often fluctuates daily due to factors such as water retention, dieta
 - **Application:**
   - Ideal for short-term trend smoothing in early versions of the app.
 - **Formula:**
-  \[
-  SMA_t = \frac{1}{n} \sum_{i=t-n+1}^t x_i
-  \]
-  Where \(n\) is the window size and \(x_i\) is the weight at day \(i\).
+ $ SMA_t = \frac{1}{n} \sum_{i=t-n+1}^t x_i $
+
+  Where $ n $ is the window size and $ x_i $ is the weight at day $ i $.
 - **Pros:**
   - Simple to implement and interpret.
 - **Cons:**
@@ -185,10 +183,9 @@ Weight data often fluctuates daily due to factors such as water retention, dieta
 - **Application:**
   - Useful for users who want more responsive trend data.
 - **Formula:**
-  \[
-  EMA_t = \alpha x_t + (1 - \alpha) EMA_{t-1}
-  \]
-  Where \(\alpha\) is the smoothing factor (\(0 < \alpha \leq 1\)).
+  $ EMA_t = \alpha x_t + (1 - \alpha) EMA_{t-1} $
+
+  Where $ \alpha $ is the smoothing factor $ 0 < \alpha \leq 1$.
 - **Pros:**
   - More responsive than SMA.
 - **Cons:**
@@ -247,7 +244,7 @@ Weight data often fluctuates daily due to factors such as water retention, dieta
    - Explore **Savitzky-Golay Filter** for advanced visualization options.
 
 3. **Customization:**
-   - Allow users to toggle between methods and adjust parameters (e.g., window size for SMA, \(\alpha\) for EMA) to suit their preferences.
+   - Allow users to toggle between methods and adjust parameters (e.g., window size for SMA, $ \alpha $ for EMA) to suit their preferences.
 
 ---
 
@@ -256,7 +253,7 @@ Weight data often fluctuates daily due to factors such as water retention, dieta
 - **Cleveland, W. S.** (1979). Robust locally weighted regression and smoothing scatterplots. *Journal of the American Statistical Association.*
 - **Kalman, R. E.** (1960). A new approach to linear filtering and prediction problems. *Transactions of the ASME – Journal of Basic Engineering.*
 
---
+---
 
 ## 9. Healthy Weight Loss Recommendations
 
@@ -280,7 +277,8 @@ Focus on three core components:
 **Reference:**  
 Garvey, W. T., Mechanick, J. I., Brett, E. M., Garber, A. J., Hurley, D. L., Jastreboff, A. M., Nadolsky, K., Pessah-Pollack, R., & Plodkowski, R. (2016). American Association of Clinical Endocrinologists and American College of Endocrinology Comprehensive Clinical Practice Guidelines For Medical Care of Patients with Obesity. *Endocrine Practice, 22*, 1–203. [https://doi.org/10.4158/ep161365.gl]
 
---
+---
+
 ## 10. Macronutrient Distribution and Personalized Weight Loss Strategies
 
 ### How does macronutrient distribution impact weight loss?
@@ -373,7 +371,7 @@ Weight loss depends on both calorie reduction and the balance of macronutrients 
 **Reference:**  
 Martinez, J. A., Navas-Carretero, S., Saris, W. H. M., & Astrup, A. (2014). Personalized weight loss strategies—the role of macronutrient distribution. *Nature Reviews Endocrinology, 10*(12), 749–760. [https://doi.org/10.1038/nrendo.2014.175]
 
---
+---
 
 ## 11. Adaptive Thermogenesis
 
