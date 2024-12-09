@@ -45,12 +45,18 @@ def get_user_input():
         return get_manual_inputs()
     return DEFAULT_VALUES
 
-def get_user_initial_info():
-    """Prompt the user for initial personal details."""
+def get_basic_user_info():
+    """Prompt the user for basic personal used in both calculations."""
     sex = input("Enter sex (male/female): ").strip().lower()
+    if sex in ["m", "ma", "mal", "male", "man"]:
+        sex = "male"
+    else:
+        sex = "female"
     height = float(input("Enter height in cm: "))
+
     dob = input("Enter date of birth (YYYY-MM-DD): ").strip()
     age = calculate_age(dob)
+    
     return {'sex': sex, 'height': height, 'age': age}
 
 def prompt_historical_data():
@@ -79,22 +85,30 @@ def get_manual_historical_data():
 
 def get_manual_inputs():
     """Collect manual inputs from the user."""
+
+    sex, height, age = get_basic_user_info()
+
+    weight = float(input("Enter weight in kg: "))
+    body_fat_percentage = float(input("Enter body fat percentage (decimal): "))
+
+    fat_mass, lean_mass = calculate_fat_and_lean_mass(weight, body_fat_percentage)
+    calorie_deficit = float(input("Enter daily calorie deficit (kcal): "))
+
     return {
-        'sex': input("Enter sex (male/female): ").strip().lower(),
-        'age': int(input("Enter age in years: ")),
-        'height': float(input("Enter height in cm: ")),
-        'weight': float(input("Enter weight in kg: ")),
-        'fat_mass': float(input("Enter fat mass in kg: ")),
-        'lean_mass': float(input("Enter lean mass in kg: ")),
-        'calorie_deficit': float(input("Enter daily calorie deficit (kcal): "))
+        'sex': sex,
+        'age': age,
+        'height': height,
+        'weight': weight,
+        'fat_mass': fat_mass,
+        'lean_mass': lean_mass,
+        'calorie_deficit': calorie_deficit
     }
 
 
 # Calculation Functions
-
 def calculate_thomas_and_estimate_deficit():
     """Calculate the Thomas Model and estimate the calorie deficit based on historical data."""
-    user_info = get_user_initial_info()
+    user_info = get_basic_user_info()
     historical_data = prompt_historical_data()
     display_historical_summary(historical_data)
     calorie_deficit = estimate_calorie_deficit_from_historical_data(historical_data)
@@ -103,6 +117,9 @@ def calculate_thomas_and_estimate_deficit():
     initial_weight = historical_data[-1][1]
     initial_fat_percentage = historical_data[-1][2]
     initial_fat_mass, initial_lean_mass = calculate_fat_and_lean_mass(initial_weight, initial_fat_percentage)
+    bmi = calculate_bmi(initial_weight, user_info['height'])
+    bmr = calculate_bmr(user_info['sex'], user_info['height'], user_info['age'], initial_weight)
+    display_bmi_and_bmr(bmi, bmr)
 
     results = calculate_thomas(
         user_info['sex'], initial_fat_mass, initial_lean_mass, calorie_deficit
@@ -174,13 +191,23 @@ def estimate_calorie_deficit_from_historical_data(historical_data):
     
     return estimate_calorie_deficit(initial_fat_mass, final_fat_mass, initial_lean_mass, final_lean_mass, days)
 
-
 def calculate_age(dob):
     """Calculate age based on date of birth."""
     dob_date = datetime.strptime(dob, "%Y-%m-%d")
     today = datetime.today()
     age = today.year - dob_date.year - ((today.month, today.day) < (dob_date.month, dob_date.day))
     return age
+
+def calculate_bmi(weight, height):
+    """Calculate BMI based on weight (kg) and height (cm)."""
+    return weight / ((height / 100) ** 2)
+
+def calculate_bmr(sex, height, age, weight):
+    """Calculate Basal Metabolic Rate (BMR) based on the Mifflin-St Jeor Equation."""
+    s = - 161 # Constant for female
+    if sex == "male":
+        s = 5
+    return 10 * weight + 6.25 * height - 5 * age + s
 
 # Conversion Functions
 def cm_to_feet_and_inches(cm):
@@ -258,6 +285,12 @@ def display_historical_summary(historical_data):
     for date, weight, body_fat in historical_data:
         print(f"{date} | {weight:.2f} | {weight*KG_TO_LBS:.2f} | {body_fat * 100:.2f}%")
     print("-" * 40)
+
+def display_bmi_and_bmr(bmi, bmr):
+    """Display BMI and BMR values."""
+    print(f"\n--- Additional Information ---")
+    print(f"BMI: {bmi:.2f}")
+    print(f"BMR: {bmr:.2f} kcal/day\n")
 
 # Main Functions
 
