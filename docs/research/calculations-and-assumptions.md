@@ -507,3 +507,89 @@ Heymsfield, S. B., & Wadden, T. A. (2017). Mechanisms, pathophysiology, and mana
 
 ---
 
+## 19. Calories in Macronutrients
+
+### How many calories are in 1 gram of protein, carbohydrates, and fat?
+
+Each macronutrient contributes a specific number of calories per gram, which is important for designing nutrition plans and tracking manual edits to macronutrient goals. Understanding these values helps users balance their diets effectively:
+
+- **Protein:** $4 \text{ kcal/gram}$
+- **Carbohydrates:** $4 \text{ kcal/gram}$
+- **Fat:** $9 \text{ kcal/gram}$
+
+### Explanation
+- **Protein and Carbohydrates:** Both provide 4 calories per gram. Protein is essential for muscle repair and growth, while carbohydrates are the body's primary energy source.
+- **Fat:** Provides more than double the calories per gram compared to protein and carbohydrates, making it the most energy-dense macronutrient. Fat is crucial for hormone production, cell structure, and absorbing fat-soluble vitamins.
+
+When users adjust their macronutrient goals manually, FitMomentum will recalculate calorie targets based on these values to ensure consistency in their daily intake.
+
+**References:**
+- U.S. Department of Agriculture (USDA). (2021). Macronutrients: Calories per gram. *Dietary Guidelines for Americans, 2020-2025.* Retrieved from [https://www.dietaryguidelines.gov](https://www.dietaryguidelines.gov)
+- Whitney, E., & Rolfes, S. R. (2019). Understanding nutrition (15th ed.). Boston, MA: Cengage Learning.
+
+---
+
+## 20. Estimating TDEE Using Dietary Energy, Weight, and Body Fat Data
+
+### Overview
+When accurate dietary energy intake (kcal/day), daily weight, and body fat percentage measurements are available over a period of at least 14 days, Total Daily Energy Expenditure (TDEE) can be estimated by analyzing the relationship between energy intake, weight change, and changes in body composition. This approach does not require prior knowledge of maintenance calories, as it calculates TDEE based on observed data.
+
+---
+
+### Step 1: Calculate Fat Mass and Lean Body Mass
+For each day, determine fat mass ($FM$) and lean body mass ($LBM$):
+
+$FM = W \times BF$
+
+$LBM = W - FM$
+Where:
+- $W$ = Body weight (kg)
+- $BF$ = Body fat percentage (decimal)
+
+---
+
+### Step 2: Calculate Daily Energy Storage Change
+The energy stored or expended is determined by the daily weight change, accounting for fat and lean mass:
+
+$\Delta E = \Delta FM \times 9.3 + \Delta LBM \times 1.1$
+Where:
+- $\Delta FM$ = Change in fat mass (kg)
+- $\Delta LBM$ = Change in lean body mass (kg)
+- $9.3$ = Energy content of 1 kg of fat (kcal)
+- $1.1$ = Energy content of 1 kg of lean tissue (kcal)
+
+---
+
+### Step 3: Calculate Daily TDEE
+For each day, calculate TDEE using the following formula:
+
+$TDEE = I - \Delta E$
+Where:
+- $I$ = Dietary energy intake (kcal/day)
+- $\Delta E$ = Daily energy storage change (kcal/day)
+
+---
+
+### Step 4: Average TDEE Over the Period
+To estimate TDEE more accurately, calculate the average TDEE over the 14-day period:
+$TDEE_{\text{avg}} = \frac{\sum_{i=1}^{n} TDEE_i}{n}$
+Where:
+- $n$ = Total number of days in the period
+- $TDEE_i$ = TDEE for day $i$
+
+---
+
+### Applications in FitMomentum
+FitMomentum can:
+- Use this method to provide a dynamic and precise estimate of TDEE based on user-provided data.
+- Adjust TDEE calculations as users update their weight or dietary intake.
+- Incorporate visualizations to help users understand the relationship between energy intake, weight changes, and TDEE.
+
+### Key Considerations
+- Ensure the data is accurate and consistent for reliable TDEE estimation.
+- Longer measurement periods (e.g., 14+ days) improve accuracy by minimizing the impact of daily fluctuations.
+
+**References:**
+- Hall, K. D., & Heymsfield, S. B. (2009). Energy balance and its components: Implications for body weight regulation. *American Journal of Clinical Nutrition, 95*(1), 1127–1133.
+- Rosenbaum, M., & Leibel, R. L. (2010). Adaptive thermogenesis in humans. *International Journal of Obesity, 34*(S1), S47–S55. [https://doi.org/10.1038/ijo.2010.184]
+
