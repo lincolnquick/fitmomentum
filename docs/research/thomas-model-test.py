@@ -3,131 +3,148 @@
 # This script calculates changes in fat mass, fat-free mass, and total weight over a specified time period
 # based on a caloric deficit and initial body composition parameters.
 
-# Conversion factor for kg to lbs
-kg_to_lbs = 2.20462
+import math
 
-# Define the equations for Lean Mass (formerly Fat-Free Mass) for males and females as per the Thomas Model
-def thomas_model_lean_mass_male(F, A0, t, H):
-    return (-71.7 + 3.6 * F
-            - 0.04 * (A0 + t / 365)
-            + 0.7 * H
-            - 0.002 * F * (A0 + t / 365)
-            - 0.01 * F * H
-            + 0.00003 * F**2 * (A0 + t / 365)
-            - 0.07 * F**2
-            + 0.0006 * F**3
-            - 0.000002 * F**4
-            + 0.0003 * F**2 * H
-            - 0.000002 * F**3 * H)
+# Constants
+CALORIES_PER_KG_FAT = 7700
+REE_CONSTANTS = {'male': (5.8, 0.9, 0.2), 'female': (5.7, 0.8, 0.3)}
+DEFAULT_VALUES = {
+    'sex': 'male',
+    'age': 36,
+    'height': 183,  # cm
+    'weight': 99.8,  # kg
+    'fat_mass': 27.55,  # kg
+    'lean_mass': 72.25,  # kg
+    'calorie_deficit': 1000  # kcal/day
+}
+INTERVALS = [30, 60, 90, 120, 150, 180]
 
-def thomas_model_lean_mass_female(F, A0, t, H):
-    return (-72.1 + 2.5 * F
-            - 0.04 * (A0 + t / 365)
-            + 0.7 * H
-            - 0.002 * F * (A0 + t / 365)
-            - 0.01 * F * H
-            - 0.04 * F**2
-            + 0.0003 * F**2 * (A0 + t / 365)
-            + 0.0000004 * F**4
-            + 0.0002 * F**3
-            + 0.0003 * F**2 * H
-            - 0.000002 * F**3 * H)
 
-# Calculate Fat Mass (FM) over time based on caloric deficit
-def calculate_fat_mass(F0, deficit, time):
-    kcal_per_kg_fat = 7700  # Energy content of fat (1 kg = 7700 kcal)
-    fat_loss = (deficit * time) / kcal_per_kg_fat  # in kg
-    return max(0, F0 - fat_loss)  # Ensure fat mass cannot be negative
-
-# Prompt for user input
 def get_user_input():
-    user_choice = input("Would you like to enter your own initial conditions? (yes/no): ").strip().lower()
-    if user_choice == "yes":
-        sex = input("Enter sex (Male/Female): ").strip().capitalize()
-        age = int(input("Enter age (in years): "))
-        height = float(input("Enter height (in cm): "))
-        starting_weight = float(input("Enter starting weight (in kg): "))
-        initial_fat_mass = float(input("Enter initial fat mass (in kg): "))
-        caloric_deficit_per_day = int(input("Enter caloric deficit per day (in kcal): "))
-        return {
-            "sex": sex,
-            "age": age,
-            "height": height,
-            "starting_weight": starting_weight,
-            "initial_fat_mass": initial_fat_mass,
-            "caloric_deficit_per_day": caloric_deficit_per_day
-        }
-    else:
-        # Default values
-        return {
-            "sex": "Male",
-            "age": 36,
-            "height": 183,
-            "starting_weight": 100,
-            "initial_fat_mass": 28,
-            "caloric_deficit_per_day": 750
-        }
+    """Get initial conditions from the user or use default values."""
+    use_defaults = input("Would you like to use default values? (yes/no): ").strip().lower()
+    if use_defaults in ["no", "n"]:
+        return get_manual_inputs()
+    return DEFAULT_VALUES
 
-# Perform calculations
-def calculate_results(params, times):
-    sex = params["sex"]
-    age = params["age"]
-    height = params["height"]
-    starting_weight = params["starting_weight"]
-    initial_fat_mass = params["initial_fat_mass"]
-    caloric_deficit_per_day = params["caloric_deficit_per_day"]
-    
-    initial_lean_mass = starting_weight - initial_fat_mass
 
-    results = {}
-    for t in times:
-        fat_mass_t = calculate_fat_mass(initial_fat_mass, caloric_deficit_per_day, t)
-        if sex == "Male":
-            lean_mass_t = thomas_model_lean_mass_male(fat_mass_t, age, t, height)
-        elif sex == "Female":
-            lean_mass_t = thomas_model_lean_mass_female(fat_mass_t, age, t, height)
-        else:
-            raise ValueError("Invalid sex entered. Please use 'Male' or 'Female'.")
-        weight_t = fat_mass_t + lean_mass_t
+def get_manual_inputs():
+    """Collect manual inputs from the user."""
+    return {
+        'sex': input("Enter sex (male/female): ").strip().lower(),
+        'age': int(input("Enter age in years: ")),
+        'height': float(input("Enter height in cm: ")),
+        'weight': float(input("Enter weight in kg: ")),
+        'fat_mass': float(input("Enter fat mass in kg: ")),
+        'lean_mass': float(input("Enter lean mass in kg: ")),
+        'calorie_deficit': float(input("Enter daily calorie deficit (kcal): "))
+    }
 
-        # Calculate percentage changes
-        fat_mass_change = ((fat_mass_t - initial_fat_mass) / initial_fat_mass) * 100
-        lean_mass_change = ((lean_mass_t - initial_lean_mass) / initial_lean_mass) * 100
-        weight_change = ((weight_t - starting_weight) / starting_weight) * 100
 
-        results[t] = {
-            "Fat Mass (kg)": (fat_mass_t, fat_mass_change),
-            "Lean Mass (kg)": (lean_mass_t, lean_mass_change),
-            "Total Weight (kg)": (weight_t, weight_change),
-            "Fat Mass (lbs)": (fat_mass_t * kg_to_lbs, fat_mass_change),
-            "Lean Mass (lbs)": (lean_mass_t * kg_to_lbs, lean_mass_change),
-            "Total Weight (lbs)": (weight_t * kg_to_lbs, weight_change),
-        }
-    return initial_lean_mass, results
+def calculate_thomas(sex, fat_mass, lean_mass, calorie_deficit):
+    """Perform the Thomas Model calculations."""
+    constants = REE_CONSTANTS[sex.lower()]
+    c_ree, k1, k2 = constants
 
-if __name__ == "__main__":
-    # Get initial conditions
-    user_params = get_user_input()
-    times = [30, 60, 90, 120, 150, 180]  # Time periods in days
+    results = []
+    for day in range(1, max(INTERVALS) + 1):
+        fat_mass, lean_mass = update_masses(c_ree, k1, k2, fat_mass, lean_mass, calorie_deficit)
+        if day in INTERVALS:
+            results.append(prepare_result(day, fat_mass, lean_mass))
+    return results
 
-    # Perform calculations
-    initial_lean_mass, results = calculate_results(user_params, times)
 
-    # Display initial conditions
-    print("\nInitial Parameters:")
-    print(f"Sex: {user_params['sex']}")
-    print(f"Age: {user_params['age']} years")
-    print(f"Height: {user_params['height']} cm ({user_params['height'] * 0.393701:.2f} inches)")
-    print(f"Starting Weight: {user_params['starting_weight']:.2f} kg ({user_params['starting_weight'] * kg_to_lbs:.2f} lbs)")
-    print(f"Initial Fat Mass: {user_params['initial_fat_mass']:.2f} kg ({user_params['initial_fat_mass'] * kg_to_lbs:.2f} lbs)")
-    print(f"Initial Lean Mass: {initial_lean_mass:.2f} kg ({initial_lean_mass * kg_to_lbs:.2f} lbs)")
-    print(f"Caloric Deficit Per Day: {user_params['caloric_deficit_per_day']} kcal\n")
+def update_masses(c_ree, k1, k2, fat_mass, lean_mass, calorie_deficit):
+    """Update fat and lean masses based on energy balance."""
+    ree = c_ree + k1 * lean_mass + k2 * fat_mass
+    energy_expenditure = ree * 1.1
+    energy_balance = calorie_deficit - energy_expenditure
 
-    # Display results
-    print("Results:")
-    for t, values in results.items():
-        print(f"--- After {t} Days ---")
-        for key, (value, change) in values.items():
-            change_symbol = "↑" if change > 0 else "↓"
-            print(f"{key}: {value:.2f} ({change_symbol}{abs(change):.2f}%)")
-        print()
+    fat_loss = max(0, 0.9 * energy_balance / CALORIES_PER_KG_FAT)
+    lean_loss = max(0, 0.1 * energy_balance / CALORIES_PER_KG_FAT)
+
+    fat_mass = max(0, fat_mass - fat_loss)
+    lean_mass = max(0, lean_mass - lean_loss)
+
+    return fat_mass, lean_mass
+
+
+def prepare_result(day, fat_mass, lean_mass):
+    """Prepare the result for a specific day."""
+    weight = fat_mass + lean_mass
+    return {
+        'Day': day,
+        'Weight (kg)': weight,
+        'Weight (lbs)': weight * 2.20462,
+        'Fat Mass (kg)': fat_mass,
+        'Fat Mass (lbs)': fat_mass * 2.20462,
+        'Lean Mass (kg)': lean_mass,
+        'Lean Mass (lbs)': lean_mass * 2.20462
+    }
+
+
+def cm_to_feet_and_inches(cm):
+    """Convert centimeters to feet and inches."""
+    inches_total = cm / 2.54
+    feet = int(inches_total // 12)
+    inches = inches_total % 12
+    return f"{feet} ft {inches:.1f} in"
+
+
+def format_change(current, initial):
+    """Format the change in values with percentage and arrow."""
+    change = current - initial
+    percent_change = (change / initial) * 100 if initial > 0 else 0
+    arrow = "↑" if change > 0 else "↓"
+    return f"{arrow} {abs(percent_change):.2f}%"
+
+
+def display_initial_conditions(values):
+    """Display the initial conditions."""
+    print("\n--- Initial Conditions ---")
+    print(f"Sex: {values['sex'].capitalize()}")
+    print(f"Age: {values['age']} years")
+    print(f"Height: {values['height']:.1f} cm ({cm_to_feet_and_inches(values['height'])})")
+    print(f"Weight: {values['weight']:.2f} kg ({values['weight'] * 2.20462:.2f} lbs)")
+    print(f"Fat Mass: {values['fat_mass']:.2f} kg ({values['fat_mass'] * 2.20462:.2f} lbs)")
+    print(f"Lean Mass: {values['lean_mass']:.2f} kg ({values['lean_mass'] * 2.20462:.2f} lbs)")
+    print(f"Calorie Deficit: {values['calorie_deficit']} kcal/day")
+    print(f"Intervals: {INTERVALS} days\n")
+
+
+def display_results(results, initial_values):
+    """Display the results at each interval."""
+    print("--- Results ---")
+    for result in results:
+        display_result_for_day(result, initial_values)
+
+
+def display_result_for_day(result, initial_values):
+    """Display results for a specific day."""
+    day = result['Day']
+    weight = result['Weight (kg)']
+    fat_mass = result['Fat Mass (kg)']
+    lean_mass = result['Lean Mass (kg)']
+
+    weight_change = format_change(weight, initial_values['weight'])
+    fat_mass_change = format_change(fat_mass, initial_values['fat_mass'])
+    lean_mass_change = format_change(lean_mass, initial_values['lean_mass'])
+
+    print(f"Day {day}:")
+    print(f"  Weight: {weight:.2f} kg ({result['Weight (lbs)']:.2f} lbs) {weight_change}")
+    print(f"  Fat Mass: {fat_mass:.2f} kg ({result['Fat Mass (lbs)']:.2f} lbs) {fat_mass_change}")
+    print(f"  Lean Mass: {lean_mass:.2f} kg ({result['Lean Mass (lbs)']:.2f} lbs) {lean_mass_change}\n")
+
+
+def thomas_model():
+    """Main function to execute the Thomas Model."""
+    user_values = get_user_input()
+    display_initial_conditions(user_values)
+    results = calculate_thomas(
+        user_values['sex'], user_values['fat_mass'], user_values['lean_mass'], user_values['calorie_deficit']
+    )
+    display_results(results, user_values)
+
+
+# Run the refactored Thomas Model
+thomas_model()
