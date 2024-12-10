@@ -7,10 +7,19 @@ import math
 from datetime import datetime
 
 # Constants
-CALORIES_PER_KG_FAT = 7700
-CALORIES_PER_KG_LEAN = 1000
+CALORIES_PER_KG_FAT = 9941
+CALORIES_PER_KG_LEAN = 1816
 KG_TO_LBS = 2.20462
 REE_CONSTANTS = {'male': (5.8, 0.9, 0.2), 'female': (5.7, 0.8, 0.3)}
+
+# Adaptive thermogenesis constants
+ADAPTIVE_THERMOGENESIS_FACTOR = 0.003  # Percentage decrease in REE per kg weight lost
+
+# Constants for realistic lower bounds
+ESSENTIAL_FAT_PERCENTAGE = {'male': 0.05, 'female': 0.13}  # Essential fat as percentage of total body weight
+MIN_LEAN_MASS_PERCENTAGE = 0.40  # Minimum lean mass as percentage of total body weight
+
+# Default Values
 DEFAULT_VALUES = {
     'sex': 'male',
     'age': 36,
@@ -106,6 +115,112 @@ def get_manual_inputs():
 
 
 # Calculation Functions
+
+def calculate_dynamic_ree(initial_ree, initial_weight, current_weight):
+    """
+    Adjust REE dynamically based on weight loss and adaptive thermogenesis.
+    :param initial_ree: Initial resting energy expenditure (kcal/day)
+    :param initial_weight: Initial weight (kg)
+    :param current_weight: Current weight (kg)
+    :return: Adjusted REE (kcal/day)
+    """
+    weight_loss = initial_weight - current_weight
+    ree_adjustment = initial_ree * (1 - (ADAPTIVE_THERMOGENESIS_FACTOR * weight_loss))
+    return max(ree_adjustment, 0)  # Ensure REE doesn't drop below 0
+
+def update_masses_with_adaptive_thermogenesis_with_bounds(
+    c_ree, k1, k2, fat_mass, lean_mass, calorie_deficit, weight, sex, adaptive_thermogenesis_factor=0.05
+):
+    """
+    Update fat and lean masses considering adaptive thermogenesis and realistic lower bounds.
+    """
+    ree = c_ree + k1 * lean_mass + k2 * fat_mass
+    energy_expenditure = ree * (1.1 - adaptive_thermogenesis_factor)  # Adjusted for activity and adaptation
+    energy_balance = calorie_deficit - energy_expenditure
+
+    fat_loss = max(0, 0.9 * energy_balance / CALORIES_PER_KG_FAT)
+    lean_loss = max(0, 0.1 * energy_balance / CALORIES_PER_KG_LEAN)
+
+    # Apply realistic lower bounds
+    essential_fat = weight * ESSENTIAL_FAT_PERCENTAGE[sex]
+    minimum_lean_mass = weight * MIN_LEAN_MASS_PERCENTAGE
+
+    fat_mass = max(essential_fat, fat_mass - fat_loss)
+    lean_mass = max(minimum_lean_mass, lean_mass - lean_loss)
+
+    return fat_mass, lean_mass
+
+
+def calculate_thomas_and_estimate_deficit_with_option(enable_adaptive_thermogenesis):
+    """
+    Calculate the Thomas Model and estimate the calorie deficit based on historical data,
+    with an option to enable adaptive thermogenesis.
+    :param enable_adaptive_thermogenesis: Boolean to indicate whether to enable adaptive thermogenesis.
+    """
+    user_info = get_basic_user_info()
+    historical_data = prompt_historical_data()
+    display_historical_summary(historical_data)
+    calorie_deficit = estimate_calorie_deficit_from_historical_data(historical_data)
+
+    print(f"\nEstimated Calorie Deficit: {calorie_deficit:.2f} kcal/day\n")
+    initial_weight = historical_data[-1][1]
+    initial_fat_percentage = historical_data[-1][2]
+    initial_fat_mass, initial_lean_mass = calculate_fat_and_lean_mass(initial_weight, initial_fat_percentage)
+    #debug_initial_conditions(initial_weight, initial_fat_mass, initial_lean_mass)
+    bmi = calculate_bmi(initial_weight, user_info['height'])
+    bmr = calculate_bmr(user_info['sex'], user_info['height'], user_info['age'], initial_weight)
+    display_bmi_and_bmr(bmi, bmr)
+
+    if enable_adaptive_thermogenesis:
+        results = []
+        for day in range(1, max(INTERVALS) + 1):
+            initial_fat_mass, initial_lean_mass = update_masses_with_adaptive_thermogenesis_with_bounds(
+                REE_CONSTANTS[user_info['sex']][0],
+                REE_CONSTANTS[user_info['sex']][1],
+                REE_CONSTANTS[user_info['sex']][2],
+                initial_fat_mass,
+                initial_lean_mass,
+                calorie_deficit,
+                initial_weight,
+                user_info['sex']
+            )
+            if day in INTERVALS:
+                results.append(prepare_result(day, initial_fat_mass, initial_lean_mass))
+    else:
+        results = calculate_thomas(
+            user_info['sex'], initial_fat_mass, initial_lean_mass, calorie_deficit, initial_weight
+        )
+
+    display_results(results, {'weight': initial_weight, 'fat_mass': initial_fat_mass, 'lean_mass': initial_lean_mass})
+
+
+def thomas_model_with_adaptive_thermogenesis():
+    """
+    Execute the Thomas Model with adaptive thermogenesis enabled.
+    """
+    user_values = get_user_input()
+    display_initial_conditions(user_values)
+    initial_weight = user_values['weight']
+    fat_mass, lean_mass = user_values['fat_mass'], user_values['lean_mass']
+    calorie_deficit = user_values['calorie_deficit']
+
+    results = []
+    for day in range(1, max(INTERVALS) + 1):
+        fat_mass, lean_mass = update_masses_with_adaptive_thermogenesis_with_bounds(
+            REE_CONSTANTS[user_values['sex']][0],
+            REE_CONSTANTS[user_values['sex']][1],
+            REE_CONSTANTS[user_values['sex']][2],
+            fat_mass,
+            lean_mass,
+            calorie_deficit,
+            initial_weight,
+            user_values['sex']
+        )
+        if day in INTERVALS:
+            results.append(prepare_result(day, fat_mass, lean_mass))
+    display_results(results, user_values)
+
+
 def calculate_thomas_and_estimate_deficit():
     """Calculate the Thomas Model and estimate the calorie deficit based on historical data."""
     user_info = get_basic_user_info()
@@ -122,36 +237,43 @@ def calculate_thomas_and_estimate_deficit():
     display_bmi_and_bmr(bmi, bmr)
 
     results = calculate_thomas(
-        user_info['sex'], initial_fat_mass, initial_lean_mass, calorie_deficit
+        user_info['sex'], initial_fat_mass, initial_lean_mass, calorie_deficit, initial_weight
     )
     display_results(results, {'weight': initial_weight, 'fat_mass': initial_fat_mass, 'lean_mass': initial_lean_mass})
 
-def calculate_thomas(sex, fat_mass, lean_mass, calorie_deficit):
+def calculate_thomas(sex, fat_mass, lean_mass, calorie_deficit, initial_weight):
     """Perform the Thomas Model calculations."""
     constants = REE_CONSTANTS[sex.lower()]
     c_ree, k1, k2 = constants
 
     results = []
     for day in range(1, max(INTERVALS) + 1):
-        fat_mass, lean_mass = update_masses(c_ree, k1, k2, fat_mass, lean_mass, calorie_deficit)
+        fat_mass, lean_mass = update_masses_with_bounds(c_ree, k1, k2, fat_mass, lean_mass, calorie_deficit, initial_weight, sex)
         if day in INTERVALS:
             results.append(prepare_result(day, fat_mass, lean_mass))
     return results
 
 
-def update_masses(c_ree, k1, k2, fat_mass, lean_mass, calorie_deficit):
-    """Update fat and lean masses based on energy balance."""
+def update_masses_with_bounds(c_ree, k1, k2, fat_mass, lean_mass, calorie_deficit, weight, sex):
+    """
+    Update fat and lean masses with realistic lower bounds for fat and lean mass.
+    """
     ree = c_ree + k1 * lean_mass + k2 * fat_mass
-    energy_expenditure = ree * 1.1
+    energy_expenditure = ree * 1.1  # Adjusted for activity
     energy_balance = calorie_deficit - energy_expenditure
 
     fat_loss = max(0, 0.9 * energy_balance / CALORIES_PER_KG_FAT)
-    lean_loss = max(0, 0.1 * energy_balance / CALORIES_PER_KG_FAT)
+    lean_loss = max(0, 0.1 * energy_balance / CALORIES_PER_KG_LEAN)
 
-    fat_mass = max(0, fat_mass - fat_loss)
-    lean_mass = max(0, lean_mass - lean_loss)
+    # Apply realistic lower bounds
+    essential_fat = weight * ESSENTIAL_FAT_PERCENTAGE[sex]
+    minimum_lean_mass = weight * MIN_LEAN_MASS_PERCENTAGE
+
+    fat_mass = max(essential_fat, fat_mass - fat_loss)
+    lean_mass = max(minimum_lean_mass, lean_mass - lean_loss)
 
     return fat_mass, lean_mass
+
 
 def calculate_fat_and_lean_mass(weight, body_fat_percentage):
     """Calculate fat and lean mass based on weight and body fat percentage."""
@@ -233,10 +355,11 @@ def prepare_result(day, fat_mass, lean_mass):
 
 def format_change(current, initial):
     """Format the change in values with percentage and arrow."""
+    #print(f"Debug: Current = {current}, Initial = {initial}") # Debugging
     change = current - initial
     percent_change = (change / initial) * 100 if initial > 0 else 0
     arrow = "↑" if change > 0 else "↓"
-    return f"{arrow} {abs(percent_change):.2f}%"
+    return f"{arrow} {abs(percent_change):.2f}%" if initial > 0 else "= 0.00%"
 
 
 # Display Functions
@@ -292,6 +415,14 @@ def display_bmi_and_bmr(bmi, bmr):
     print(f"BMI: {bmi:.2f}")
     print(f"BMR: {bmr:.2f} kcal/day\n")
 
+# Debugging Functions
+def debug_initial_conditions(initial_weight, initial_fat_mass, initial_lean_mass):
+    print("\n--- Debug Initial Conditions ---")
+    print(f"Initial Weight: {initial_weight:.2f} kg")
+    print(f"Initial Fat Mass: {initial_fat_mass:.2f} kg")
+    print(f"Initial Lean Mass: {initial_lean_mass:.2f} kg\n")
+
+
 # Main Functions
 
 def thomas_model():
@@ -299,16 +430,33 @@ def thomas_model():
     user_values = get_user_input()
     display_initial_conditions(user_values)
     results = calculate_thomas(
-        user_values['sex'], user_values['fat_mass'], user_values['lean_mass'], user_values['calorie_deficit']
+        user_values['sex'], user_values['fat_mass'], user_values['lean_mass'], user_values['calorie_deficit'], 
+        user_values['fat_mass'] + user_values['lean_mass']
     )
     display_results(results, user_values)
 
+# def run_test():
+#     use_calorie_deficit = input("Do you know your calorie deficit? (yes/no): ").strip().lower()
+#     if use_calorie_deficit in ["yes", "y"]:
+#         thomas_model()
+#     else:
+#         calculate_thomas_and_estimate_deficit()
+
 def run_test():
+    """
+    Main entry point for running the Thomas Model. Includes an option to enable adaptive thermogenesis.
+    """
     use_calorie_deficit = input("Do you know your calorie deficit? (yes/no): ").strip().lower()
+    enable_adaptive_thermogenesis = input("Enable adaptive thermogenesis? (yes/no): ").strip().lower() in ["yes", "y"]
+
     if use_calorie_deficit in ["yes", "y"]:
-        thomas_model()
+        if enable_adaptive_thermogenesis:
+            thomas_model_with_adaptive_thermogenesis()
+        else:
+            thomas_model()
     else:
-        calculate_thomas_and_estimate_deficit()
+        calculate_thomas_and_estimate_deficit_with_option(enable_adaptive_thermogenesis)
+
 
 # Run the Thomas Model
 if __name__ == "__main__":

@@ -529,19 +529,23 @@ When users adjust their macronutrient goals manually, FitMomentum will recalcula
 
 ---
 
-## 20. Estimating TDEE Using Dietary Energy, Weight, and Body Fat Data
+## 20. Estimating TDEE and Caloric Deficit/Surplus
 
 ### Overview
-When accurate dietary energy intake (kcal/day), daily weight, and body fat percentage measurements are available over a period of at least 14 days, Total Daily Energy Expenditure (TDEE) can be estimated by analyzing the relationship between energy intake, weight change, and changes in body composition. This approach does not require prior knowledge of maintenance calories, as it calculates TDEE based on observed data.
+When accurate dietary energy intake (kcal/day), daily weight, and body fat percentage measurements are available over a period of at least 14 days, Total Daily Energy Expenditure (TDEE) and calorie deficit or surplus can be estimated by analyzing the relationship between energy intake, weight change, and changes in body composition. This approach does not require prior knowledge of maintenance calories, as it calculates TDEE based on observed data.
 
 ---
 
 ### Step 1: Calculate Fat Mass and Lean Body Mass
 For each day, determine fat mass ($FM$) and lean body mass ($LBM$):
 
+\[
 $FM = W \times BF$
-
+\]
+\[
 $LBM = W - FM$
+\]
+
 Where:
 - $W$ = Body weight (kg)
 - $BF$ = Body fat percentage (decimal)
@@ -549,30 +553,40 @@ Where:
 ---
 
 ### Step 2: Calculate Daily Energy Storage Change
-The energy stored or expended is determined by the daily weight change, accounting for fat and lean mass:
+The energy stored or expended is determined by the daily weight change, accounting for the distinct energy content of fat and lean mass:
 
-$\Delta E = \Delta FM \times 9.3 + \Delta LBM \times 1.1$
+\[
+$\Delta E = \Delta FM \times 9441 + \Delta LBM \times 1816$
+\]
+
 Where:
 - $\Delta FM$ = Change in fat mass (kg)
 - $\Delta LBM$ = Change in lean body mass (kg)
-- $9.3$ = Energy content of 1 kg of fat (kcal)
-- $1.1$ = Energy content of 1 kg of lean tissue (kcal)
+- $9441$ = Energy density of body fat mass changes (kcal/kg), derived from $39.5 \, \text{MJ/kg}$ (Hall, 2008)
+- $1816$ = Energy density of lean body mass changes (kcal/kg), derived from $7.6 \, \text{MJ/kg}$ (Hall, 2008)
 
 ---
 
 ### Step 3: Calculate Daily TDEE
-For each day, calculate TDEE using the following formula:
+For each day, calculate TDEE using the principle of energy balance:
 
+\[
 $TDEE = I - \Delta E$
+\]
+
 Where:
 - $I$ = Dietary energy intake (kcal/day)
-- $\Delta E$ = Daily energy storage change (kcal/day)
+- $\Delta E$ = Daily energy storage change (kcal/day), calculated in Step 2
 
 ---
 
 ### Step 4: Average TDEE Over the Period
-To estimate TDEE more accurately, calculate the average TDEE over the 14-day period:
+To improve accuracy, calculate the average TDEE over the measurement period:
+
+\[
 $TDEE_{\text{avg}} = \frac{\sum_{i=1}^{n} TDEE_i}{n}$
+\]
+
 Where:
 - $n$ = Total number of days in the period
 - $TDEE_i$ = TDEE for day $i$
@@ -581,15 +595,42 @@ Where:
 
 ### Applications in FitMomentum
 FitMomentum can:
-- Use this method to provide a dynamic and precise estimate of TDEE based on user-provided data.
-- Adjust TDEE calculations as users update their weight or dietary intake.
-- Incorporate visualizations to help users understand the relationship between energy intake, weight changes, and TDEE.
+- Dynamically estimate TDEE based on user-provided weight, body fat, and dietary intake data.
+- Incorporate visualizations to help users understand the relationship between caloric intake, weight changes, and energy expenditure.
+- Adjust TDEE calculations as users update their data to ensure ongoing accuracy.
+
+---
 
 ### Key Considerations
-- Ensure the data is accurate and consistent for reliable TDEE estimation.
-- Longer measurement periods (e.g., 14+ days) improve accuracy by minimizing the impact of daily fluctuations.
+- Ensure consistent and accurate data entry for weight, body fat, and caloric intake to improve reliability.
+- Longer measurement periods (e.g., 14+ days) smooth daily fluctuations and yield more accurate TDEE estimates.
 
-**References:**
+---
+
+### Alternative Formula Based on Weight Change
+Given the rate of weight change, $R$, which represents energy balance in kcal/day:
+
+\[
+$R = I - E$
+\]
+
+Where:
+- $R$ = Rate of weight change (kcal/day, negative for a deficit, positive for a surplus)
+- $I$ = Caloric intake (kcal/day)
+- $E$ = Energy expenditure or TDEE (kcal/day)
+
+We can rearrange this equation to solve for $TDEE$:
+
+\[
+$TDEE = I - R$
+\]
+
+This formula provides a simpler alternative for directly estimating $TDEE$ if caloric intake and weight change rate are known.
+
+---
+
+### References
+- Hall, K. D. (2008). What is the required energy deficit per unit weight loss?. International Journal of Obesity (2005), 32(3), 573–576. [https://doi.org/10.1038/sj.ijo.0803720]
 - Hall, K. D., & Heymsfield, S. B. (2009). Energy balance and its components: Implications for body weight regulation. *American Journal of Clinical Nutrition, 95*(1), 1127–1133.
 - Rosenbaum, M., & Leibel, R. L. (2010). Adaptive thermogenesis in humans. *International Journal of Obesity, 34*(S1), S47–S55. [https://doi.org/10.1038/ijo.2010.184]
-
+- Thomas, D. M., et al. (2011). A simple model predicting individual weight change in humans. *Journal of Biological Dynamics, 5*(6), 579–599. [https://doi.org/10.1080/17513758.2010.508541]
