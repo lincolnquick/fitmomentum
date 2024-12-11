@@ -1,463 +1,177 @@
 
-# Test of the Thomas Model for predicting body composition changes over time.
-# This script calculates changes in fat mass, fat-free mass, and total weight over a specified time period
-# based on a caloric deficit and initial body composition parameters.
-
-import math
-from datetime import datetime
+import numpy as np
 
 # Constants
-CALORIES_PER_KG_FAT = 9941
-CALORIES_PER_KG_LEAN = 1816
-KG_TO_LBS = 2.20462
-REE_CONSTANTS = {'male': (5.8, 0.9, 0.2), 'female': (5.7, 0.8, 0.3)}
+CF = 1020  # Energy density of FFM (kcal/kg)
+CL = 9500  # Energy density of FM (kcal/kg)
+S_LOSS = 2 / 3
+S_GAIN = 0.56
+BASELINE_SPA_FACTOR = 0.326 # SPA(0) = 0.326 * E(0) or baseline energy
+CONVERSION_FACTOR = 2.20462  # lbs to kg conversion factor
+BASELINE_PA = 50  # Baseline physical activity level, small 50 kcal/day
 
-# Adaptive thermogenesis constants
-ADAPTIVE_THERMOGENESIS_FACTOR = 0.003  # Percentage decrease in REE per kg weight lost
-
-# Constants for realistic lower bounds
-ESSENTIAL_FAT_PERCENTAGE = {'male': 0.05, 'female': 0.13}  # Essential fat as percentage of total body weight
-MIN_LEAN_MASS_PERCENTAGE = 0.40  # Minimum lean mass as percentage of total body weight
-
-# Default Values
-DEFAULT_VALUES = {
-    'sex': 'male',
-    'age': 36,
-    'height': 183,  # cm
-    'weight': 99.8,  # kg
-    'fat_mass': 27.55,  # kg
-    'lean_mass': 72.25,  # kg
-    'calorie_deficit': 1000  # kcal/day
-}
-DEFAULT_HISTORICAL_DATA = [
-    ("11/27/2024", 101.9, 0.288),
-    ("11/28/2024", 101.77, 0.286),
-    ("11/29/2024", 102.01, 0.286),
-    ("11/30/2024", 101.34, 0.284),
-    ("12/01/2024", 101.42, 0.284),
-    ("12/02/2024", 100.95, 0.284),
-    ("12/03/2024", 101.05, 0.283),
-    ("12/04/2024", 100.42, 0.282),
-    ("12/05/2024", 100.97, 0.279),
-    ("12/06/2024", 100.05, 0.280),
-    ("12/07/2024", 100.44, 0.281),
-    ("12/08/2024", 99.77, 0.276),
-    ("12/09/2024", 99.92, 0.277)
-]
-INTERVALS = [30, 60, 90, 120, 150, 180]
-
-# Input Functions
-def get_user_input():
-    """Get initial conditions from the user or use default values."""
-    use_defaults = input("Would you like to use default values? (yes/no): ").strip().lower()
-    if use_defaults in ["no", "n"]:
-        return get_manual_inputs()
-    return DEFAULT_VALUES
-
-def get_basic_user_info():
-    """Prompt the user for basic personal used in both calculations."""
-    sex = input("Enter sex (male/female): ").strip().lower()
-    if sex in ["m", "ma", "mal", "male", "man"]:
-        sex = "male"
-    else:
-        sex = "female"
-    height = float(input("Enter height in cm: "))
-
-    dob = input("Enter date of birth (YYYY-MM-DD): ").strip()
-    age = calculate_age(dob)
-    
-    return {'sex': sex, 'height': height, 'age': age}
-
-def prompt_historical_data():
-    """Prompt user for historical data or use defaults."""
-    use_defaults = input("Would you like to use default historical data? (yes/no): ").strip().lower()
-    if use_defaults in ["no", "n"]:
-        return get_manual_historical_data()
-    return DEFAULT_HISTORICAL_DATA
-
-def get_manual_historical_data():
-    """Get manual histrorical data from the user for date, weight, and body fat percentage."""
-    print("Enter your historical data as 'Date (MM/DD/YYYY), Weight (lbs), Body Fat (decimal)'.")
-    print("Example: 11/27/2024, 200, 0.18")
-    print("Type 'done' when finished.")
-    historical_data = []
-    while True:
-        entry = input("> ").strip()
-        if entry.lower() in ["done", "d"]:
-            break
-        try:
-            date, weight, body_fat = entry.split(",")
-            historical_data.append((date.strip(), float(weight)/KG_TO_LBS, float(body_fat)))
-        except ValueError:
-            print("Invalid input. Please enter in the correct format: 'Date, Weight, Body Fat'.")
-    return historical_data
-
-def get_manual_inputs():
-    """Collect manual inputs from the user."""
-
-    sex, height, age = get_basic_user_info()
-
-    weight = float(input("Enter weight in kg: "))
-    body_fat_percentage = float(input("Enter body fat percentage (decimal): "))
-
-    fat_mass, lean_mass = calculate_fat_and_lean_mass(weight, body_fat_percentage)
-    calorie_deficit = float(input("Enter daily calorie deficit (kcal): "))
-
-    return {
-        'sex': sex,
-        'age': age,
-        'height': height,
-        'weight': weight,
-        'fat_mass': fat_mass,
-        'lean_mass': lean_mass,
-        'calorie_deficit': calorie_deficit
+# Functions
+def calculate_rmr(weight, age, sex):
+    constants = {
+        "male": {"c": 293, "p": 0.433, "y": 5.92},
+        "female": {"c": 248, "p": 0.4356, "y": 5.09},
     }
+    c, p, y = constants[sex].values()
+    rmr = c * (max(weight, 0) ** p) - y * age
+    return max(rmr, 0)
 
+def calculate_pa(weight, baseline_pa, baseline_weight):
+    m = baseline_pa / baseline_weight
+    return m * weight
 
-# Calculation Functions
+def calculate_dit(energy_intake):
+    return 0.075 * energy_intake
 
-def calculate_dynamic_ree(initial_ree, initial_weight, current_weight):
-    """
-    Adjust REE dynamically based on weight loss and adaptive thermogenesis.
-    :param initial_ree: Initial resting energy expenditure (kcal/day)
-    :param initial_weight: Initial weight (kg)
-    :param current_weight: Current weight (kg)
-    :return: Adjusted REE (kcal/day)
-    """
-    weight_loss = initial_weight - current_weight
-    ree_adjustment = initial_ree * (1 - (ADAPTIVE_THERMOGENESIS_FACTOR * weight_loss))
-    return max(ree_adjustment, 0)  # Ensure REE doesn't drop below 0
+def calculate_spa(rmr, pa, dit, weight_change_phase, constant_c):
+    s = S_LOSS if weight_change_phase == "loss" else S_GAIN
+    spa = (s / (1 - s)) * (dit + pa + rmr) + constant_c
+    return max(spa, 0)
 
-def update_masses_with_adaptive_thermogenesis_with_bounds(
-    c_ree, k1, k2, fat_mass, lean_mass, calorie_deficit, weight, sex, adaptive_thermogenesis_factor=0.05
-):
-    """
-    Update fat and lean masses considering adaptive thermogenesis and realistic lower bounds.
-    """
-    ree = c_ree + k1 * lean_mass + k2 * fat_mass
-    energy_expenditure = ree * (1.1 - adaptive_thermogenesis_factor)  # Adjusted for activity and adaptation
-    energy_balance = calorie_deficit - energy_expenditure
+def calculate_constant_c(baseline_energy, rmr, pa, dit, weight_change_phase):
+    s = S_LOSS if weight_change_phase == "loss" else S_GAIN
+    constant_c = BASELINE_SPA_FACTOR * baseline_energy - (s / (1 - s)) * (dit + pa + rmr)
+    return constant_c
 
-    fat_loss = max(0, 0.9 * energy_balance / CALORIES_PER_KG_FAT)
-    lean_loss = max(0, 0.1 * energy_balance / CALORIES_PER_KG_LEAN)
-
-    # Apply realistic lower bounds
-    essential_fat = weight * ESSENTIAL_FAT_PERCENTAGE[sex]
-    minimum_lean_mass = weight * MIN_LEAN_MASS_PERCENTAGE
-
-    fat_mass = max(essential_fat, fat_mass - fat_loss)
-    lean_mass = max(minimum_lean_mass, lean_mass - lean_loss)
-
-    return fat_mass, lean_mass
-
-
-def calculate_thomas_and_estimate_deficit_with_option(enable_adaptive_thermogenesis):
-    """
-    Calculate the Thomas Model and estimate the calorie deficit based on historical data,
-    with an option to enable adaptive thermogenesis.
-    :param enable_adaptive_thermogenesis: Boolean to indicate whether to enable adaptive thermogenesis.
-    """
-    user_info = get_basic_user_info()
-    historical_data = prompt_historical_data()
-    display_historical_summary(historical_data)
-    calorie_deficit = estimate_calorie_deficit_from_historical_data(historical_data)
-
-    print(f"\nEstimated Calorie Deficit: {calorie_deficit:.2f} kcal/day\n")
-    initial_weight = historical_data[-1][1]
-    initial_fat_percentage = historical_data[-1][2]
-    initial_fat_mass, initial_lean_mass = calculate_fat_and_lean_mass(initial_weight, initial_fat_percentage)
-    #debug_initial_conditions(initial_weight, initial_fat_mass, initial_lean_mass)
-    bmi = calculate_bmi(initial_weight, user_info['height'])
-    bmr = calculate_bmr(user_info['sex'], user_info['height'], user_info['age'], initial_weight)
-    display_bmi_and_bmr(bmi, bmr)
-
-    if enable_adaptive_thermogenesis:
-        results = []
-        for day in range(1, max(INTERVALS) + 1):
-            initial_fat_mass, initial_lean_mass = update_masses_with_adaptive_thermogenesis_with_bounds(
-                REE_CONSTANTS[user_info['sex']][0],
-                REE_CONSTANTS[user_info['sex']][1],
-                REE_CONSTANTS[user_info['sex']][2],
-                initial_fat_mass,
-                initial_lean_mass,
-                calorie_deficit,
-                initial_weight,
-                user_info['sex']
-            )
-            if day in INTERVALS:
-                results.append(prepare_result(day, initial_fat_mass, initial_lean_mass))
+def calculate_ffm(fat_mass, age, t, height, sex):
+    if sex == "male":
+        ffm = (
+            -71.7
+            + 3.6 * fat_mass
+            - 0.04 * (age + t / 365)
+            + 0.7 * height
+            - 0.002 * fat_mass * (age + t / 365)
+            - 0.01 * fat_mass * height
+            + 0.00003 * fat_mass**2 * (age + t / 365)
+            - 0.07 * fat_mass**2
+            + 0.0006 * fat_mass**3
+            - 0.000002 * fat_mass**4
+            + 0.0003 * fat_mass**2 * height
+            - 0.000002 * fat_mass**3 * height
+        )
+    elif sex == "female":
+        ffm = (
+            -72.1
+            + 2.5 * fat_mass
+            - 0.04 * (age + t / 365)
+            + 0.7 * height
+            - 0.002 * (age + t / 365)
+            - 0.01 * fat_mass * height
+            - 0.04 * fat_mass**2 * (age + t / 365)
+            + 0.0000004 * fat_mass**4
+            + 0.0002 * fat_mass**3
+            + 0.0003 * fat_mass**2 * height
+            - 0.000002 * fat_mass**3 * height
+        )
     else:
-        results = calculate_thomas(
-            user_info['sex'], initial_fat_mass, initial_lean_mass, calorie_deficit, initial_weight
-        )
+        raise ValueError("Sex must be 'male' or 'female'.")
+    return max(ffm, 0)
 
-    display_results(results, {'weight': initial_weight, 'fat_mass': initial_fat_mass, 'lean_mass': initial_lean_mass})
+def calculate_baseline_fat_mass(weight, age, height, sex):
+    height_cm = height * 2.54
+    weight_kg = weight / CONVERSION_FACTOR
+    if sex == "male":
+        return max(24.96493 + 0.064761 * age - 0.28889 * height_cm + 0.55342 * weight_kg, 0)
+    elif sex == "female":
+        return max(18.19812 + 0.043109 * age - 0.23014 * height_cm + 0.641413 * weight_kg, 0)
+    else:
+        raise ValueError("Sex must be 'male' or 'female'.")
 
+def calculate_baseline_energy_requirements(weight, age, height, sex):
+    height_cm = height * 2.54
+    weight_kg = weight / CONVERSION_FACTOR
+    if sex == "male":
+        return max(892.721 - 16.7 * age + 1.29 * height_cm + 42.9 * weight_kg - 0.11435 * weight_kg**2, 0)
+    elif sex == "female":
+        return max(430.29 - 12.86 * age + 12.19 * height_cm + 4.066 * weight_kg + 0.043 * weight_kg**2, 0)
+    else:
+        raise ValueError("Sex must be 'male' or 'female'.")
 
-def thomas_model_with_adaptive_thermogenesis():
-    """
-    Execute the Thomas Model with adaptive thermogenesis enabled.
-    """
-    user_values = get_user_input()
-    display_initial_conditions(user_values)
-    initial_weight = user_values['weight']
-    fat_mass, lean_mass = user_values['fat_mass'], user_values['lean_mass']
-    calorie_deficit = user_values['calorie_deficit']
+def calculate_ffm_fm_changes(delta_e, fat_mass, age, t, height, sex):
+    partial_ffm_f = 1 / (fat_mass + 1)  # Avoid division by zero
+    dF_dt = (delta_e - CF * partial_ffm_f) / (CL + CF * partial_ffm_f)
+    dFFM_dt = partial_ffm_f * dF_dt
+    return dF_dt, dFFM_dt
 
-    results = []
-    for day in range(1, max(INTERVALS) + 1):
-        fat_mass, lean_mass = update_masses_with_adaptive_thermogenesis_with_bounds(
-            REE_CONSTANTS[user_values['sex']][0],
-            REE_CONSTANTS[user_values['sex']][1],
-            REE_CONSTANTS[user_values['sex']][2],
-            fat_mass,
-            lean_mass,
-            calorie_deficit,
-            initial_weight,
-            user_values['sex']
-        )
-        if day in INTERVALS:
-            results.append(prepare_result(day, fat_mass, lean_mass))
-    display_results(results, user_values)
+def run_simulation(sex, age, weight_lbs, height_in, energy_intake, duration_days):
+    # Convert inputs
+    weight_kg = weight_lbs / CONVERSION_FACTOR
+    height_cm = height_in * 2.54
 
+    # Initialize variables
+    fat_mass = calculate_baseline_fat_mass(weight_lbs, age, height_in, sex)
+    ffm = weight_kg - fat_mass
+    rmr = calculate_rmr(weight_kg, age, sex)
+    dit = calculate_dit(energy_intake)
+    baseline_energy = calculate_baseline_energy_requirements(weight_lbs, age, height_in, sex)
+    pa = calculate_pa(weight_kg, BASELINE_PA, weight_kg)  # Baseline PA calculation
+    spa = calculate_spa(rmr, pa, dit, "loss", 0)  # constant_c is calculated later
+    constant_c = calculate_constant_c(baseline_energy, rmr, pa, dit, "loss")
+    spa = calculate_spa(rmr, pa, dit, "loss", constant_c) # Recalculate SPA with constant_c
 
-def calculate_thomas_and_estimate_deficit():
-    """Calculate the Thomas Model and estimate the calorie deficit based on historical data."""
-    user_info = get_basic_user_info()
-    historical_data = prompt_historical_data()
-    display_historical_summary(historical_data)
-    calorie_deficit = estimate_calorie_deficit_from_historical_data(historical_data)
-
-    print(f"\nEstimated Calorie Deficit: {calorie_deficit:.2f} kcal/day\n")
-    initial_weight = historical_data[-1][1]
-    initial_fat_percentage = historical_data[-1][2]
-    initial_fat_mass, initial_lean_mass = calculate_fat_and_lean_mass(initial_weight, initial_fat_percentage)
-    bmi = calculate_bmi(initial_weight, user_info['height'])
-    bmr = calculate_bmr(user_info['sex'], user_info['height'], user_info['age'], initial_weight)
-    display_bmi_and_bmr(bmi, bmr)
-
-    results = calculate_thomas(
-        user_info['sex'], initial_fat_mass, initial_lean_mass, calorie_deficit, initial_weight
-    )
-    display_results(results, {'weight': initial_weight, 'fat_mass': initial_fat_mass, 'lean_mass': initial_lean_mass})
-
-def calculate_thomas(sex, fat_mass, lean_mass, calorie_deficit, initial_weight):
-    """Perform the Thomas Model calculations."""
-    constants = REE_CONSTANTS[sex.lower()]
-    c_ree, k1, k2 = constants
+    print(f"Debug: Baseline Energy: {baseline_energy}, SPA: {spa}, PA: {pa}")
 
     results = []
-    for day in range(1, max(INTERVALS) + 1):
-        fat_mass, lean_mass = update_masses_with_bounds(c_ree, k1, k2, fat_mass, lean_mass, calorie_deficit, initial_weight, sex)
-        if day in INTERVALS:
-            results.append(prepare_result(day, fat_mass, lean_mass))
+    results.append({
+            "day": 0,
+            "weight": weight_kg,
+            "fat_mass": fat_mass,
+            "lean_mass": ffm,
+            "rmr": rmr,
+            "dit": dit,
+            "spa": spa,
+            "pa": pa
+        })
+
+    for day in range(1, duration_days + 1):
+        total_energy_expenditure = rmr + dit + spa + pa
+        delta_energy = energy_intake - total_energy_expenditure
+
+        # Calculate changes in F and FFM
+        dF_dt, dFFM_dt = calculate_ffm_fm_changes(delta_energy, fat_mass, age, day, height_cm, sex)
+        fat_mass += dF_dt
+        ffm += dFFM_dt
+
+        # Update dependent variables
+        weight_kg = fat_mass + ffm
+        rmr = calculate_rmr(weight_kg, age, sex)
+        dit = calculate_dit(energy_intake)
+        spa = calculate_spa(rmr, pa, dit, "loss", constant_c)
+        pa = calculate_pa(weight_kg, BASELINE_PA, results[0]["weight"])
+
+        # Store results
+        results.append({
+            "day": day,
+            "weight": weight_kg,
+            "fat_mass": fat_mass,
+            "lean_mass": ffm,
+            "rmr": rmr,
+            "dit": dit,
+            "spa": spa,
+            "pa": pa
+        })
+
     return results
 
+def print_results(results):
+    print("Day\tWeight(lb)\tFat Mass(lb)\tLean Mass(lb)\tRMR(kcal)\tDIT(kcal)\tSPA(kcal)\tPA(kcal)")
+    for res in results:
+        print(f"{res['day']}\t{res['weight']*CONVERSION_FACTOR:.2f}\t\t{res['fat_mass']*CONVERSION_FACTOR:.2f}\t\t{res['lean_mass']*CONVERSION_FACTOR:.2f}\t\t{res['rmr']:.2f}\t\t{res['dit']:.2f}\t\t{res['spa']:.2f}\t\t{res['pa']:.2f}")
 
-def update_masses_with_bounds(c_ree, k1, k2, fat_mass, lean_mass, calorie_deficit, weight, sex):
-    """
-    Update fat and lean masses with realistic lower bounds for fat and lean mass.
-    """
-    ree = c_ree + k1 * lean_mass + k2 * fat_mass
-    energy_expenditure = ree * 1.1  # Adjusted for activity
-    energy_balance = calorie_deficit - energy_expenditure
+# User Input
+sex = input("Enter sex (male/female): ").strip().lower()
+age = int(input("Enter age (years): "))
+weight = float(input("Enter weight (lbs): "))
+height = float(input("Enter height (in): "))
+energy_intake = float(input("Enter energy intake (kcal/day): "))
+duration = int(input("Enter duration (days): "))
 
-    fat_loss = max(0, 0.9 * energy_balance / CALORIES_PER_KG_FAT)
-    lean_loss = max(0, 0.1 * energy_balance / CALORIES_PER_KG_LEAN)
+# Run simulation
+results = run_simulation(sex, age, weight, height, energy_intake, duration)
 
-    # Apply realistic lower bounds
-    essential_fat = weight * ESSENTIAL_FAT_PERCENTAGE[sex]
-    minimum_lean_mass = weight * MIN_LEAN_MASS_PERCENTAGE
-
-    fat_mass = max(essential_fat, fat_mass - fat_loss)
-    lean_mass = max(minimum_lean_mass, lean_mass - lean_loss)
-
-    return fat_mass, lean_mass
-
-
-def calculate_fat_and_lean_mass(weight, body_fat_percentage):
-    """Calculate fat and lean mass based on weight and body fat percentage."""
-    fat_mass = weight * body_fat_percentage
-    lean_mass = weight - fat_mass
-    return fat_mass, lean_mass
-
-def estimate_calorie_deficit(initial_fat_mass, final_fat_mass, initial_lean_mass, final_lean_mass, days):
-    """Estimate the calorie deficit required to achieve the desired fat and lean mass changes."""
-    fat_loss = initial_fat_mass - final_fat_mass
-    lean_loss = initial_lean_mass - final_lean_mass
-    fat_energy_loss = fat_loss * CALORIES_PER_KG_FAT
-    lean_energy_loss = lean_loss * CALORIES_PER_KG_LEAN
-
-    total_energy_loss = fat_energy_loss + lean_energy_loss
-    calorie_deficit = total_energy_loss / days
-    return calorie_deficit
-
-def estimate_calorie_deficit_from_historical_data(historical_data):
-    """Estimate calorie deficit based on historical data."""
-    # Verify that historical data is not empty and contains at least two entries 
-    # each with three values for date, weight, and body fat.
-    if not historical_data or len(historical_data) < 2:
-        print("Insufficient historical data. Please provide at least two data points.")
-        return None
-    
-    initial_weight = historical_data[0][1]
-    initial_fat_percentage = historical_data[0][2]
-    initial_fat_mass, initial_lean_mass = calculate_fat_and_lean_mass(initial_weight, initial_fat_percentage)
-
-    final_weight = historical_data[-1][1]
-    final_fat_percentage = historical_data[-1][2]
-    final_fat_mass, final_lean_mass = calculate_fat_and_lean_mass(final_weight, final_fat_percentage)
-
-    days = (datetime.strptime(historical_data[-1][0], "%m/%d/%Y") - 
-            datetime.strptime(historical_data[0][0], "%m/%d/%Y")).days
-    
-    return estimate_calorie_deficit(initial_fat_mass, final_fat_mass, initial_lean_mass, final_lean_mass, days)
-
-def calculate_age(dob):
-    """Calculate age based on date of birth."""
-    dob_date = datetime.strptime(dob, "%Y-%m-%d")
-    today = datetime.today()
-    age = today.year - dob_date.year - ((today.month, today.day) < (dob_date.month, dob_date.day))
-    return age
-
-def calculate_bmi(weight, height):
-    """Calculate BMI based on weight (kg) and height (cm)."""
-    return weight / ((height / 100) ** 2)
-
-def calculate_bmr(sex, height, age, weight):
-    """Calculate Basal Metabolic Rate (BMR) based on the Mifflin-St Jeor Equation."""
-    s = - 161 # Constant for female
-    if sex == "male":
-        s = 5
-    return 10 * weight + 6.25 * height - 5 * age + s
-
-# Conversion Functions
-def cm_to_feet_and_inches(cm):
-    """Convert centimeters to feet and inches."""
-    inches_total = cm / 2.54
-    feet = int(inches_total // 12)
-    inches = inches_total % 12
-    return f"{feet} ft {inches:.1f} in"
-
-# Formatting Functions
-def prepare_result(day, fat_mass, lean_mass):
-    """Prepare the result for a specific day."""
-    weight = fat_mass + lean_mass
-    return {
-        'Day': day,
-        'Weight (kg)': weight,
-        'Weight (lbs)': weight * KG_TO_LBS,
-        'Fat Mass (kg)': fat_mass,
-        'Fat Mass (lbs)': fat_mass * KG_TO_LBS,
-        'Lean Mass (kg)': lean_mass,
-        'Lean Mass (lbs)': lean_mass * KG_TO_LBS
-    }
-
-def format_change(current, initial):
-    """Format the change in values with percentage and arrow."""
-    #print(f"Debug: Current = {current}, Initial = {initial}") # Debugging
-    change = current - initial
-    percent_change = (change / initial) * 100 if initial > 0 else 0
-    arrow = "↑" if change > 0 else "↓"
-    return f"{arrow} {abs(percent_change):.2f}%" if initial > 0 else "= 0.00%"
-
-
-# Display Functions
-def display_initial_conditions(values):
-    """Display the initial conditions."""
-    print("\n--- Initial Conditions ---")
-    print(f"Sex: {values['sex'].capitalize()}")
-    print(f"Age: {values['age']} years")
-    print(f"Height: {values['height']:.1f} cm ({cm_to_feet_and_inches(values['height'])})")
-    print(f"Weight: {values['weight']:.2f} kg ({values['weight'] * KG_TO_LBS:.2f} lbs)")
-    print(f"Fat Mass: {values['fat_mass']:.2f} kg ({values['fat_mass'] * KG_TO_LBS:.2f} lbs)")
-    print(f"Lean Mass: {values['lean_mass']:.2f} kg ({values['lean_mass'] * KG_TO_LBS:.2f} lbs)")
-    print(f"Calorie Deficit: {values['calorie_deficit']} kcal/day")
-    print(f"Intervals: {INTERVALS} days\n")
-
-
-def display_results(results, initial_values):
-    """Display the results at each interval."""
-    print("--- Prediction Results ---")
-    print("Assuming the same daily calorie deficit, the following changes are predicted:\n")
-
-    for result in results:
-        display_result_for_day(result, initial_values)
-
-def display_result_for_day(result, initial_values):
-    """Display results for a specific day."""
-    day = result['Day']
-    weight = result['Weight (kg)']
-    fat_mass = result['Fat Mass (kg)']
-    lean_mass = result['Lean Mass (kg)']
-
-    weight_change = format_change(weight, initial_values['weight'])
-    fat_mass_change = format_change(fat_mass, initial_values['fat_mass'])
-    lean_mass_change = format_change(lean_mass, initial_values['lean_mass'])
-
-    print(f"Day {day}:")
-    print(f"  Weight: {weight:.2f} kg ({result['Weight (lbs)']:.2f} lbs) {weight_change}")
-    print(f"  Fat Mass: {fat_mass:.2f} kg ({result['Fat Mass (lbs)']:.2f} lbs) {fat_mass_change}")
-    print(f"  Lean Mass: {lean_mass:.2f} kg ({result['Lean Mass (lbs)']:.2f} lbs) {lean_mass_change}\n")
-
-def display_historical_summary(historical_data):
-    """Display a summary of historical data."""
-    print("\n--- Historical Data Summary ---")
-    print("Date       | Weight (kg)| Weight (lbs)| Body Fat (%)")
-    print("-" * 40)
-    for date, weight, body_fat in historical_data:
-        print(f"{date} | {weight:.2f} | {weight*KG_TO_LBS:.2f} | {body_fat * 100:.2f}%")
-    print("-" * 40)
-
-def display_bmi_and_bmr(bmi, bmr):
-    """Display BMI and BMR values."""
-    print(f"\n--- Additional Information ---")
-    print(f"BMI: {bmi:.2f}")
-    print(f"BMR: {bmr:.2f} kcal/day\n")
-
-# Debugging Functions
-def debug_initial_conditions(initial_weight, initial_fat_mass, initial_lean_mass):
-    print("\n--- Debug Initial Conditions ---")
-    print(f"Initial Weight: {initial_weight:.2f} kg")
-    print(f"Initial Fat Mass: {initial_fat_mass:.2f} kg")
-    print(f"Initial Lean Mass: {initial_lean_mass:.2f} kg\n")
-
-
-# Main Functions
-
-def thomas_model():
-    """Main function to execute the Thomas Model."""
-    user_values = get_user_input()
-    display_initial_conditions(user_values)
-    results = calculate_thomas(
-        user_values['sex'], user_values['fat_mass'], user_values['lean_mass'], user_values['calorie_deficit'], 
-        user_values['fat_mass'] + user_values['lean_mass']
-    )
-    display_results(results, user_values)
-
-# def run_test():
-#     use_calorie_deficit = input("Do you know your calorie deficit? (yes/no): ").strip().lower()
-#     if use_calorie_deficit in ["yes", "y"]:
-#         thomas_model()
-#     else:
-#         calculate_thomas_and_estimate_deficit()
-
-def run_test():
-    """
-    Main entry point for running the Thomas Model. Includes an option to enable adaptive thermogenesis.
-    """
-    use_calorie_deficit = input("Do you know your calorie deficit? (yes/no): ").strip().lower()
-    enable_adaptive_thermogenesis = input("Enable adaptive thermogenesis? (yes/no): ").strip().lower() in ["yes", "y"]
-
-    if use_calorie_deficit in ["yes", "y"]:
-        if enable_adaptive_thermogenesis:
-            thomas_model_with_adaptive_thermogenesis()
-        else:
-            thomas_model()
-    else:
-        calculate_thomas_and_estimate_deficit_with_option(enable_adaptive_thermogenesis)
-
-
-# Run the Thomas Model
-if __name__ == "__main__":
-    run_test()
+# Output results
+print_results(results)
