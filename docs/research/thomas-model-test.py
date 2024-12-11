@@ -1,3 +1,26 @@
+"""
+Thomas Model Test
+=================
+
+This script tests the Thomas et al. (2011) model for predicting weight loss or gain over time.
+The model is based on differential equations that describe changes in fat mass and fat-free mass (lean mass)
+based on energy balance and body composition.
+The model also calculates total energy expenditure (TEE) and its components, including Resting Metabolic Rate (RMR),
+Dietary-Induced Thermogenesis (DIT), Spontaneous Physical Activity (SPA), and Physical Activity (PA).
+The simulation is run over a specified duration, and the results are plotted and displayed in tabular format.
+The user can input sex, age, weight, height, energy intake, and duration to run the simulation.
+
+@author: Lincoln Quick
+
+References: 
+Forbes GB. Longitudinal changes in adult fat-free mass: influence of body weight. Am J Clin Nutr. Dec 1999;70(6):1025-1031.
+Gilbert B. Forbes, Lean Body Mass-Body Fat Interrelationships in Humans, Nutrition Reviews, Volume 45, Issue 10, October 1987, Pages 225–231, https://doi.org/10.1111/j.1753-4887.1987.tb02684.x
+Hall, K. D. (2007). Body fat and fat-free mass inter-relationships: Forbes’s theory revisited. British Journal of Nutrition, 97(6), 1059–1063. doi:10.1017/S0007114507691946
+Livingston EH, Kohlstadt I. Simplified resting metabolic rate-predicting formulas for normal-sized and obese individuals. Obes Res. Jul 2005;13(7):1255-1262.
+Martin CK, Heilbronn LK, de Jonge L, et al. Effect of calorie restriction on resting metabolic rate and spontaneous physical activity. Obesity (Silver Spring). Dec 2007;15(12):2964-2973.
+Thomas, D. M., Martin, C. K., Heymsfield, S., Redman, L. M., Schoeller, D. A., & Levine, J. A. (2011). A Simple Model Predicting Individual Weight Change in Humans. Journal of biological dynamics, 5(6), 579–599. https://doi.org/10.1080/17513758.2010.508541
+Thomas, D. M., Gonzalez, M. C., Pereira, A. Z., Redman, L. M., & Heymsfield, S. B. (2014). Time to correctly predict the amount of weight loss with dieting. Journal of the Academy of Nutrition and Dietetics, 114(6), 857–861. https://doi.org/10.1016/j.jand.2014.02.003
+"""
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -6,17 +29,16 @@ import mplcursors
 # Constants
 CF = 1020  # Energy density of FFM (kcal/kg)
 CL = 9500  # Energy density of FM (kcal/kg)
-S_LOSS = 2 / 3
-S_GAIN = 0.56
-BETA_LOSS = 0.075
-BETA_GAIN = 0.086
-RMR = {"male": {"c": 293, "p": 0.433, "y": 5.92}, 
-       "female": {"c": 248, "p": 0.4356, "y": 5.09}} # RMR constants
+S_LOSS = 2 / 3 # Constant used to calculate SPA during weight loss
+S_GAIN = 0.56 # Constant used to calculate SPA during weight gain
+BETA_LOSS = 0.075 # Constant used to calculate DIT during weight loss
+BETA_GAIN = 0.086 # Constant used to calculate DIT during weight gain
+RMR = {"male": {"c": 293, "p": 0.433, "y": 5.92}, # RMR constants for Livingston-Kohlstadt formula
+       "female": {"c": 248, "p": 0.4356, "y": 5.09}} 
 BASELINE_SPA_FACTOR = 0.326 # SPA(0) = 0.326 * E(0) or baseline energy
 CONVERSION_FACTOR = 2.20462  # lbs to kg conversion factor
-BASELINE_PA = 50  # Baseline physical activity level, small 50 kcal/day
-ESSENTIAL_FAT_MASS = {"male":5, "female":12}  # Essential fat mass in kg}
-ESSENTIAL_LEAN_MASS = {"male": 18, "female": 18} # Smallest healthy lean mass in kg
+ESSENTIAL_FAT_MASS = {"male":5, "female":12}  # Essential fat mass in kg, smallest healthy fat mass
+ESSENTIAL_LEAN_MASS = {"male": 18, "female": 18} # Smallest healthy lean mass in kg, smallest healthy lean mass
 
 # Functions
 def calculate_rmr(weight, age, sex):
@@ -269,13 +291,14 @@ def run_simulation(sex, age, weight_kg, height_cm, energy_intake, duration_days)
     rmr = calculate_rmr(weight_kg, age, sex)
     dit = calculate_dit(energy_intake, weight_change_phase)
     
-    spa0 = BASELINE_SPA_FACTOR * baseline_energy
+    spa0 = BASELINE_SPA_FACTOR * baseline_energy # initial SPA needed to calculate PA
     pa = calculate_baseline_pa(baseline_energy, dit, spa0, rmr) 
-    spa = calculate_spa(rmr, pa, dit, weight_change_phase, 0)  # constant_c is calculated later
+    spa = calculate_spa(rmr, pa, dit, weight_change_phase, 0)  # apply regular SPA calculation to find constant_c
     constant_c = calculate_constant_c(baseline_energy, rmr, pa, dit, weight_change_phase)
-    spa = calculate_spa(rmr, pa, dit, weight_change_phase, constant_c) # Recalculate SPA with constant_c
-    
-    
+    # Recalculate SPA with constant_c, should equal spa0
+    spa = calculate_spa(rmr, pa, dit, weight_change_phase, constant_c) 
+   
+    # TEE should now equal baseline_energy
     tee = rmr + dit + spa + pa
 
     results = []
@@ -291,6 +314,7 @@ def run_simulation(sex, age, weight_kg, height_cm, energy_intake, duration_days)
             "pa": pa
         })
 
+    # Iterate / integrate the calculations over the specified duration with an interval of 1 day
     results = iterate_simulation(
         sex, age, weight_kg, height_cm, energy_intake, duration_days, rmr, dit, spa, pa, constant_c, fat_mass, ffm, results
     )
