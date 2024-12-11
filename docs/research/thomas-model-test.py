@@ -485,21 +485,48 @@ def print_results(results):
 
 def get_user_input():
     """
-    Get user input for running the simulation.
+    Get user input for running the simulation, allowing the user to choose between entering 
+    total caloric intake, calorie deficit, or calorie surplus.
 
     Returns:
         tuple: A tuple containing the user input values (sex, age, weight, height, energy_intake, duration).
     """
+    choice = input("Would you like to run the simulation by entering your \ntotal daily caloric intake (i), "
+                   "\na set calorie deficit (d), \nor a set calorie surplus (s)? \t").strip().lower()
+    
     sex = input("Enter sex (male/female): ").strip().lower()
     age = int(input("Enter age (years): "))
     weight_lbs = float(input("Enter weight (lbs): "))
     height_in = float(input("Enter height (in): "))
-    energy_intake = float(input("Enter energy intake (kcal/day): "))
     duration = int(input("Enter duration (days): "))
-
+    
+    # Convert weight and height to metric units
     weight = weight_lbs / CONVERSION_FACTOR
     height = height_in * 2.54
+    
+    baseline_energy = calculate_baseline_energy_requirements(weight, age, height, sex)
+
+    if choice == "i":
+        energy_intake = float(input("Enter energy intake (kcal/day): "))
+    elif choice == "d":
+        deficit = float(input("Enter calorie deficit (kcal/day): "))
+        energy_intake = baseline_energy - deficit
+    elif choice == "s":
+        surplus = float(input("Enter calorie surplus (kcal/day): "))
+        energy_intake = baseline_energy + surplus
+    else:
+        raise ValueError("Invalid choice. Please enter 'i', 'd', or 's'.")
+    
+    print(f"\nRunning simulation for {duration} days with the following parameters:")
+    print(f"Sex: {sex}, Age: {age}, Weight: {weight:.2f} kg, Height: {height:.2f} cm\n")
+    print(f"Energy Intake: {energy_intake:.2f} kcal/day, Energy Expenditure: {baseline_energy:.2f} kcal/day")
+    print(f"Initial Energy Balance: {energy_intake - baseline_energy:.2f} kcal/day\n")
+    print(f"Note: This model assumes constant daily energy intake with changing energy expenditure over time.")
+    print(f"This model estimates initial fat mass and energy expendtiure based on weight, age, and sex using linear regression models.")
+    print(f"This results in a slight 'plateau' effect in weight loss or gain and predicts a longer time to lose weight when compared to the traditional '3500 kcal per pound' rule.\n")
+
     return sex, age, weight, height, energy_intake, duration
+
 
 if __name__ == "__main__":
     """
