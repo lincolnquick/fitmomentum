@@ -16,7 +16,7 @@ BASELINE_SPA_FACTOR = 0.326 # SPA(0) = 0.326 * E(0) or baseline energy
 CONVERSION_FACTOR = 2.20462  # lbs to kg conversion factor
 BASELINE_PA = 50  # Baseline physical activity level, small 50 kcal/day
 ESSENTIAL_FAT_MASS = {"male":5, "female":12}  # Essential fat mass in kg}
-ESSENTIAL_LEAN_MASS = {"male": 50, "female": 45} # Smallest healthy lean mass in kg
+ESSENTIAL_LEAN_MASS = {"male": 18, "female": 18} # Smallest healthy lean mass in kg
 
 # Functions
 def calculate_rmr(weight, age, sex):
@@ -39,6 +39,7 @@ def calculate_rmr(weight, age, sex):
 def calculate_pa(weight, baseline_pa, baseline_weight):
     """
     Calculate Physical Activity (PA) based on current weight and baseline values.
+    PA = m * weight, where m = baseline_pa / baseline_weight.
     
     Parameters:
         weight (float): Current weight in kilograms.
@@ -52,24 +53,92 @@ def calculate_pa(weight, baseline_pa, baseline_weight):
     return m * weight
 
 def calculate_dit(energy_intake, weight_change_phase="loss"):
+    """
+    Calculate Dietary-Induced Thermogenesis (DIT) based on energy intake and weight change phase.
+    DIT = beta * energy_intake, where beta = BETA_LOSS if weight_change_phase == "loss" else BETA_GAIN.
+
+    Parameters:
+        energy_intake (float): Energy intake in kcal/day.
+        weight_change_phase (str): 'loss' or 'gain'.
+
+    Returns:
+        float: Dietary-Induced Thermogenesis (DIT) in kcal/day.
+    """
     beta = BETA_LOSS if weight_change_phase == "loss" else BETA_GAIN
     return beta * energy_intake
 
 def calculate_spa(rmr, pa, dit, weight_change_phase, constant_c):
+    """
+    Calculate Spontaneous Physical Activity (SPA) based on RMR, PA, DIT, weight change phase, and a constant.
+    SPA = (s / (1 - s)) * (DIT + PA + RMR) + c, where s = S_LOSS if weight_change_phase == "loss" else S_GAIN,
+    and c is a constant calculated based on baseline energy.
+    SPA cannot be lower than 0.
+
+    Parameters:
+        rmr (float): Resting Metabolic Rate (RMR) in kcal/day.
+        pa (float): Physical Activity (PA) in kcal/day.
+        dit (float): Dietary-Induced Thermogenesis (DIT) in kcal/day.
+        weight_change_phase (str): 'loss' or 'gain'.
+        constant_c (float): Constant calculated based on baseline energy.
+
+    Returns:
+        float: Spontaneous Physical Activity (SPA) in kcal/day.
+    """
     s = S_LOSS if weight_change_phase == "loss" else S_GAIN
     spa = (s / (1 - s)) * (dit + pa + rmr) + constant_c
     return max(spa, 0)
 
 def calculate_constant_c(baseline_energy, rmr, pa, dit, weight_change_phase):
+    """
+    Calculate a constant (c) based on baseline energy, RMR, PA, DIT, and weight change phase.
+    c = BASELINE_SPA_FACTOR * baseline_energy - (s / (1 - s)) * (DIT + PA + RMR), where
+    s = S_LOSS if weight_change_phase == "loss" else S_GAIN.
+    This assumes that baseline SPA is 32.6% of baseline energy.
+
+    Parameters:
+        baseline_energy (float): Baseline energy requirements in kcal/day.
+        rmr (float): Resting Metabolic Rate (RMR) in kcal/day.
+        pa (float): Physical Activity (PA) in kcal/day.
+        dit (float): Dietary-Induced Thermogenesis (DIT) in kcal/day.
+        weight_change_phase (str): 'loss' or 'gain'.
+    """
     s = S_LOSS if weight_change_phase == "loss" else S_GAIN
     constant_c = BASELINE_SPA_FACTOR * baseline_energy - (s / (1 - s)) * (dit + pa + rmr)
     return constant_c
 
 def calculate_baseline_pa(baseline_energy, dit0, spa0, rmr0):
+    """
+    Calculate baseline physical activity (PA) based on baseline energy, DIT, SPA, and RMR.
+    PA0 = baseline_energy - DIT0 - SPA0 - RMR0.
+    Baseline PA is estimated after calculating baseline values for DIT and RMR, as well as
+    estimating SPA as 32.6% of baseline energy.
+    This assumes that baseline energy (TEE0) is already calculated.
+
+    Parameters:
+        baseline_energy (float): Baseline energy requirements in kcal/day.
+        dit0 (float): Baseline Dietary-Induced Thermogenesis (DIT) in kcal/day.
+        spa0 (float): Baseline Spontaneous Physical Activity (SPA) in kcal/day.
+        rmr0 (float): Baseline Resting Metabolic Rate (RMR) in kcal/day.
+    """
     pa0 = baseline_energy - dit0 - spa0 - rmr0
     return max(pa0, 0)
 
+
 def calculate_ffm(fat_mass, age, t, height, sex):
+    """
+    Calculate Fat-Free Mass (FFM), also known as lean mass, based on fat mass, age, time, height, and sex, 
+    according to the differential equations proposed by Thomas et al. (2011).
+    
+    Parameters:
+        fat_mass (float): Fat mass in kilograms.
+        age (int): Age in years.
+        t (int): Time in days.
+        height (float): Height in cent
+        sex (str): "male" or "female"
+
+    Returns:
+        float: Fat-Free Mass (FFM) in kilograms.
+    """
     if sex == "male":
         ffm = (
             -71.7
@@ -104,6 +173,22 @@ def calculate_ffm(fat_mass, age, t, height, sex):
     return max(ffm, 0)
 
 def calculate_baseline_fat_mass(weight_kg, age, height_cm, sex):
+    """
+    Calculate baseline fat mass based on weight, age, height, and sex using the linear regression analysis 
+    performed by Thomas et al. (2011).
+
+    This calculation is used when the user enters a weight and does not provide a fat mass or 
+    body fat percentage.
+
+    Parameters:
+        weight_kg (float): Weight in kilograms.
+        age (int): Age in years.
+        height_cm (float): Height in centimeters.
+        sex (str): "male" or "female"
+
+    Returns:
+        float: Baseline fat mass in kilograms.
+    """
     if sex == "male":
         return max(24.96493 + 0.064761 * age - 0.28889 * height_cm + 0.55342 * weight_kg, 0)
     elif sex == "female":
@@ -112,6 +197,22 @@ def calculate_baseline_fat_mass(weight_kg, age, height_cm, sex):
         raise ValueError("Sex must be 'male' or 'female'.")
 
 def calculate_baseline_energy_requirements(weight_kg, age, height_cm, sex):
+    """
+    Calculate baseline energy requirements based on weight, age, height, and sex using the linear regression analysis
+    performed by Thomas et al. (2011).
+    
+    This is used when the user does not provide an total energy expenditure (TEE) value 
+    (also referred to as baseline energy or maintenance calories).
+
+    Parameters:
+        weight_kg (float): Weight in kilograms.
+        age (int): Age in years.
+        height_cm (float): Height in centimeters.
+        sex (str): "male" or "female"
+
+    Returns:   
+        float: Baseline energy requirements in kcal/day.
+    """
     if sex == "male":
         return max(892.721 - 16.7 * age + 1.29 * height_cm + 42.9 * weight_kg - 0.11435 * weight_kg**2, 0)
     elif sex == "female":
@@ -120,12 +221,43 @@ def calculate_baseline_energy_requirements(weight_kg, age, height_cm, sex):
         raise ValueError("Sex must be 'male' or 'female'.")
 
 def calculate_ffm_fm_changes(delta_e, fat_mass, age, t, height, sex):
+    """
+    Calculate the changes in fat mass (F) and fat-free mass (FFM) based on the energy balance equation
+    proposed by Thomas et al. (2011).
+    
+    Parameters:
+        delta_e (float): Energy balance (energy intake - total energy expenditure) in kcal/day.
+        fat_mass (float): Fat mass in kilograms.
+        age (int): Age in years. (not currently used in this implementation)
+        t (int): Time in days. (not currently used in this implementation)
+        height (float): Height in centimeters. (not currently used in this implementation)
+        sex (str): "male" or "female" (not currently used in this implementation)
+        
+        Returns:
+        tuple: A tuple containing the rate of change in fat mass (dF_dt) and fat-free mass (dFFM_dt) in kg/day.
+        """
     partial_ffm_f = 1 / (fat_mass + 1)  # Avoid division by zero
     dF_dt = (delta_e - CF * partial_ffm_f) / (CL + CF * partial_ffm_f)
     dFFM_dt = partial_ffm_f * dF_dt
     return dF_dt, dFFM_dt
 
 def run_simulation(sex, age, weight_kg, height_cm, energy_intake, duration_days):
+    """
+    Run a simulation of weight loss or gain over a specified duration based on the Thomas et al. (2011) model.
+    
+    Parameters:
+        sex (str): "male" or "female"
+        age (int): Age in years
+        weight_kg (float): Weight in kilograms
+        height_cm (float): Height in centimeters
+        energy_intake (float): Energy intake in kcal/day
+        duration_days (int): Duration of the simulation in days
+
+    Returns:
+        list: A list of dictionaries containing the results of the simulation for each day. 
+        [{day, weight, fat_mass, lean_mass, tee, rmr, dit, spa, pa}]
+        
+        """
 
     # Initialize variables
     baseline_energy = calculate_baseline_energy_requirements(weight_kg, age, height_cm, sex)
@@ -166,6 +298,30 @@ def run_simulation(sex, age, weight_kg, height_cm, energy_intake, duration_days)
     return results
 
 def iterate_simulation(sex, age, weight_kg, height_cm, energy_intake, duration_days, rmr, dit, spa, pa, c, fat_mass, ffm, results):
+    """
+    Iterate the simulation over the specified duration, updating the weight, fat mass, lean mass, and energy expenditure
+    for each day.
+    
+    Parameters:
+        sex (str): "male" or "female"
+        age (int): Age in years
+        weight_kg (float): Weight in kilograms
+        height_cm (float): Height in centimeters
+        energy_intake (float): Energy intake in kcal/day
+        duration_days (int): Duration of the simulation in days
+        rmr (float): Resting Metabolic Rate (RMR) in kcal/day
+        dit (float): Dietary-Induced Thermogenesis (DIT) in kcal/day
+        spa (float): Spontaneous Physical Activity (SPA) in kcal/day
+        pa (float): Physical Activity (PA) in kcal/day
+        c (float): Constant calculated based on baseline energy
+        fat_mass (float): Fat mass in kilograms
+        ffm (float): Fat-Free Mass (FFM) or lean mass in kilograms
+        results (list): A list of dictionaries containing the results of the simulation for each day.
+        
+        Returns:
+        list: A list of dictionaries containing the updated results of the simulation for each day.
+        [{day, weight, fat_mass, lean_mass, tee, rmr, dit, spa, pa}]
+        """
     for day in range(1, duration_days + 1):
         
         tee = rmr + dit + spa + pa
@@ -212,9 +368,16 @@ def iterate_simulation(sex, age, weight_kg, height_cm, energy_intake, duration_d
 
 
 # Plotting Functions
-
-
 def plot_weight_loss(results):
+    """
+    Plot the weight, fat mass, and lean mass over time based on the simulation results.
+
+    Parameters:
+        results (list): A list of dictionaries containing the results of the simulation for
+        each day. [{day, weight, fat_mass, lean_mass, tee, rmr, dit, spa, pa}]
+
+
+    """
     days = [res['day'] for res in results]
     weights = [res['weight'] * CONVERSION_FACTOR for res in results]
     fat_mass = [res['fat_mass'] * CONVERSION_FACTOR for res in results]
@@ -242,6 +405,14 @@ def plot_weight_loss(results):
     plt.show()
 
 def plot_energy_expenditure(results):
+    """
+    Plot the components of energy expenditure (TEE, RMR, DIT, SPA, PA) over time based on the simulation results.
+    
+    Parameters:
+        results (list): A list of dictionaries containing the results of the simulation for
+        each day. [{day, weight, fat_mass, lean_mass, tee, rmr, dit, spa, pa}]
+        
+    """
     days = [res['day'] for res in results]
     tee = [res['tee'] for res in results]
     rmr = [res['rmr'] for res in results]
@@ -275,11 +446,26 @@ def plot_energy_expenditure(results):
 
 
 def print_results(results):
+    """
+    
+    Print the results of the simulation in tabular format.
+    
+    Parameters:
+        results (list): A list of dictionaries containing the results of the simulation for
+        each day. [{day, weight, fat_mass, lean_mass, tee, rmr, dit, spa, pa}]
+        
+    """
     print("Day\tWeight(lb)\tBody Fat (%)\tFat Mass(lb)\tLean Mass(lb)\tTEE(kcal)\tRMR(kcal)\tDIT(kcal)\tSPA(kcal)\tPA(kcal)")
     for res in results:
         print(f"{res['day']}\t{res['weight']*CONVERSION_FACTOR:.2f}\t\t{res['fat_mass']/res['weight']:.2f}%\t\t{res['fat_mass']*CONVERSION_FACTOR:.2f}\t\t{res['lean_mass']*CONVERSION_FACTOR:.2f}\t\t{res['tee']:.2f}\t\t{res['rmr']:.2f}\t\t{res['dit']:.2f}\t\t{res['spa']:.2f}\t\t{res['pa']:.2f}")
 
 def get_user_input():
+    """
+    Get user input for running the simulation.
+
+    Returns:
+        tuple: A tuple containing the user input values (sex, age, weight, height, energy_intake, duration).
+    """
     sex = input("Enter sex (male/female): ").strip().lower()
     age = int(input("Enter age (years): "))
     weight_lbs = float(input("Enter weight (lbs): "))
@@ -292,6 +478,9 @@ def get_user_input():
     return sex, age, weight, height, energy_intake, duration
 
 if __name__ == "__main__":
+    """
+    Main function to run the simulation based on user input and display the results.
+    """
     # Get user input
     sex, age, weight, height, energy_intake, duration = get_user_input()
 
