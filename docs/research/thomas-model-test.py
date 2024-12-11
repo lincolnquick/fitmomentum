@@ -1,5 +1,7 @@
 
 import numpy as np
+import matplotlib.pyplot as plt
+import mplcursors
 
 # Constants
 CF = 1020  # Energy density of FFM (kcal/kg)
@@ -18,11 +20,34 @@ ESSENTIAL_LEAN_MASS = {"male": 50, "female": 45} # Smallest healthy lean mass in
 
 # Functions
 def calculate_rmr(weight, age, sex):
+    """
+    Calculate the Resting Metabolic Rate (RMR) based on weight, age, and sex using
+    the Livingston-Kohlstadt formula.
+    
+    Parameters:
+        weight (float): Weight in kilograms.
+        age (int): Age in years.
+        sex (str): 'male' or 'female'.
+    
+    Returns:
+        float: Resting Metabolic Rate (RMR) in kcal/day.
+    """
     c, p, y = RMR[sex].values()
     rmr = c * (max(weight, 0) ** p) - y * age
     return max(rmr, 0)
 
 def calculate_pa(weight, baseline_pa, baseline_weight):
+    """
+    Calculate Physical Activity (PA) based on current weight and baseline values.
+    
+    Parameters:
+        weight (float): Current weight in kilograms.
+        baseline_pa (float): Baseline physical activity in kcal/day.
+        baseline_weight (float): Baseline weight in kilograms.
+    
+    Returns:
+        float: Physical Activity (PA) in kcal/day.
+    """
     m = baseline_pa / baseline_weight
     return m * weight
 
@@ -39,6 +64,10 @@ def calculate_constant_c(baseline_energy, rmr, pa, dit, weight_change_phase):
     s = S_LOSS if weight_change_phase == "loss" else S_GAIN
     constant_c = BASELINE_SPA_FACTOR * baseline_energy - (s / (1 - s)) * (dit + pa + rmr)
     return constant_c
+
+def calculate_baseline_pa(baseline_energy, dit0, spa0, rmr0):
+    pa0 = baseline_energy - dit0 - spa0 - rmr0
+    return max(pa0, 0)
 
 def calculate_ffm(fat_mass, age, t, height, sex):
     if sex == "male":
@@ -107,11 +136,13 @@ def run_simulation(sex, age, weight_kg, height_cm, energy_intake, duration_days)
 
     rmr = calculate_rmr(weight_kg, age, sex)
     dit = calculate_dit(energy_intake, weight_change_phase)
-    pa = calculate_pa(weight_kg, BASELINE_PA, weight_kg)  # Baseline PA calculation
     
+    spa0 = BASELINE_SPA_FACTOR * baseline_energy
+    pa = calculate_baseline_pa(baseline_energy, dit, spa0, rmr) 
     spa = calculate_spa(rmr, pa, dit, weight_change_phase, 0)  # constant_c is calculated later
     constant_c = calculate_constant_c(baseline_energy, rmr, pa, dit, weight_change_phase)
     spa = calculate_spa(rmr, pa, dit, weight_change_phase, constant_c) # Recalculate SPA with constant_c
+    
     
     tee = rmr + dit + spa + pa
 
@@ -160,9 +191,9 @@ def iterate_simulation(sex, age, weight_kg, height_cm, energy_intake, duration_d
         weight_kg = fat_mass + ffm
         rmr = calculate_rmr(weight_kg, age, sex)
         dit = calculate_dit(energy_intake, weight_change_phase)
+        pa = calculate_pa(weight_kg, results[0]["pa"], results[0]["weight"])
         spa = calculate_spa(rmr, pa, dit, weight_change_phase, c)
-        pa = calculate_pa(weight_kg, BASELINE_PA, results[0]["weight"])
-        tee = rmr + dit + spa + pa
+        tee = rmr + dit + pa + spa
 
 
         # Store results
@@ -180,24 +211,96 @@ def iterate_simulation(sex, age, weight_kg, height_cm, energy_intake, duration_d
     return results
 
 
+# Plotting Functions
+
+
+def plot_weight_loss(results):
+    days = [res['day'] for res in results]
+    weights = [res['weight'] * CONVERSION_FACTOR for res in results]
+    fat_mass = [res['fat_mass'] * CONVERSION_FACTOR for res in results]
+    lean_mass = [res['lean_mass'] * CONVERSION_FACTOR for res in results]
+
+    plt.figure(figsize=(10, 6))
+    weight_line, = plt.plot(days, weights, label='Total Weight (lbs)', linewidth=2)
+    fat_mass_line, = plt.plot(days, fat_mass, label='Fat Mass (lbs)', linewidth=2, linestyle='--')
+    lean_mass_line, = plt.plot(days, lean_mass, label='Lean Mass (lbs)', linewidth=2, linestyle=':')
+    plt.title('Weight, Fat Mass, and Lean Mass Over Time', fontsize=16)
+    plt.xlabel('Days', fontsize=14)
+    plt.ylabel('Weight (lbs)', fontsize=14)
+    plt.legend()
+    plt.grid(True)
+    
+    # Add interactive hover
+    cursor = mplcursors.cursor([weight_line, fat_mass_line, lean_mass_line], hover=True)
+    cursor.connect(
+        "add",
+        lambda sel: sel.annotation.set_text(
+            f"Day: {days[int(sel.target[0])]}, Value: {sel.target[1]:.2f}"
+        )
+    )
+    
+    plt.show()
+
+def plot_energy_expenditure(results):
+    days = [res['day'] for res in results]
+    tee = [res['tee'] for res in results]
+    rmr = [res['rmr'] for res in results]
+    dit = [res['dit'] for res in results]
+    spa = [res['spa'] for res in results]
+    pa = [res['pa'] for res in results]
+
+    plt.figure(figsize=(10, 6))
+    tee_line, = plt.plot(days, tee, label='Total Energy Expenditure (TEE)', linewidth=2)
+    rmr_line, = plt.plot(days, rmr, label='Resting Metabolic Rate (RMR)', linewidth=2, linestyle='--')
+    dit_line, = plt.plot(days, dit, label='Dietary-Induced Thermogenesis (DIT)', linewidth=2, linestyle=':')
+    spa_line, = plt.plot(days, spa, label='Spontaneous Physical Activity (SPA)', linewidth=2, linestyle='-.')
+    pa_line, = plt.plot(days, pa, label='Physical Activity (PA)', linewidth=2, linestyle=':')
+    plt.title('Energy Expenditure Components Over Time', fontsize=16)
+    plt.xlabel('Days', fontsize=14)
+    plt.ylabel('Energy (kcal/day)', fontsize=14)
+    plt.legend()
+    plt.grid(True)
+    
+    # Add interactive hover
+    cursor = mplcursors.cursor([tee_line, rmr_line, dit_line, spa_line, pa_line], hover=True)
+    cursor.connect(
+        "add",
+        lambda sel: sel.annotation.set_text(
+            f"Day: {days[int(sel.target[0])]}, Value: {sel.target[1]:.2f}"
+        )
+    )
+    
+    plt.show()
+
+
+
 def print_results(results):
     print("Day\tWeight(lb)\tBody Fat (%)\tFat Mass(lb)\tLean Mass(lb)\tTEE(kcal)\tRMR(kcal)\tDIT(kcal)\tSPA(kcal)\tPA(kcal)")
     for res in results:
         print(f"{res['day']}\t{res['weight']*CONVERSION_FACTOR:.2f}\t\t{res['fat_mass']/res['weight']:.2f}%\t\t{res['fat_mass']*CONVERSION_FACTOR:.2f}\t\t{res['lean_mass']*CONVERSION_FACTOR:.2f}\t\t{res['tee']:.2f}\t\t{res['rmr']:.2f}\t\t{res['dit']:.2f}\t\t{res['spa']:.2f}\t\t{res['pa']:.2f}")
 
-# User Input
-sex = input("Enter sex (male/female): ").strip().lower()
-age = int(input("Enter age (years): "))
-weight_lbs = float(input("Enter weight (lbs): "))
-height_in = float(input("Enter height (in): "))
-energy_intake = float(input("Enter energy intake (kcal/day): "))
-duration = int(input("Enter duration (days): "))
+def get_user_input():
+    sex = input("Enter sex (male/female): ").strip().lower()
+    age = int(input("Enter age (years): "))
+    weight_lbs = float(input("Enter weight (lbs): "))
+    height_in = float(input("Enter height (in): "))
+    energy_intake = float(input("Enter energy intake (kcal/day): "))
+    duration = int(input("Enter duration (days): "))
 
-weight = weight_lbs / CONVERSION_FACTOR
-height = height_in * 2.54
+    weight = weight_lbs / CONVERSION_FACTOR
+    height = height_in * 2.54
+    return sex, age, weight, height, energy_intake, duration
 
-# Run simulation
-results = run_simulation(sex, age, weight, height, energy_intake, duration)
+if __name__ == "__main__":
+    # Get user input
+    sex, age, weight, height, energy_intake, duration = get_user_input()
 
-# Output results
-print_results(results)
+    # Run simulation
+    results = run_simulation(sex, age, weight, height, energy_intake, duration)
+
+    # Output results
+    print_results(results)
+
+    # Plot results
+    plot_weight_loss(results)
+    plot_energy_expenditure(results)
