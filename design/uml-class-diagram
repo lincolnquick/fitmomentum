@@ -1,0 +1,108 @@
+digraph UML_Class_Diagram {
+	node [fillcolor=lightgrey fontname=Helvetica fontsize=12 shape=rectangle style=filled]
+	Person [label="Person
+- dateOfBirth: Date
+- sex: String
+- height: Double
+----------------------
++ getAgeAsFloat(): Float
++ getAgeAsInt(): Int
++ getAgeOnDate(date: Date): Int
+"]
+	Measurement [label="Measurement
+- timestamp: Date
+----------------------
++ getTimestamp(): Date
+"]
+	Weight [label="Weight
+- weight: Double
+----------------------
++ getWeightInKg(): Double
++ getWeightInLbs(): Double
+"]
+	Nutrition [label="Nutrition
+- calories: Double
+- protein: Double
+- carbs: Double
+- fats: Double
+----------------------
++ getCalories(): Double
++ getMacronutrientBreakdown(): String
+"]
+	Activity [label="Activity
+- steps: Int
+- distance: Double
+----------------------
++ getSteps(): Int
++ getDistanceInKm(): Double
+"]
+	Prediction [label="Prediction
+- date: Date
+- predictedWeight: Double
+- predictedFatPercentage: Double
+----------------------
++ getPredictionDetails(): String
+"]
+	Progress [label="Progress
+- measurements: [Measurement]
+----------------------
++ getMeasurementData(type: String): [Measurement]
++ filterByDateRange(start: Date, end: Date): [Measurement]
+"]
+	HealthKitService [label="HealthKitService
+----------------------
++ fetchWeightData(): [Weight]
++ fetchNutritionData(): [Nutrition]
++ fetchActivityData(): [Activity]
++ fetchUserDetails(): Person
+"]
+	PredictionService [label="PredictionService
+----------------------
++ generateWeightPrediction(person: Person, measurements: [Measurement]): Prediction
+"]
+	DataStorageService [label="DataStorageService
+----------------------
++ saveData(data: Any)
++ fetchData(key: String): Any
+"]
+	DashboardViewModel [label="DashboardViewModel
+----------------------
++ getDashboardData(): [String: Any]
+"]
+	NutritionViewModel [label="NutritionViewModel
+----------------------
++ getNutritionGraphData(): [Double]
++ getMacronutrientGoals(): String
+"]
+	TrendsViewModel [label="TrendsViewModel
+----------------------
++ getTrendGraphData(): [Double]
++ getPredictionData(): Prediction
+"]
+	ProgressViewModel [label="ProgressViewModel
+----------------------
++ getHistoricalData(type: String): [Measurement]
++ getGraphData(): [Double]
+"]
+	MoreViewModel [label="MoreViewModel
+----------------------
++ getMenuOptions(): [String]
+"]
+	Person -> Measurement [label="1-*" dir=none]
+	Measurement -> Weight [label=inherits arrowhead=empty]
+	Measurement -> Nutrition [label=inherits arrowhead=empty]
+	Measurement -> Activity [label=inherits arrowhead=empty]
+	Measurement -> Progress [label=aggregates dir=both]
+	Prediction -> Person [label=uses dir=forward]
+	Prediction -> Measurement [label=uses dir=forward]
+	HealthKitService -> Person [label=fetches dir=forward]
+	HealthKitService -> Measurement [label=fetches dir=forward]
+	PredictionService -> Prediction [label=creates dir=forward]
+	DataStorageService -> Person [label=stores dir=forward]
+	DashboardViewModel -> Measurement [label=uses dir=forward]
+	NutritionViewModel -> Nutrition [label=uses dir=forward]
+	TrendsViewModel -> Prediction [label=uses dir=forward]
+	ProgressViewModel -> Progress [label=uses dir=forward]
+	MoreViewModel -> DataStorageService [label=uses dir=forward]
+	nodesep=1 rankdir=LR ranksep=1
+}
