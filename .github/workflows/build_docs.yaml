@@ -1,0 +1,36 @@
+name: Build and Deploy Documentation
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install Pandoc
+      run: sudo apt-get install pandoc -y
+
+    - name: Convert Markdown to HTML
+      run: |
+        mkdir -p website
+        pandoc docs/research/Scope_Document.md -o website/scope.html
+        pandoc docs/research/Requirements_Specification.md -o website/requirements.html
+        pandoc docs/research/Research.md -o website/research.html
+        pandoc docs/README.md -o website/index.html
+
+    - name: Upload to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: website

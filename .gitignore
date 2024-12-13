@@ -5,6 +5,9 @@
 ## User settings
 xcuserdata/
 
+## Private scripts
+/private/
+
 ## Obj-C/Swift specific
 *.hmap
 

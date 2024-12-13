@@ -24,6 +24,8 @@ Thomas, D. M., Gonzalez, M. C., Pereira, A. Z., Redman, L. M., & Heymsfield, S. 
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib
+import io
 import mplcursors
 
 # Constants
@@ -48,7 +50,7 @@ def calculate_rmr(weight, age, sex):
     
     Parameters:
         weight (float): Weight in kilograms.
-        age (int): Age in years.
+        age (float): Age in years.
         sex (str): 'male' or 'female'.
     
     Returns:
@@ -72,7 +74,7 @@ def calculate_pa(weight, baseline_pa, baseline_weight):
         float: Physical Activity (PA) in kcal/day.
     """
     m = baseline_pa / baseline_weight
-    return m * weight
+    return max(m * weight, 0)
 
 def calculate_dit(energy_intake, weight_change_phase="loss"):
     """
@@ -87,7 +89,7 @@ def calculate_dit(energy_intake, weight_change_phase="loss"):
         float: Dietary-Induced Thermogenesis (DIT) in kcal/day.
     """
     beta = BETA_LOSS if weight_change_phase == "loss" else BETA_GAIN
-    return beta * energy_intake
+    return max(beta * energy_intake, 0)
 
 def calculate_spa(rmr, pa, dit, weight_change_phase, constant_c):
     """
@@ -220,27 +222,32 @@ def calculate_baseline_fat_mass(weight_kg, age, height_cm, sex):
 
 def calculate_baseline_energy_requirements(weight_kg, age, height_cm, sex):
     """
-    Calculate baseline energy requirements based on weight, age, height, and sex using the linear regression analysis
-    performed by Thomas et al. (2011).
+    Calculate baseline energy requirements based on weight and sex using the linear regression analysis
+    performed by Thomas (2011) (equation 3)
     
     This is used when the user does not provide an total energy expenditure (TEE) value 
     (also referred to as baseline energy or maintenance calories).
 
     Parameters:
         weight_kg (float): Weight in kilograms.
-        age (int): Age in years.
-        height_cm (float): Height in centimeters.
+        age (int): Age in years. (not used in this implementation)
+        height_cm (float): Height in centimeters. (not used in this implementation)
         sex (str): "male" or "female"
 
     Returns:   
         float: Baseline energy requirements in kcal/day.
     """
+    # if sex == "male":
+    #     return max(892.721 - 16.7 * age + 1.29 * height_cm + 42.9 * weight_kg - 0.11435 * weight_kg**2, 0)
+    # elif sex == "female":
+    #     return max(430.29 - 12.86 * age + 12.19 * height_cm + 4.066 * weight_kg + 0.043 * weight_kg**2, 0)
+    # else:
+    #     raise ValueError("Sex must be 'male' or 'female'.")
+
     if sex == "male":
-        return max(892.721 - 16.7 * age + 1.29 * height_cm + 42.9 * weight_kg - 0.11435 * weight_kg**2, 0)
+        return -0.0971 * weight_kg**2 + 40.853 * weight_kg + 323.59
     elif sex == "female":
-        return max(430.29 - 12.86 * age + 12.19 * height_cm + 4.066 * weight_kg + 0.043 * weight_kg**2, 0)
-    else:
-        raise ValueError("Sex must be 'male' or 'female'.")
+        return 0.0278 * weight_kg**2 + 9.2893 * weight_kg + 1528.9
 
 def calculate_ffm_fm_changes(delta_e, fat_mass, age, t, height, sex):
     """
@@ -369,7 +376,7 @@ def iterate_simulation(sex, age, weight_kg, height_cm, energy_intake, duration_d
 
         # Update dependent variables
         weight_kg = fat_mass + ffm
-        rmr = calculate_rmr(weight_kg, age, sex)
+        rmr = calculate_rmr(weight_kg, age + day/365, sex)
         dit = calculate_dit(energy_intake, weight_change_phase)
         pa = calculate_pa(weight_kg, results[0]["pa"], results[0]["weight"])
         spa = calculate_spa(rmr, pa, dit, weight_change_phase, c)
@@ -392,20 +399,21 @@ def iterate_simulation(sex, age, weight_kg, height_cm, energy_intake, duration_d
 
 
 # Plotting Functions
-def plot_weight_loss(results):
+
+def create_weight_loss_plot(results):
     """
-    Plot the weight, fat mass, and lean mass over time based on the simulation results.
+    Generate the weight loss plot (weight, fat mass, and lean mass) over time.
 
     Parameters:
         results (list): A list of dictionaries containing the results of the simulation for
         each day. [{day, weight, fat_mass, lean_mass, tee, rmr, dit, spa, pa}]
-
-
     """
     days = [res['day'] for res in results]
     weights = [res['weight'] * CONVERSION_FACTOR for res in results]
     fat_mass = [res['fat_mass'] * CONVERSION_FACTOR for res in results]
     lean_mass = [res['lean_mass'] * CONVERSION_FACTOR for res in results]
+
+    matplotlib.use('Agg')
 
     plt.figure(figsize=(10, 6))
     weight_line, = plt.plot(days, weights, label='Total Weight (lbs)', linewidth=2)
@@ -416,8 +424,8 @@ def plot_weight_loss(results):
     plt.ylabel('Weight (lbs)', fontsize=14)
     plt.legend()
     plt.grid(True)
-    
-    # Add interactive hover
+
+    # Add interactive hover for local display
     cursor = mplcursors.cursor([weight_line, fat_mass_line, lean_mass_line], hover=True)
     cursor.connect(
         "add",
@@ -425,17 +433,58 @@ def plot_weight_loss(results):
             f"Day: {days[int(sel.target[0])]}, Value: {sel.target[1]:.2f}"
         )
     )
-    
-    plt.show()
 
-def plot_energy_expenditure(results):
+def save_weight_loss_plot(results):
     """
-    Plot the components of energy expenditure (TEE, RMR, DIT, SPA, PA) over time based on the simulation results.
-    
+    Generate the plot and save it to memory for use in Flask.
+
     Parameters:
         results (list): A list of dictionaries containing the results of the simulation for
         each day. [{day, weight, fat_mass, lean_mass, tee, rmr, dit, spa, pa}]
-        
+
+    Returns:
+        io.BytesIO: BytesIO object containing the saved image.
+    """
+    create_weight_loss_plot(results)  # Generate the plot
+    image_buffer = io.BytesIO()
+    plt.savefig(image_buffer, format='png')  # Save to memory
+    image_buffer.seek(0)  # Reset buffer position to the beginning
+    plt.close()  # Close the figure to free memory
+    return image_buffer
+
+def get_weight_loss_plot_image(results):
+    """
+    Create a plot and return its image data for use in Flask app.
+
+    Parameters:
+        results (list): A list of dictionaries containing the results of the simulation for
+        each day. [{day, weight, fat_mass, lean_mass, tee, rmr, dit, spa, pa}]
+
+    Returns:
+        bytes: Image data in PNG format.
+    """
+    image_buffer = save_weight_loss_plot(results)
+    return image_buffer.getvalue()  # Return raw image data
+
+def plot_weight_loss_display(results):
+    """
+    Generate and display the weight loss plot locally.
+
+    Parameters:
+        results (list): A list of dictionaries containing the results of the simulation for
+        each day. [{day, weight, fat_mass, lean_mass, tee, rmr, dit, spa, pa}]
+    """
+    create_weight_loss_plot(results)  # Generate the plot
+    plt.show()  # Display the plot locally
+
+
+def create_energy_expenditure_plot(results):
+    """
+    Generate the energy expenditure plot (TEE, RMR, DIT, SPA, PA) over time.
+
+    Parameters:
+        results (list): A list of dictionaries containing the results of the simulation for
+        each day. [{day, weight, fat_mass, lean_mass, tee, rmr, dit, spa, pa}]
     """
     days = [res['day'] for res in results]
     tee = [res['tee'] for res in results]
@@ -444,19 +493,22 @@ def plot_energy_expenditure(results):
     spa = [res['spa'] for res in results]
     pa = [res['pa'] for res in results]
 
+    matplotlib.use('Agg')
+
     plt.figure(figsize=(10, 6))
     tee_line, = plt.plot(days, tee, label='Total Energy Expenditure (TEE)', linewidth=2)
     rmr_line, = plt.plot(days, rmr, label='Resting Metabolic Rate (RMR)', linewidth=2, linestyle='--')
     dit_line, = plt.plot(days, dit, label='Dietary-Induced Thermogenesis (DIT)', linewidth=2, linestyle=':')
     spa_line, = plt.plot(days, spa, label='Spontaneous Physical Activity (SPA)', linewidth=2, linestyle='-.')
     pa_line, = plt.plot(days, pa, label='Physical Activity (PA)', linewidth=2, linestyle=':')
+
     plt.title('Energy Expenditure Components Over Time', fontsize=16)
     plt.xlabel('Days', fontsize=14)
     plt.ylabel('Energy (kcal/day)', fontsize=14)
     plt.legend()
     plt.grid(True)
-    
-    # Add interactive hover
+
+    # Add interactive hover for local display
     cursor = mplcursors.cursor([tee_line, rmr_line, dit_line, spa_line, pa_line], hover=True)
     cursor.connect(
         "add",
@@ -464,8 +516,49 @@ def plot_energy_expenditure(results):
             f"Day: {days[int(sel.target[0])]}, Value: {sel.target[1]:.2f}"
         )
     )
-    
-    plt.show()
+
+def save_energy_expenditure_plot(results):
+    """
+    Generate the energy expenditure plot and save it to memory for use in Flask.
+
+    Parameters:
+        results (list): A list of dictionaries containing the results of the simulation for
+        each day. [{day, weight, fat_mass, lean_mass, tee, rmr, dit, spa, pa}]
+
+    Returns:
+        io.BytesIO: BytesIO object containing the saved image.
+    """
+    create_energy_expenditure_plot(results)  # Generate the plot
+    image_buffer = io.BytesIO()
+    plt.savefig(image_buffer, format='png')  # Save to memory
+    image_buffer.seek(0)  # Reset buffer position to the beginning
+    plt.close()  # Close the figure to free memory
+    return image_buffer
+
+def get_energy_expenditure_plot_image(results):
+    """
+    Create a plot and return its image data for use in Flask app.
+
+    Parameters:
+        results (list): A list of dictionaries containing the results of the simulation for
+        each day. [{day, weight, fat_mass, lean_mass, tee, rmr, dit, spa, pa}]
+
+    Returns:
+        bytes: Image data in PNG format.
+    """
+    image_buffer = save_energy_expenditure_plot(results)
+    return image_buffer.getvalue()  # Return raw image data
+
+def plot_energy_expenditure_display(results):
+    """
+    Generate and display the energy expenditure plot locally.
+
+    Parameters:
+        results (list): A list of dictionaries containing the results of the simulation for
+        each day. [{day, weight, fat_mass, lean_mass, tee, rmr, dit, spa, pa}]
+    """
+    create_energy_expenditure_plot(results)  # Generate the plot
+    plt.show()  # Display the plot locally
 
 
 
@@ -542,5 +635,5 @@ if __name__ == "__main__":
     print_results(results)
 
     # Plot results
-    plot_weight_loss(results)
-    plot_energy_expenditure(results)
+    plot_weight_loss_display(results)
+    plot_energy_expenditure_display(results)
