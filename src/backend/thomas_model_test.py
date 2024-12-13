@@ -32,14 +32,14 @@ import mplcursors
 CF = 1020  # Energy density of FFM (kcal/kg)
 CL = 9500  # Energy density of FM (kcal/kg)
 S_LOSS = 2 / 3 # Constant used to calculate SPA during weight loss
-S_GAIN = 0.56 # Constant used to calculate SPA during weight gain
+S_GAIN = 2 / 3 # Constant used to calculate SPA during weight gain (previously 0.56)
 BETA_LOSS = 0.075 # Constant used to calculate DIT during weight loss
 BETA_GAIN = 0.086 # Constant used to calculate DIT during weight gain
 RMR = {"male": {"c": 293, "p": 0.433, "y": 5.92}, # RMR constants for Livingston-Kohlstadt formula
        "female": {"c": 248, "p": 0.4356, "y": 5.09}} 
 BASELINE_SPA_FACTOR = 0.326 # SPA(0) = 0.326 * E(0) or baseline energy
 CONVERSION_FACTOR = 2.20462  # lbs to kg conversion factor
-ESSENTIAL_FAT_MASS = {"male":5, "female":12}  # Essential fat mass in kg, smallest healthy fat mass
+ESSENTIAL_FAT_MASS = {"male":2.5, "female":5}  # Essential fat mass in kg, smallest healthy fat mass
 ESSENTIAL_LEAN_MASS = {"male": 18, "female": 18} # Smallest healthy lean mass in kg, smallest healthy lean mass
 
 # Functions
@@ -304,12 +304,12 @@ def run_simulation(sex, age, weight_kg, height_cm, energy_intake, duration_days)
     
     spa0 = BASELINE_SPA_FACTOR * baseline_energy # initial SPA needed to calculate PA
     pa = calculate_baseline_pa(baseline_energy, dit, spa0, rmr) 
-    spa = calculate_spa(rmr, pa, dit, "gain", 0)  # apply regular SPA calculation to find constant_c, s must equal 0.56 for "gain" for baseline SPA
-    constant_c = calculate_constant_c(baseline_energy, rmr, pa, dit, "gain")
+    constant_c = calculate_constant_c(baseline_energy, rmr, pa, dit, weight_change_phase)
     # Recalculate SPA with constant_c, should equal spa0
-    spa = calculate_spa(rmr, pa, dit, "gain", constant_c) 
+    spa = calculate_spa(rmr, pa, dit, weight_change_phase, constant_c) 
    
     # TEE should now equal baseline_energy
+    print(f"Baseline Energy: {baseline_energy:.2f} kcal/day, Initial TEE: {rmr + dit + spa + pa:.2f} kcal/day")
     tee = rmr + dit + spa + pa
 
     results = []
@@ -318,6 +318,7 @@ def run_simulation(sex, age, weight_kg, height_cm, energy_intake, duration_days)
             "weight": weight_kg,
             "fat_mass": fat_mass,
             "lean_mass": ffm,
+            "body_fat_percentage": fat_mass / weight_kg,
             "tee": tee,
             "rmr": rmr,
             "dit": dit,
@@ -393,6 +394,7 @@ def iterate_simulation(sex, age, weight_kg, height_cm, energy_intake, duration_d
             "weight": weight_kg,
             "fat_mass": fat_mass,
             "lean_mass": ffm,
+            "body_fat_percentage": fat_mass / weight_kg,
             "tee": tee,
             "rmr": rmr,
             "dit": dit,

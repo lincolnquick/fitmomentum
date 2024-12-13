@@ -88,6 +88,7 @@
                     <tr>
                         <th>Day</th>
                         <th>Weight (lbs)</th>
+                        <th>Body Fat (%)</th>
                         <th>Fat Mass (lbs)</th>
                         <th>Lean Mass (lbs)</th>
                         <th>TEE (kcal)</th>
@@ -133,6 +134,7 @@
                     const row = `<tr>
                         <td>${result.day}</td>
                         <td>${(result.weight * 2.20462).toFixed(2)}</td>
+                        <td>${(result.body_fat_percentage * 100).toFixed(2)}%</td>
                         <td>${(result.fat_mass * 2.20462).toFixed(2)}</td>
                         <td>${(result.lean_mass * 2.20462).toFixed(2)}</td>
                         <td>${result.tee.toFixed(2)}</td>
