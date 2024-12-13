@@ -134,8 +134,10 @@ def calculate_baseline_pa(baseline_energy, dit0, spa0, rmr0):
     """
     Calculate baseline physical activity (PA) based on baseline energy, DIT, SPA, and RMR.
     PA0 = baseline_energy - DIT0 - SPA0 - RMR0.
+
     Baseline PA is estimated after calculating baseline values for DIT and RMR, as well as
     estimating SPA as 32.6% of baseline energy.
+
     This assumes that baseline energy (TEE0) is already calculated.
 
     Parameters:
@@ -151,7 +153,7 @@ def calculate_baseline_pa(baseline_energy, dit0, spa0, rmr0):
 def calculate_ffm(fat_mass, age, t, height, sex):
     """
     Calculate Fat-Free Mass (FFM), also known as lean mass, based on fat mass, age, time, height, and sex, 
-    according to the differential equations proposed by Thomas et al. (2011).
+    according to the differential equations proposed by Thomas (2011).
     
     Parameters:
         fat_mass (float): Fat mass in kilograms.
@@ -222,8 +224,8 @@ def calculate_baseline_fat_mass(weight_kg, age, height_cm, sex):
 
 def calculate_baseline_energy_requirements(weight_kg, age, height_cm, sex):
     """
-    Calculate baseline energy requirements based on weight and sex using the linear regression analysis
-    performed by Thomas (2011) (equation 3)
+    Calculate baseline energy requirements based on weight and sex using the quadratic regression analysis
+    performed by Thomas (2011) (equation 3).
     
     This is used when the user does not provide an total energy expenditure (TEE) value 
     (also referred to as baseline energy or maintenance calories).
@@ -248,6 +250,8 @@ def calculate_baseline_energy_requirements(weight_kg, age, height_cm, sex):
         return -0.0971 * weight_kg**2 + 40.853 * weight_kg + 323.59
     elif sex == "female":
         return 0.0278 * weight_kg**2 + 9.2893 * weight_kg + 1528.9
+    else:
+        raise ValueError("Sex must be 'male' or 'female'.")
 
 def calculate_ffm_fm_changes(delta_e, fat_mass, age, t, height, sex):
     """
@@ -300,10 +304,10 @@ def run_simulation(sex, age, weight_kg, height_cm, energy_intake, duration_days)
     
     spa0 = BASELINE_SPA_FACTOR * baseline_energy # initial SPA needed to calculate PA
     pa = calculate_baseline_pa(baseline_energy, dit, spa0, rmr) 
-    spa = calculate_spa(rmr, pa, dit, weight_change_phase, 0)  # apply regular SPA calculation to find constant_c
-    constant_c = calculate_constant_c(baseline_energy, rmr, pa, dit, weight_change_phase)
+    spa = calculate_spa(rmr, pa, dit, "gain", 0)  # apply regular SPA calculation to find constant_c, s must equal 0.56 for "gain" for baseline SPA
+    constant_c = calculate_constant_c(baseline_energy, rmr, pa, dit, "gain")
     # Recalculate SPA with constant_c, should equal spa0
-    spa = calculate_spa(rmr, pa, dit, weight_change_phase, constant_c) 
+    spa = calculate_spa(rmr, pa, dit, "gain", constant_c) 
    
     # TEE should now equal baseline_energy
     tee = rmr + dit + spa + pa
