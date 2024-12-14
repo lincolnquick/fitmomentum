@@ -1,153 +1,139 @@
-//
-//  ContentView.swift
-//  FitMomentum
-//
-//  Created by Lincoln Quick on 12/4/24.
-//
-
 import SwiftUI
-import SwiftData
-import HealthKit
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
-    
-    let healthStore = HKHealthStore()
-    
-    // Define the data types to read
-    let readTypes: Set<HKObjectType> = [
-        HKObjectType.quantityType(forIdentifier: .bodyMass)!,
-        HKObjectType.quantityType(forIdentifier: .bodyFatPercentage)!,
-        HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!
-    ]
-    
-    // Define the data types to write
-    let writeTypes: Set<HKSampleType> = [
-        HKObjectType.quantityType(forIdentifier: .bodyMass)!,
-        HKObjectType.quantityType(forIdentifier: .bodyFatPercentage)!
-    ]
-
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
+        TabView {
+            // Main Dashboard View
+            DashboardView()
+                .tabItem {
+                    Label("Dashboard", systemImage: "house.fill")
                 }
-                .onDelete(perform: deleteItems)
-                
-                // Add buttons to trigger HealthKit actions
-                Button("Request HealthKit Authorization") {
-                    requestHealthKitAuthorization()
-                }
-                
-                
-                Button("Fetch Weight Data") {
-                    fetchWeightSamples()
-                }
-                
-                
-                Button("Save Weight Sample") {
-                    saveWeightSample(weightInKg: 70.0, date: Date())
-                }
-            
-                
-            }
-#if os(macOS)
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
-#endif
-            .toolbar {
-#if os(iOS)
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-#endif
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-        } detail: {
-            VStack {
-                Text("Select an item")
-                
-                
-                .padding()
-            }
-        }
-    }
 
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
-            }
-        }
-    }
-
-    // MARK: - HealthKit Functions
-
-    /// Request authorization to access HealthKit data
-    private func requestHealthKitAuthorization() {
-        healthStore.requestAuthorization(toShare: writeTypes, read: readTypes) { (success, error) in
-            if success {
-                print("HealthKit authorization granted.")
-            } else {
-                print("HealthKit authorization denied. Error: \(String(describing: error))")
-            }
-        }
-    }
-
-    /// Fetch recent weight samples from HealthKit
-    private func fetchWeightSamples() {
-        let weightType = HKObjectType.quantityType(forIdentifier: .bodyMass)!
-        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
-        let query = HKSampleQuery(sampleType: weightType, predicate: nil, limit: 10, sortDescriptors: [sortDescriptor]) { query, results, error in
-            if let error = error {
-                print("Error fetching weight samples: \(error.localizedDescription)")
-                return
-            }
-            
-            if let results = results as? [HKQuantitySample] {
-                for sample in results {
-                    let weightInKg = sample.quantity.doubleValue(for: HKUnit.gramUnit(with: .kilo))
-                    let date = sample.startDate
-                    print("Weight: \(weightInKg) kg, Date: \(date)")
+            // Placeholder for other tabs
+            Text("Nutrition")
+                .tabItem {
+                    Label("Nutrition", systemImage: "leaf.fill")
                 }
-            }
-        }
-        healthStore.execute(query)
-    }
 
-    /// Save a weight sample to HealthKit
-    private func saveWeightSample(weightInKg: Double, date: Date) {
-        let weightType = HKObjectType.quantityType(forIdentifier: .bodyMass)!
-        let weightQuantity = HKQuantity(unit: HKUnit.gramUnit(with: .kilo), doubleValue: weightInKg)
-        let weightSample = HKQuantitySample(type: weightType, quantity: weightQuantity, start: date, end: date)
-        
-        healthStore.save(weightSample) { (success, error) in
-            if success {
-                print("Weight sample saved successfully.")
-            } else {
-                print("Error saving weight sample: \(String(describing: error))")
-            }
+            Text("Predictions")
+                .tabItem {
+                    Label("Predictions", systemImage: "chart.bar.fill")
+                }
+
+            Text("Progress")
+                .tabItem {
+                    Label("Progress", systemImage: "flag.fill")
+                }
+
+            Text("More")
+                .tabItem {
+                    Label("More", systemImage: "ellipsis")
+                }
         }
     }
 }
 
-#Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+struct DashboardView: View {
+    var body: some View {
+        VStack {
+            // Header Section
+            HStack {
+                // Profile Picture
+                Circle()
+                    .fill(Color.gray.opacity(0.2))
+                    .frame(width: 40, height: 40)
+                    .overlay(
+                        Text("P")
+                            .foregroundColor(.blue)
+                            .font(.headline)
+                    )
+
+                Spacer()
+
+                // Logo Placeholder
+                Text("FitMomentum")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.blue)
+
+                Spacer()
+
+                // Settings Icon
+                Image(systemName: "gearshape")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 25, height: 25)
+                    .foregroundColor(.gray)
+            }
+            .padding()
+            .background(Color.gray.opacity(0.1))
+            .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+            .safeAreaInset(edge: .top) { // Ensure the header respects safe areas
+                Color.clear.frame(height: 0)
+            }
+
+            // Scrollable Content
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Card 1: Recent Weight Trends
+                    RoundedRectangle(cornerRadius: 15)
+                        .fill(Color.gray.opacity(0.2))
+                        .frame(height: UIScreen.main.bounds.height / 3.5)
+                        .overlay(
+                            Text("Recent Weight Trends")
+                                .font(.headline)
+                                .foregroundColor(.blue)
+                        )
+
+                    // Card 2: Weight Loss Progress
+                    RoundedRectangle(cornerRadius: 15)
+                        .fill(Color.gray.opacity(0.2))
+                        .frame(height: UIScreen.main.bounds.height / 3.5)
+                        .overlay(
+                            Text("Weight Loss Progress")
+                                .font(.headline)
+                                .foregroundColor(.blue)
+                        )
+
+                    // Additional Cards
+                    RoundedRectangle(cornerRadius: 15)
+                        .fill(Color.gray.opacity(0.2))
+                        .frame(height: UIScreen.main.bounds.height / 3.5)
+                        .overlay(
+                            Text("Daily Checklist")
+                                .font(.headline)
+                                .foregroundColor(.blue)
+                        )
+
+                    RoundedRectangle(cornerRadius: 15)
+                        .fill(Color.gray.opacity(0.2))
+                        .frame(height: UIScreen.main.bounds.height / 3.5)
+                        .overlay(
+                            Text("Predictions")
+                                .font(.headline)
+                                .foregroundColor(.blue)
+                        )
+
+                    RoundedRectangle(cornerRadius: 15)
+                        .fill(Color.gray.opacity(0.2))
+                        .frame(height: UIScreen.main.bounds.height / 3.5)
+                        .overlay(
+                            Text("Recent Nutrition Trends")
+                                .font(.headline)
+                                .foregroundColor(.blue)
+                        )
+
+                    RoundedRectangle(cornerRadius: 15)
+                        .fill(Color.gray.opacity(0.2))
+                        .frame(height: UIScreen.main.bounds.height / 3.5)
+                        .overlay(
+                            Text("Recent Step Trends")
+                                .font(.headline)
+                                .foregroundColor(.blue)
+                        )
+                }
+                .padding()
+            }
+        }
+    }
 }
