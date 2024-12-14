@@ -27,12 +27,15 @@ import matplotlib.pyplot as plt
 import matplotlib
 import io
 import mplcursors
+import scipy.optimize as opt
+from scipy.optimize import fsolve
+
 
 # Constants
 CF = 1020  # Energy density of FFM (kcal/kg)
 CL = 9500  # Energy density of FM (kcal/kg)
 S_LOSS = 2 / 3 # Constant used to calculate SPA during weight loss
-S_GAIN = 2 / 3 # Constant used to calculate SPA during weight gain (previously 0.56)
+S_GAIN = 0.56 # Constant used to calculate SPA during weight gain 
 BETA_LOSS = 0.075 # Constant used to calculate DIT during weight loss
 BETA_GAIN = 0.086 # Constant used to calculate DIT during weight gain
 RMR = {"male": {"c": 293, "p": 0.433, "y": 5.92}, # RMR constants for Livingston-Kohlstadt formula
@@ -200,11 +203,13 @@ def calculate_ffm(fat_mass, age, t, height, sex):
 
 def calculate_baseline_fat_mass(weight_kg, age, height_cm, sex):
     """
-    Calculate baseline fat mass based on weight, age, height, and sex using the linear regression analysis 
-    performed by Thomas et al. (2011).
-
     This calculation is used when the user enters a weight and does not provide a fat mass or 
     body fat percentage.
+
+    W0 = FFM(0) + F(0), where W(0) is the initial weight provided by the user, FFM(0) is the initial fat-free mass
+    calculated based on the NHANES FFM formula proposed by Thomas and Heymsfield (2011), and F(0) is the initial fat mass.
+
+    weight_kg = calculate_ffm(fat_mass, age, 0, height, sex) + fat_mass
 
     Parameters:
         weight_kg (float): Weight in kilograms.
@@ -215,12 +220,28 @@ def calculate_baseline_fat_mass(weight_kg, age, height_cm, sex):
     Returns:
         float: Baseline fat mass in kilograms.
     """
+    # t = 0  # Fixed time value for calculation
+
+    # # Define the equation to solve: weight_kg = ffm + fat_mass
+    # def equation(fat_mass):
+    #     ffm = calculate_ffm(fat_mass, age, t, height_cm, sex)
+    #     return ffm + fat_mass - weight_kg
+
+    # # Use numerical solver to find the root (fat_mass)
+    # result = opt.root_scalar(equation, bracket=[0, weight_kg], method='brentq')
+    # if result.converged:
+    #     return result.root
+    # else:
+    #     raise ValueError("Failed to converge on a solution for fat_mass.")
     if sex == "male":
         return max(24.96493 + 0.064761 * age - 0.28889 * height_cm + 0.55342 * weight_kg, 0)
     elif sex == "female":
         return max(18.19812 + 0.043109 * age - 0.23014 * height_cm + 0.641413 * weight_kg, 0)
     else:
         raise ValueError("Sex must be 'male' or 'female'.")
+
+
+
 
 def calculate_baseline_energy_requirements(weight_kg, age, height_cm, sex):
     """
@@ -253,28 +274,25 @@ def calculate_baseline_energy_requirements(weight_kg, age, height_cm, sex):
     else:
         raise ValueError("Sex must be 'male' or 'female'.")
 
-def calculate_ffm_fm_changes(delta_e, fat_mass, age, t, height, sex):
+# Function for partial derivatives
+def calculate_partial_derivatives(fat_mass, age, t, height, sex):
     """
-    Calculate the changes in fat mass (F) and fat-free mass (FFM) based on the energy balance equation
-    proposed by Thomas et al. (2011).
-    
-    Parameters:
-        delta_e (float): Energy balance (energy intake - total energy expenditure) in kcal/day.
-        fat_mass (float): Fat mass in kilograms.
-        age (int): Age in years. (not currently used in this implementation)
-        t (int): Time in days. (not currently used in this implementation)
-        height (float): Height in centimeters. (not currently used in this implementation)
-        sex (str): "male" or "female" (not currently used in this implementation)
-        
-        Returns:
-        tuple: A tuple containing the rate of change in fat mass (dF_dt) and fat-free mass (dFFM_dt) in kg/day.
-        """
-    partial_ffm_f = 1 / (fat_mass + 1)  # Avoid division by zero
-    dF_dt = (delta_e - CF * partial_ffm_f) / (CL + CF * partial_ffm_f)
-    dFFM_dt = partial_ffm_f * dF_dt
-    return dF_dt, dFFM_dt
+    Calculate numerical partial derivatives of FFM with respect to fat_mass and time.
+    """
+    epsilon = 1e-5  # Small perturbation
+    # Partial derivative with respect to fat_mass
+    ffm_f_plus = calculate_ffm(fat_mass + epsilon, age, t, height, sex)
+    ffm_f_minus = calculate_ffm(fat_mass - epsilon, age, t, height, sex)
+    dFFM_dF = (ffm_f_plus - ffm_f_minus) / (2 * epsilon)
 
-def run_simulation(sex, age, weight_kg, height_cm, energy_intake, duration_days):
+    # Partial derivative with respect to time
+    ffm_t_plus = calculate_ffm(fat_mass, age, t + epsilon, height, sex)
+    ffm_t_minus = calculate_ffm(fat_mass, age, t - epsilon, height, sex)
+    dFFM_dt = (ffm_t_plus - ffm_t_minus) / (2 * epsilon)
+
+    return dFFM_dF, dFFM_dt
+
+def run_simulation(sex, age, weight_kg, height_cm, energy_intake, duration_days, body_fat_percentage=0):
     """
     Run a simulation of weight loss or gain over a specified duration based on the Thomas et al. (2011) model.
     
@@ -296,7 +314,11 @@ def run_simulation(sex, age, weight_kg, height_cm, energy_intake, duration_days)
     baseline_energy = calculate_baseline_energy_requirements(weight_kg, age, height_cm, sex)
     weight_change_phase = "loss" if energy_intake < baseline_energy else "gain"
 
-    fat_mass = calculate_baseline_fat_mass(weight_kg, age, height_cm, sex)
+    # Use user input for body fat percentage if provided, otherwise estimate baseline fat mass
+    if (body_fat_percentage is None or body_fat_percentage <= 0):
+        fat_mass = calculate_baseline_fat_mass(weight_kg, age, height_cm, sex)
+    else:
+        fat_mass = weight_kg * body_fat_percentage
     ffm = weight_kg - fat_mass
 
     rmr = calculate_rmr(weight_kg, age, sex)
@@ -364,8 +386,23 @@ def iterate_simulation(sex, age, weight_kg, height_cm, energy_intake, duration_d
         delta_energy = energy_intake - tee
         weight_change_phase = "loss" if delta_energy < 0 else "gain"
 
-        # Calculate changes in F and FFM
-        dF_dt, dFFM_dt = calculate_ffm_fm_changes(delta_energy, fat_mass, age, day, height_cm, sex)
+        # Calculate partial derivatives
+        dFFM_dF, dFFM_dt = calculate_partial_derivatives(fat_mass, age, day, height_cm, sex)
+
+        # Define the coupled equations
+        def coupled_equations(d_vars):
+            dF_dt = d_vars[0]
+            dFFM_dt_calc = dFFM_dF * dF_dt + dFFM_dt
+            eq1 = CL * dFFM_dt_calc + CF * dF_dt - delta_energy  # Energy balance equation
+            return [eq1]
+
+        # Solve for dF/dt
+        dF_dt = fsolve(coupled_equations, [0])[0]
+
+        # Calculate dFFM/dt using the relationship
+        dFFM_dt = dFFM_dF * dF_dt + dFFM_dt
+
+
         fat_mass += dF_dt
         ffm += dFFM_dt
 
@@ -580,7 +617,8 @@ def print_results(results):
     """
     print("Day\tWeight(lb)\tBody Fat (%)\tFat Mass(lb)\tLean Mass(lb)\tTEE(kcal)\tRMR(kcal)\tDIT(kcal)\tSPA(kcal)\tPA(kcal)")
     for res in results:
-        print(f"{res['day']}\t{res['weight']*CONVERSION_FACTOR:.2f}\t\t{res['fat_mass']/res['weight']:.2f}%\t\t{res['fat_mass']*CONVERSION_FACTOR:.2f}\t\t{res['lean_mass']*CONVERSION_FACTOR:.2f}\t\t{res['tee']:.2f}\t\t{res['rmr']:.2f}\t\t{res['dit']:.2f}\t\t{res['spa']:.2f}\t\t{res['pa']:.2f}")
+        body_fat_percentage = res['fat_mass'] / res['weight'] * 100.0
+        print(f"{res['day']}\t{res['weight']*CONVERSION_FACTOR:.2f}\t\t{body_fat_percentage:.2f}%\t\t{res['fat_mass']*CONVERSION_FACTOR:.2f}\t\t{res['lean_mass']*CONVERSION_FACTOR:.2f}\t\t{res['tee']:.2f}\t\t{res['rmr']:.2f}\t\t{res['dit']:.2f}\t\t{res['spa']:.2f}\t\t{res['pa']:.2f}")
 
 def get_user_input():
     """

@@ -9,7 +9,6 @@ struct ContentView: View {
                     Label("Dashboard", systemImage: "house.fill")
                 }
 
-            // Placeholder for other tabs
             Text("Nutrition")
                 .tabItem {
                     Label("Nutrition", systemImage: "leaf.fill")
@@ -75,17 +74,10 @@ struct DashboardView: View {
             // Scrollable Content
             ScrollView {
                 VStack(spacing: 20) {
-                    // Card 1: Recent Weight Trends
-                    RoundedRectangle(cornerRadius: 15)
-                        .fill(Color.gray.opacity(0.2))
-                        .frame(height: UIScreen.main.bounds.height / 3.5)
-                        .overlay(
-                            Text("Recent Weight Trends")
-                                .font(.headline)
-                                .foregroundColor(.blue)
-                        )
+                    // Recent Weight Trends Card
+                    WeightTrendsCard()
 
-                    // Card 2: Weight Loss Progress
+                    // Weight Loss Progress Card
                     RoundedRectangle(cornerRadius: 15)
                         .fill(Color.gray.opacity(0.2))
                         .frame(height: UIScreen.main.bounds.height / 3.5)
@@ -95,7 +87,7 @@ struct DashboardView: View {
                                 .foregroundColor(.blue)
                         )
 
-                    // Additional Cards
+                    // Daily Checklist Card
                     RoundedRectangle(cornerRadius: 15)
                         .fill(Color.gray.opacity(0.2))
                         .frame(height: UIScreen.main.bounds.height / 3.5)
@@ -104,7 +96,8 @@ struct DashboardView: View {
                                 .font(.headline)
                                 .foregroundColor(.blue)
                         )
-
+                    
+                    // Predictions Card
                     RoundedRectangle(cornerRadius: 15)
                         .fill(Color.gray.opacity(0.2))
                         .frame(height: UIScreen.main.bounds.height / 3.5)
@@ -113,7 +106,8 @@ struct DashboardView: View {
                                 .font(.headline)
                                 .foregroundColor(.blue)
                         )
-
+                    
+                    // Recent Nutrition Trends Card
                     RoundedRectangle(cornerRadius: 15)
                         .fill(Color.gray.opacity(0.2))
                         .frame(height: UIScreen.main.bounds.height / 3.5)
@@ -123,6 +117,7 @@ struct DashboardView: View {
                                 .foregroundColor(.blue)
                         )
 
+                    // Recent Step Trends Card
                     RoundedRectangle(cornerRadius: 15)
                         .fill(Color.gray.opacity(0.2))
                         .frame(height: UIScreen.main.bounds.height / 3.5)

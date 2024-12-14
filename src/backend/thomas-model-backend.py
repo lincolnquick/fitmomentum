@@ -1,6 +1,6 @@
 import base64
 from flask import Flask, render_template, request, jsonify
-from thomas_model_test import run_simulation, get_weight_loss_plot_image, get_energy_expenditure_plot_image
+from thomas_model import run_simulation, get_weight_loss_plot_image, get_energy_expenditure_plot_image
 
 app = Flask(__name__ , template_folder='templates')
 
@@ -33,10 +33,11 @@ def simulate():
     weight = data['weight'] / 2.20462  # Convert lbs to kg
     height = data['height'] * 2.54  # Convert inches to cm
     energy_intake = data['energy_intake']
+    body_fat_percentage = data['body_fat_percentage']
     duration = data['duration']
 
     # Run simulation
-    results = run_simulation(sex, age, weight, height, energy_intake, duration)
+    results = run_simulation(sex, age, weight, height, energy_intake, duration, body_fat_percentage)
 
     # Generate plots
     weight_loss_plot_buffer = get_weight_loss_plot_image(results)
