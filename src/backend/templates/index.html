@@ -11,16 +11,20 @@
         #results-table {
             margin-top: 20px;
         }
+        #early-end-message {
+            color: red;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
-    <div class="container my-4">
+    <div class="container my-3">
         <h1 class="text-center">Weight Loss Prediction Tool</h1>
         <p class="text-center">Use this tool to simulate body composition and energy expenditure changes over time.</p>
 
         <div class="row">
             <!-- Input Panel -->
-            <div class="col-lg-4 mb-4">
+            <div class="col-lg-3 mb-4">
                 <div class="card">
                     <div class="card-header">Simulation Inputs</div>
                     <div class="card-body">
@@ -51,7 +55,11 @@
                             </div>
                             <div class="mb-3">
                                 <label for="duration" class="form-label">Duration (days)</label>
-                                <input type="number" id="duration" class="form-control" min="1" max="1000"required>
+                                <input type="number" id="duration" class="form-control" min="1" max="1000" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="start-date" class="form-label">Start Date</label>
+                                <input type="date" id="start-date" class="form-control" value="<%= new Date().toISOString().split('T')[0] %>" required>
                             </div>
                             <button type="submit" class="btn btn-primary w-100">Run Simulation</button>
                         </form>
@@ -60,7 +68,7 @@
             </div>
 
             <!-- Graphs Section -->
-            <div class="col-lg-8">
+            <div class="col-lg-9">
                 <ul class="nav nav-tabs" id="graph-tabs" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="weight-loss-tab" data-bs-toggle="tab" data-bs-target="#weight-loss" type="button" role="tab">Weight Loss</button>
@@ -71,13 +79,18 @@
                 </ul>
                 <div class="tab-content mt-3">
                     <div class="tab-pane fade show active" id="weight-loss" role="tabpanel">
-                        <img id="weight-loss-plot" class="img-fluid w-100 h-100" alt="Weight Loss Plot">
+                        <img id="weight-loss-plot" class="img-fluid w-100 h-100" style="object-fit: cover; padding: 1px;" alt="Weight Loss Plot">
                     </div>
                     <div class="tab-pane fade" id="energy-expenditure" role="tabpanel">
-                        <img id="energy-expenditure-plot" class="img-fluid w-100 h-100" alt="Energy Expenditure Plot">
+                        <img id="energy-expenditure-plot" class="img-fluid w-100 h-100" style="object-fit: cover; padding: 1px;" alt="Energy Expenditure Plot">
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Early End Message -->
+        <div id="early-end-message" class="text-center mt-3" style="display: none;">
+            Simulation ended early due to reaching unhealthy low weight
         </div>
 
         <!-- Results Table -->
@@ -87,6 +100,7 @@
                 <thead>
                     <tr>
                         <th>Day</th>
+                        <th>Date</th>
                         <th>Weight (lbs)</th>
                         <th>Body Fat (%)</th>
                         <th>Fat Mass (lbs)</th>
@@ -110,13 +124,15 @@
             event.preventDefault();
 
             // Gather form data
+            const startDate = new Date(document.getElementById('start-date').value);
+            const duration = parseInt(document.getElementById('duration').value);
             const data = {
                 sex: document.getElementById('sex').value,
                 age: parseInt(document.getElementById('age').value),
                 weight: parseFloat(document.getElementById('weight').value),
                 height: parseFloat(document.getElementById('height').value),
                 energy_intake: parseFloat(document.getElementById('energy-intake').value),
-                duration: parseInt(document.getElementById('duration').value)
+                duration: duration
             };
 
             try {
@@ -130,9 +146,22 @@
                 // Populate results table
                 const resultsBody = document.getElementById('results-body');
                 resultsBody.innerHTML = '';
-                response.data.results.forEach(result => {
+
+                // Check if the simulation ended early
+                if (response.data.results.length < duration) {
+                    document.getElementById('early-end-message').style.display = 'block';
+                } else {
+                    document.getElementById('early-end-message').style.display = 'none';
+                }
+
+                response.data.results.forEach((result, index) => {
+                    const currentDate = new Date(startDate);
+                    currentDate.setDate(currentDate.getDate() + index);
+                    const formattedDate = currentDate.toISOString().split('T')[0];
+
                     const row = `<tr>
                         <td>${result.day}</td>
+                        <td>${formattedDate}</td>
                         <td>${(result.weight * 2.20462).toFixed(2)}</td>
                         <td>${(result.body_fat_percentage * 100).toFixed(2)}%</td>
                         <td>${(result.fat_mass * 2.20462).toFixed(2)}</td>
