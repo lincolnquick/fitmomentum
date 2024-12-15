@@ -1,0 +1,21 @@
+Test of Thomas Model with Racette et al. (2006) Data
+----------------------------------------------------
+Parameters:
+Sex: male
+Age: 55 years
+Initial Weight: 78.50 kg
+Height: 170.00 cm
+Energy Intake: 2206.30 kcal/day
+Duration: 365 days
+Baseline Body Fat Percentage: 32.99%
+
+Results:
+Predicted Weight: 66.99 kg (Expected: 70.50 kg)
+Predicted Fat Mass: 14.46 kg (Expected: 19.70 kg)
+Predicted FFM: 52.53 kg (Expected: 51.90 kg)
+
+Errors:
+Weight Error: 4.98%
+Fat Mass Error: 26.62%
+FFM Error: 1.22%
+

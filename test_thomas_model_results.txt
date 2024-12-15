@@ -1,0 +1,72 @@
+Thomas Model Testing Results
+==================================================
+
+Study: Racette et al. (2006)
+--------------------------------------------------
+Parameters:
+Sex: male
+Age: 55 years
+Initial Weight: 78.50 kg
+Height: 170.00 cm
+Energy Intake: 2206.30 kcal/day
+Duration: 365 days
+Baseline Body Fat Percentage: 32.99%
+
+Results:
+Predicted Weight: 66.99 kg (Expected: 70.50 kg)
+Predicted Fat Mass: 14.46 kg (Expected: 19.70 kg)
+Predicted FFM: 52.53 kg (Expected: 51.90 kg)
+
+Errors:
+Weight Error: 4.98%
+Fat Mass Error: 26.62%
+FFM Error: 1.22%
+
+==================================================
+
+Study: Martin et al. (2011)
+--------------------------------------------------
+Parameters:
+Sex: female
+Age: 45 years
+Initial Weight: 70.20 kg
+Height: 165.00 cm
+Energy Intake: 1600.00 kcal/day
+Duration: 180 days
+Baseline Body Fat Percentage: 42.74%
+
+Results:
+Predicted Weight: 50.50 kg (Expected: 65.10 kg)
+Predicted Fat Mass: 10.30 kg (Expected: 25.00 kg)
+Predicted FFM: 40.20 kg (Expected: 40.10 kg)
+
+Errors:
+Weight Error: 22.43%
+Fat Mass Error: 58.80%
+FFM Error: 0.25%
+
+==================================================
+
+Study: Leibel et al. (1995)
+--------------------------------------------------
+Parameters:
+Sex: male
+Age: 40 years
+Initial Weight: 90.00 kg
+Height: 180.00 cm
+Energy Intake: 2550.00 kcal/day
+Duration: 90 days
+Baseline Body Fat Percentage: 30.00%
+
+Results:
+Predicted Weight: 86.06 kg (Expected: 85.00 kg)
+Predicted Fat Mass: 23.08 kg (Expected: 23.00 kg)
+Predicted FFM: 62.98 kg (Expected: 62.00 kg)
+
+Errors:
+Weight Error: 1.25%
+Fat Mass Error: 0.33%
+FFM Error: 1.58%
+
+==================================================
+

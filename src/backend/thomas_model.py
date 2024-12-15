@@ -35,18 +35,20 @@ from scipy.optimize import fsolve
 CF = 1020  # Energy density of FFM (kcal/kg)
 CL = 9500  # Energy density of FM (kcal/kg)
 S_LOSS = 2 / 3 # Constant used to calculate SPA during weight loss
-S_GAIN = 0.56 # Constant used to calculate SPA during weight gain 
+S_GAIN = 2 / 3 # Constant used to calculate SPA during weight gain (was 0.56)
 BETA_LOSS = 0.075 # Constant used to calculate DIT during weight loss
 BETA_GAIN = 0.086 # Constant used to calculate DIT during weight gain
 RMR = {"male": {"c": 293, "p": 0.433, "y": 5.92}, # RMR constants for Livingston-Kohlstadt formula
        "female": {"c": 248, "p": 0.4356, "y": 5.09}} 
+A_METABOLIC = {"CR0": 0.061, "CR3": 0.059, "CR6": 0.059, # Calorie Restriction 3,6 month
+            "VLCR0": 0.054, "VLCR3": 0.053, "VLCR6": 0.053} # Very Low Calorie Diet 3, 6 month 
 BASELINE_SPA_FACTOR = 0.326 # SPA(0) = 0.326 * E(0) or baseline energy
 CONVERSION_FACTOR = 2.20462  # lbs to kg conversion factor
 ESSENTIAL_FAT_MASS = {"male":2.5, "female":5}  # Essential fat mass in kg, smallest healthy fat mass
 ESSENTIAL_LEAN_MASS = {"male": 18, "female": 18} # Smallest healthy lean mass in kg, smallest healthy lean mass
 
 # Functions
-def calculate_rmr(weight, age, sex):
+def calculate_rmr(weight, age, sex, a=0):
     """
     Calculate the Resting Metabolic Rate (RMR) based on weight, age, and sex using
     the Livingston-Kohlstadt formula.
@@ -55,12 +57,13 @@ def calculate_rmr(weight, age, sex):
         weight (float): Weight in kilograms.
         age (float): Age in years.
         sex (str): 'male' or 'female'.
+        a (float): Constant for metabolic adaptation (default 0), where 0 <= a <= 1.
     
     Returns:
         float: Resting Metabolic Rate (RMR) in kcal/day.
     """
     c, p, y = RMR[sex].values()
-    rmr = c * (max(weight, 0) ** p) - y * age
+    rmr = (1 - a) * c * (max(weight, 0) ** p) - y * age
     return max(rmr, 0)
 
 def calculate_pa(weight, baseline_pa, baseline_weight):
@@ -113,6 +116,7 @@ def calculate_spa(rmr, pa, dit, weight_change_phase, constant_c):
     """
     s = S_LOSS if weight_change_phase == "loss" else S_GAIN
     spa = (s / (1 - s)) * (dit + pa + rmr) + constant_c
+    print(f"(s / (1 - s)) {(s / (1 - s))} * {(dit + pa + rmr)} + {constant_c} = {spa}")
     return max(spa, 0)
 
 def calculate_constant_c(baseline_energy, rmr, pa, dit, weight_change_phase):
@@ -279,7 +283,7 @@ def calculate_partial_derivatives(fat_mass, age, t, height, sex):
     """
     Calculate numerical partial derivatives of FFM with respect to fat_mass and time.
     """
-    epsilon = 1e-5  # Small perturbation
+    epsilon = 0.002  # Small perturbation
     # Partial derivative with respect to fat_mass
     ffm_f_plus = calculate_ffm(fat_mass + epsilon, age, t, height, sex)
     ffm_f_minus = calculate_ffm(fat_mass - epsilon, age, t, height, sex)
@@ -331,7 +335,6 @@ def run_simulation(sex, age, weight_kg, height_cm, energy_intake, duration_days,
     spa = calculate_spa(rmr, pa, dit, weight_change_phase, constant_c) 
    
     # TEE should now equal baseline_energy
-    print(f"Baseline Energy: {baseline_energy:.2f} kcal/day, Initial TEE: {rmr + dit + spa + pa:.2f} kcal/day")
     tee = rmr + dit + spa + pa
 
     results = []
@@ -380,31 +383,32 @@ def iterate_simulation(sex, age, weight_kg, height_cm, energy_intake, duration_d
         list: A list of dictionaries containing the updated results of the simulation for each day.
         [{day, weight, fat_mass, lean_mass, tee, rmr, dit, spa, pa}]
         """
+    delta_t = 1  # Time step (1 day)
     for day in range(1, duration_days + 1):
         
         tee = rmr + dit + spa + pa
         delta_energy = energy_intake - tee
         weight_change_phase = "loss" if delta_energy < 0 else "gain"
 
-        # Calculate partial derivatives
-        dFFM_dF, dFFM_dt = calculate_partial_derivatives(fat_mass, age, day, height_cm, sex)
-
-        # Define the coupled equations
-        def coupled_equations(d_vars):
-            dF_dt = d_vars[0]
-            dFFM_dt_calc = dFFM_dF * dF_dt + dFFM_dt
-            eq1 = CL * dFFM_dt_calc + CF * dF_dt - delta_energy  # Energy balance equation
-            return [eq1]
+       # Calculate partial derivatives
+        part_dFFM_dF, part_dFFM_dt = calculate_partial_derivatives(fat_mass, age, day, height_cm, sex)
+        
 
         # Solve for dF/dt
-        dF_dt = fsolve(coupled_equations, [0])[0]
+        dF_dt = (delta_energy - CL * part_dFFM_dt) / (CL * part_dFFM_dF + CF)
+        #print(f"dF_dt: {dF_dt}")
 
         # Calculate dFFM/dt using the relationship
-        dFFM_dt = dFFM_dF * dF_dt + dFFM_dt
+        dFFM_dt_calc = part_dFFM_dF * dF_dt + part_dFFM_dt
+        #print(f"dFFM_dt: {dFFM_dt_calc}")
 
-
-        fat_mass += dF_dt
-        ffm += dFFM_dt
+        # Update fat mass and lean mass
+        fat_mass += delta_t * dF_dt
+        ffm += delta_t * dFFM_dt_calc
+        print(f"Day {day}:")
+        print(f"Fat Mass change: {delta_t * dF_dt * CONVERSION_FACTOR} lbs")
+        print(f"Lean Mass change: {delta_t * dFFM_dt_calc * CONVERSION_FACTOR} lbs")
+        print("-----------------")
 
         # Check if weight loss is within healthy limits, terminate simulation if not.
         if fat_mass < ESSENTIAL_FAT_MASS[sex]:
@@ -416,9 +420,26 @@ def iterate_simulation(sex, age, weight_kg, height_cm, energy_intake, duration_d
             print(f"Warning: Lean mass is below healthy limit on day {day}. Simulation ended early.")
             break
 
+        metabolic_adaptation = 0
+        if day >= 180:
+            if (delta_energy < -1000):  # Very Low Calorie Diet 6 months
+                metabolic_adaptation = A_METABOLIC["VLCR6"]
+            elif (delta_energy < 0): # Calorie Restriction 6 month
+                metabolic_adaptation = A_METABOLIC["CR6"]
+        elif day >= 90:
+            if (delta_energy < -1000): # Very Low Calorie Diet 3 months
+                metabolic_adaptation = A_METABOLIC["VLCR3"]
+            elif (delta_energy < 0): # Calorie Restriction 3 months
+                metabolic_adaptation = A_METABOLIC["CR3"]
+        else:
+            if (delta_energy < -1000): # Very Low Calorie Diet 0 months
+                metabolic_adaptation = A_METABOLIC["VLCR0"]
+            elif (delta_energy < 0): # Calorie Restriction 0 months
+                metabolic_adaptation = A_METABOLIC["CR0"]
+
         # Update dependent variables
         weight_kg = fat_mass + ffm
-        rmr = calculate_rmr(weight_kg, age + day/365, sex)
+        rmr = calculate_rmr(weight_kg, age + day/365, sex, metabolic_adaptation)
         dit = calculate_dit(energy_intake, weight_change_phase)
         pa = calculate_pa(weight_kg, results[0]["pa"], results[0]["weight"])
         spa = calculate_spa(rmr, pa, dit, weight_change_phase, c)
