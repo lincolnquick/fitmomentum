@@ -216,24 +216,45 @@ def simulate_hall_model(duration_days, sex, age, body_weight, height, energy_int
 
     Parameters:
         duration_days (int): Simulation duration in days.
+        sex (str): Either "male" or "female"
+        age (int): Age in years.
         body_weight (float): Initial body weight in kilograms.
         height (float): Height in meters.
         energy_intake (float): Energy intake in MJ/day.
         baseline_ci (float): Baseline carbohydrate intake in grams/day.
-        baseline_ei (float): Baseline energy intake in MJ/day.
+        baseline_ei (float): Baseline energy intake (maintenance calories at beginning) in MJ/day.
+        body_fat_percentage (float): Initial body fat percentage. If None, it is estimated based on body weight and height.
+        pal_factor (float): Physical activity level (PAL), a multiplier for total energy expenditure in the range of 1.4 to 2.5.
 
     Returns:
-        list: Simulation results containing daily weight, fat mass, and lean mass.
+        list: Simulation results containing daily weight, body fat percentage, fat mass, lean mass and its components, and TEE and its components
     """
     fat_mass = calculate_initial_fat_mass(sex, age, body_weight, height, body_fat_percentage)
     glycogen = 0.5  # Initial glycogen stores in kg
     ecf = 2.0       # Initial extracellular fluid in kg
     lean_mass = calculate_initial_lean_mass(body_weight, fat_mass, glycogen, ecf)
     at = 0 # Initial adaptive thermogenesis
+    rmr = calculate_rmr(body_weight, age, sex)
+    pa = calculate_pa(body_weight, rmr, pal_factor)
+    tef = calculate_tef(energy_intake)
+    tee = rmr + pa + tef + at
 
-    results = []
+    results = [{
+        "day": 0, 
+        "weight": body_weight,
+        "body_fat_percentage": fat_mass / body_weight,
+        "fat_mass": fat_mass,
+        "lean_mass": lean_mass,
+        "glycogen": glycogen,
+        "ecf": ecf,
+        "tee": tee * MJ_TO_KCAL,
+        "at": at * MJ_TO_KCAL,
+        "rmr": rmr * MJ_TO_KCAL,
+        "tef": tef * MJ_TO_KCAL,
+        "pa": pa * MJ_TO_KCAL
+    }]
 
-    for day in range(duration_days):
+    for day in range(1, duration_days-1):
         # Update TEE components
         delta_ei = energy_intake - baseline_ei # Energy intake change from baseline
         at = calculate_adaptive_thermogenesis(delta_ei, at)
@@ -269,14 +290,69 @@ def simulate_hall_model(duration_days, sex, age, body_weight, height, energy_int
             "body_fat_percentage": fat_mass / body_weight,
             "fat_mass": fat_mass,
             "lean_mass": lean_mass,
+            "glycogen": glycogen,
+            "ecf": ecf,
             "tee": tee * MJ_TO_KCAL, 
             "at": at * MJ_TO_KCAL,
             "rmr": rmr * MJ_TO_KCAL,
             "tef": tef * MJ_TO_KCAL,
-            "pa": pa * MJ_TO_KCAL,
-            "glycogen": glycogen,
-            "ecf": ecf
+            "pa": pa * MJ_TO_KCAL
         })
 
 
     return results
+
+def calculate_energy_intake_for_target_weight(duration_days, target_weight, sex, age, body_weight, height, baseline_ci, baseline_ei, body_fat_percentage=None, pal_factor=PAL_FACTORS["sedentary"], tolerance=0.01):
+    """
+    Calculate the required energy intake to reach a target weight within a given time.
+
+    Parameters:
+        duration_days (int): Number of days to reach the target weight.
+        target_weight (float): Desired target weight in kilograms.
+        sex (str): "male" or "female".
+        age (int): Age in years.
+        body_weight (float): Initial body weight in kilograms.
+        height (float): Height in meters.
+        baseline_ci (float): Baseline carbohydrate intake in grams/day.
+        baseline_ei (float): Baseline energy intake in MJ/day.
+        body_fat_percentage (float): Initial body fat percentage.
+        pal_factor (float): Physical activity level (PAL).
+        tolerance (float): Allowable weight difference to consider the target met.
+
+    Returns:
+        tuple: (results, required_energy_intake, maintenance_calories)
+            results: Simulation results.
+            required_energy_intake: Energy intake (kcal/day) needed to achieve the target weight.
+            maintenance_calories: TEE (kcal/day) to maintain the target weight.
+    """
+    # Start with an initial guess for energy intake
+    low_ei = 1.0  # Lower bound for energy intake (MJ/day)
+    high_ei = 20.0  # Upper bound for energy intake (MJ/day)
+    required_energy_intake = (low_ei + high_ei) / 2.0  # Midpoint initial guess
+
+    while high_ei - low_ei > 0.01:  # Iterate until energy intake is refined
+        results = simulate_hall_model(
+            duration_days, sex, age, body_weight, height, required_energy_intake, baseline_ci, baseline_ei, body_fat_percentage, pal_factor
+        )
+        final_weight = results[-1]["weight"]
+
+        if abs(final_weight - target_weight) <= tolerance:
+            # Target weight is reached within tolerance
+            maintenance_calories = results[-1]["tee"] 
+            return results, required_energy_intake * MJ_TO_KCAL, maintenance_calories
+        elif final_weight > target_weight:
+            # Weight is too high, reduce energy intake
+            high_ei = required_energy_intake
+        else:
+            # Weight is too low, increase energy intake
+            low_ei = required_energy_intake
+
+        required_energy_intake = (low_ei + high_ei) / 2.0
+
+    # If we exit the loop without finding the exact target, return the closest result
+    results = simulate_hall_model(
+        duration_days, sex, age, body_weight, height, required_energy_intake, baseline_ci, baseline_ei, body_fat_percentage, pal_factor
+    )
+    maintenance_calories = results[-1]["tee"]
+    return results, required_energy_intake * MJ_TO_KCAL, maintenance_calories
+

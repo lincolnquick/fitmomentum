@@ -1,9 +1,13 @@
 import base64
+from datetime import datetime as dt
 from flask import Flask, render_template, request, jsonify
-from hall_model import simulate_hall_model, calculate_initial_fat_mass, calculate_initial_lean_mass, calculate_tee
+from hall_model import calculate_energy_intake_for_target_weight, calculate_tee, simulate_hall_model
 from plot_models import get_weight_loss_plot_image, get_energy_expenditure_plot_image
 
 app = Flask(__name__, template_folder='templates')
+MJ_TO_KCAL = 239.006
+KG_TO_LBS = 2.20462
+IN_TO_M = 0.0254
 
 @app.route('/simulate', methods=['POST'])
 def simulate():
@@ -33,20 +37,35 @@ def simulate():
     data = request.get_json()
     sex = data['sex'].lower().strip()
     age = data['age']
-    weight = data['weight'] / 2.20462  # Convert lbs to kg
-    height = data['height'] * 0.0254 # Convert inches to m
-    energy_intake = data['energy_intake'] / 239.006  # Convert kcal/day to MJ/day
+    weight = data['weight'] / KG_TO_LBS  # lbs -> kg
+    height = data['height'] * IN_TO_M  # inches -> meters
+    pal_factor = data['pal_factor']
     body_fat_percentage = data['body_fat_percentage']
     if (body_fat_percentage is not None and body_fat_percentage > 0):
-        body_fat_percentage /= 100 # Convert percentage to decimal
-    pal_factor = data['pal_factor']
-    duration = data['duration']
-    baseline_ci = .50 * data['energy_intake'] / 4 # 50% of energy intake, at 4 g/kcal
-    tee = calculate_tee(weight, age, sex, energy_intake, 0, pal_factor)
+        body_fat_percentage /= 100
 
-    # Run simulation using the Hall model
-    # def simulate_hall_model(duration_days, body_weight, height, energy_intake, baseline_ci, baseline_ei):
-    results = simulate_hall_model(duration, sex, age, weight, height, energy_intake, baseline_ci, tee, body_fat_percentage, pal_factor)
+    if "energy_intake" in data and data["energy_intake"]:
+        # Energy Intake Mode
+        energy_intake = data['energy_intake'] / MJ_TO_KCAL
+        duration = data['duration']
+        baseline_ci = 0.5 * data['energy_intake'] / 4
+
+        results = simulate_hall_model(duration, sex, age, weight, height, energy_intake, baseline_ci, energy_intake, body_fat_percentage, pal_factor)
+        maintenance_message = ""
+    else:
+        # Target Weight Mode
+        target_weight = data['target_weight'] / 2.20462  # lbs -> kg
+        start_date = dt.strptime(data['date'], "%Y-%m-%d")
+        target_date = dt.strptime(data['target_date'], "%Y-%m-%d")
+        duration = (target_date - start_date).days
+        baseline_ei = calculate_tee(weight, age, sex, 10.0, 0, pal_factor) # estimate of energy intake with 10 MJ/day EI assumed for TEF
+        baseline_ci = 0.5 * baseline_ei / 4 # 50% of baseline energy intake for carbohydrate intake
+
+        results, required_energy_intake, maintenance_calories = calculate_energy_intake_for_target_weight(
+            duration, target_weight, sex, age, weight, height, baseline_ci, baseline_ei, body_fat_percentage, pal_factor
+        )
+
+        maintenance_message = f"Required energy intake of {required_energy_intake:.2f} to reach {data['target_weight']:.2f} lbs by {data['target_date']} and then {maintenance_calories:.2f} kcal/day to maintain new weight."
 
     # Generate plots
     weight_loss_plot_buffer = get_weight_loss_plot_image(results)
@@ -57,7 +76,9 @@ def simulate():
         "results": results,
         "weight_loss_plot": f"data:image/png;base64,{base64.b64encode(weight_loss_plot_buffer).decode('utf-8')}",
         "energy_expenditure_plot": f"data:image/png;base64,{base64.b64encode(energy_expenditure_plot_buffer).decode('utf-8')}",
+        "maintenance_message": maintenance_message
     }
+    print(maintenance_message)
 
     return jsonify(response)
 

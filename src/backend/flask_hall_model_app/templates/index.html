@@ -49,10 +49,40 @@
                                 <label for="height" class="form-label">Height (in)</label>
                                 <input type="number" id="height" class="form-control" required>
                             </div>
+                            
+                            <!-- Radio Button Group -->
                             <div class="mb-3">
-                                <label for="energy-intake" class="form-label">Energy Intake (kcal/day)</label>
-                                <input type="number" id="energy-intake" class="form-control" min="500" max="20000" required>
+                                <label class="form-label">Select Input Type</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="input-type" id="option-energy-intake" value="energy" checked>
+                                    <label class="form-check-label" for="option-energy-intake">
+                                        Enter Energy Intake
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="input-type" id="option-target-weight" value="target">
+                                    <label class="form-check-label" for="option-target-weight">
+                                        Reach Target Weight
+                                    </label>
+                                </div>
                             </div>
+
+                            <!-- Energy Intake Field -->
+                            <div id="energy-intake-fields" class="mb-3">
+                                <label for="energy-intake" class="form-label">Energy Intake (kcal/day)</label>
+                                <input type="number" id="energy-intake" class="form-control" min="500" max="20000">
+                                <label for="duration" class="form-label">Duration (days)</label>
+                                <input type="number" id="duration" class="form-control" min="1" max="1000">
+                            </div>
+
+                            <!-- Target Weight and Target Date Fields -->
+                            <div id="target-weight-fields" class="mb-3" style="display: none;">
+                                <label for="target-weight" class="form-label">Target Weight (lbs)</label>
+                                <input type="number" id="target-weight" class="form-control" min="50" max="500">
+                                <label for="target-date" class="form-label mt-2">Target Date</label>
+                                <input type="date" id="target-date" class="form-control">
+                            </div>
+
                             <div class="mb-3">
                                 <label for="pal-factor" class="form-label">Physical Activity</label>
                                 <input type="range" id="pal-factor" class="form-range" min="1.4" max="2.5" step="0.1" value="1.5" list="pal-labels">
@@ -70,12 +100,8 @@
                                 </p>
                             </div>                            
                             <div class="mb-3">
-                                <label for="body-fat-percentage" class="form-label">Body Fat Estimate (%)</label>
+                                <label for="body-fat-percentage" class="form-label">Body Fat Estimate (%) (optional)</label>
                                 <input type="number" id="body-fat-percentage" class="form-control" max="80.0">
-                            </div>
-                            <div class="mb-3">
-                                <label for="duration" class="form-label">Duration (days)</label>
-                                <input type="number" id="duration" class="form-control" min="1" max="1000" required>
                             </div>
                             
                             <div class="mb-3">
@@ -108,6 +134,9 @@
                 </div>
             </div>
         </div>
+
+        <!-- Dynamic Maintenance Calories Message -->
+        <div id="maintenance-message" class="alert alert-info mt-3" style="display: none;"></div>
 
         <!-- Early End Message -->
         <div id="early-end-message" class="text-center mt-3" style="display: none;">
@@ -162,6 +191,26 @@
             document.getElementById('pal-value').innerText = `${palValue} (${palLabel})`;
         });
 
+        // Toggle input fields based on selected input type for Energy Intake or Target Weight
+        document.addEventListener('DOMContentLoaded', function () {
+            const energyIntakeFields = document.getElementById('energy-intake-fields');
+            const targetWeightFields = document.getElementById('target-weight-fields');
+            const inputTypeRadios = document.getElementsByName('input-type');
+
+            inputTypeRadios.forEach(radio => {
+                radio.addEventListener('change', function () {
+                    if (this.value === 'energy') {
+                        energyIntakeFields.style.display = 'block';
+                        targetWeightFields.style.display = 'none';
+                    } else {
+                        // Show Target Weight fields
+                        energyIntakeFields.style.display = 'none';
+                        targetWeightFields.style.display = 'block';
+                    }
+                });
+            });
+        });
+
         document.getElementById('simulation-form').addEventListener('submit', async function (event) {
             event.preventDefault();
 
@@ -174,8 +223,11 @@
                 weight: parseFloat(document.getElementById('weight').value),
                 height: parseFloat(document.getElementById('height').value),
                 energy_intake: parseFloat(document.getElementById('energy-intake').value),
+                target_weight: parseFloat(document.getElementById('target-weight').value),
+                target_date: document.getElementById('target-date').value,
                 body_fat_percentage: parseFloat(document.getElementById('body-fat-percentage').value),
                 pal_factor: parseFloat(document.getElementById('pal-factor').value),
+                date: document.getElementById('start-date').value,
                 duration: duration
             };
 
@@ -186,6 +238,19 @@
                 // Display plots
                 document.getElementById('weight-loss-plot').src = response.data.weight_loss_plot;
                 document.getElementById('energy-expenditure-plot').src = response.data.energy_expenditure_plot;
+
+                // Display calorie maintenance message
+                const maintenanceMessageItem = document.getElementById('maintenance-message');
+                const maintenanceMessage = response.data.maintenance_message;
+
+                if (maintenanceMessage) {
+                    console.log(maintenanceMessage); // Debugging line
+                    maintenanceMessageItem.innerText = maintenanceMessage; // Set text content
+                    maintenanceMessageItem.style.display = 'block'; // Make the message visible
+                } else {
+                    maintenanceMessageItem.style.display = 'none'; // Hide the message if none exists
+                }
+
 
                 // Populate results table
                 const resultsBody = document.getElementById('results-body');
