@@ -54,6 +54,22 @@
                                 <input type="number" id="energy-intake" class="form-control" min="500" max="20000" required>
                             </div>
                             <div class="mb-3">
+                                <label for="pal-factor" class="form-label">Physical Activity</label>
+                                <input type="range" id="pal-factor" class="form-range" min="1.4" max="2.5" step="0.1" value="1.5" list="pal-labels">
+                                <datalist id="pal-labels">
+                                    <option value="1.4" label="Sedentary"></option>
+                                    <option value="1.6" label="Somewhat Active"></option>
+                                    <option value="1.8" label="Moderately Active"></option>
+                                    <option value="2.0" label="Active"></option>
+                                    <option value="2.2" label="Very Active"></option>
+                                    <option value="2.5" label="Highly Active"></option>
+                                </datalist>
+                                <p class="form-text">
+                                    Adjust the slider to represent your activity level. <br>
+                                    <strong>Selected: <span id="pal-value">1.5</span></strong>
+                                </p>
+                            </div>                            
+                            <div class="mb-3">
                                 <label for="body-fat-percentage" class="form-label">Body Fat Estimate (%)</label>
                                 <input type="number" id="body-fat-percentage" class="form-control" max="80.0">
                             </div>
@@ -111,6 +127,7 @@
                         <th>Fat Mass (lbs)</th>
                         <th>Lean Mass (lbs)</th>
                         <th>TEE (kcal)</th>
+                        <th>AT (kcal)</th>
                         <th>RMR (kcal)</th>
                         <th>TEF (kcal)</th>
                         <th>PA (kcal)</th>
@@ -124,6 +141,27 @@
     </div>
 
     <script>
+        const palLabels = {
+            1.4: "Sedentary",
+            1.5: "Sedentary",
+            1.6: "Somewhat Active",
+            1.7: "Somewhat Active",
+            1.8: "Moderately Active",
+            1.9: "Moderately Active",
+            2.0: "Active",
+            2.1: "Active",
+            2.2: "Very Active",
+            2.3: "Very Active",
+            2.4: "Highly Active",
+            2.5: "Highly Active"
+        };
+        // Update PAL value and label dynamically
+        document.getElementById('pal-factor').addEventListener('input', function () {
+            const palValue = parseFloat(this.value).toFixed(1);
+            const palLabel = palLabels[palValue] || "Custom Activity Level"; // Fallback label
+            document.getElementById('pal-value').innerText = `${palValue} (${palLabel})`;
+        });
+
         document.getElementById('simulation-form').addEventListener('submit', async function (event) {
             event.preventDefault();
 
@@ -137,6 +175,7 @@
                 height: parseFloat(document.getElementById('height').value),
                 energy_intake: parseFloat(document.getElementById('energy-intake').value),
                 body_fat_percentage: parseFloat(document.getElementById('body-fat-percentage').value),
+                pal_factor: parseFloat(document.getElementById('pal-factor').value),
                 duration: duration
             };
 
@@ -170,10 +209,11 @@
                         <td>${(result.body_fat_percentage * 100).toFixed(2)}%</td>
                         <td>${(result.fat_mass * KGtoLbs).toFixed(2)}</td>
                         <td>${(result.lean_mass * KGtoLbs).toFixed(2)}</td>
-                        <td>${(result.tee * MJtoKcal).toFixed(2)}</td>
-                        <td>${(result.rmr * MJtoKcal).toFixed(2)}</td>
-                        <td>${(result.tef * MJtoKcal).toFixed(2)}</td>
-                        <td>${(result.pa * MJtoKcal).toFixed(2)}</td>
+                        <td>${(result.tee).toFixed(2)}</td>
+                        <td>${(result.at).toFixed(2)}</td>
+                        <td>${(result.rmr).toFixed(2)}</td>
+                        <td>${(result.tef).toFixed(2)}</td>
+                        <td>${(result.pa).toFixed(2)}</td>
                     </tr>`;
                     resultsBody.insertAdjacentHTML('beforeend', row);
                 });

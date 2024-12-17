@@ -36,20 +36,17 @@ def simulate():
     weight = data['weight'] / 2.20462  # Convert lbs to kg
     height = data['height'] * 0.0254 # Convert inches to m
     energy_intake = data['energy_intake'] / 239.006  # Convert kcal/day to MJ/day
-    body_fat_percentage = data['body_fat_percentage']  # Convert % to fraction
+    body_fat_percentage = data['body_fat_percentage']
+    if (body_fat_percentage is not None and body_fat_percentage > 0):
+        body_fat_percentage /= 100 # Convert percentage to decimal
+    pal_factor = data['pal_factor']
     duration = data['duration']
     baseline_ci = .50 * data['energy_intake'] / 4 # 50% of energy intake, at 4 g/kcal
-    fat_mass = None
-    if (body_fat_percentage is not None and body_fat_percentage > 0):
-        fat_mass = weight * body_fat_percentage / 100
-    else:
-        fat_mass = calculate_initial_fat_mass(sex, age, weight, height)
-    lean_mass = calculate_initial_lean_mass(weight, fat_mass)
-    tee = calculate_tee(weight, age, sex, energy_intake)
+    tee = calculate_tee(weight, age, sex, energy_intake, 0, pal_factor)
 
     # Run simulation using the Hall model
     # def simulate_hall_model(duration_days, body_weight, height, energy_intake, baseline_ci, baseline_ei):
-    results = simulate_hall_model(duration, sex, age, weight, height, energy_intake, baseline_ci, tee)
+    results = simulate_hall_model(duration, sex, age, weight, height, energy_intake, baseline_ci, tee, body_fat_percentage, pal_factor)
 
     # Generate plots
     weight_loss_plot_buffer = get_weight_loss_plot_image(results)

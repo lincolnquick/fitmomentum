@@ -21,11 +21,14 @@ TAU_AT = 14.0  # Time constant for adaptive thermogenesis (days)
 K_G = 0.1  # Glycogen adjustment constant
 GLYCOGEN_WATER_RATIO = 2.7  # Ratio of water to glycogen
 GLYCOGEN_BASELINE = 0.5  # ~Baseline glycogen stores in kg
-PAL_FACTORS = {"sedentary": 1.4, "lightly_active": 1.6, "moderately_active": 1.8, "active": 2.0, "very_active": 2.5}  # PAL factors
+PAL_FACTORS = {
+    "sedentary": 1.4, "lightly_active": 1.6, "moderately_active": 1.8, "active": 2.0, "very_active": 2.5
+    }  # PAL factors
 RMR = {
     "male": {"c": 293, "p": 0.433, "y": 5.92}, # RMR constants for Livingston-Kohlstadt formula
     "female": {"c": 248, "p": 0.4356, "y": 5.09}
 } 
+MJ_TO_KCAL = 239.006  # Conversion factor from MJ to kcal
 
 
 
@@ -125,7 +128,7 @@ def calculate_ecf_dynamics(delta_na, delta_ci, xi_na, xi_ci):
     return xi_na * delta_na + xi_ci * delta_ci / 1000  # Convert grams to kilograms
 
 # Function to calculate total energy expenditure
-def calculate_tee(body_weight, age, sex, energy_intake, adaptive_thermogenesis=0):
+def calculate_tee(body_weight, age, sex, energy_intake, adaptive_thermogenesis=0, pal_factor=PAL_FACTORS["sedentary"]):
     """
     Calculate total energy expenditure (TEE).
 
@@ -139,7 +142,7 @@ def calculate_tee(body_weight, age, sex, energy_intake, adaptive_thermogenesis=0
         float: Total energy expenditure in MJ/day.
     """
     rmr = calculate_rmr(body_weight, age, sex)
-    pa = calculate_pa(body_weight)
+    pa = calculate_pa(body_weight, rmr, pal_factor)
     tef = calculate_tef(energy_intake)
     return rmr + pa + tef + adaptive_thermogenesis
 
@@ -155,19 +158,20 @@ def calculate_tef(energy_intake):
     """
     return BETA_TEF * energy_intake
 
-def calculate_pa(body_weight, pal_factor=PAL_FACTORS["sedentary"]):
+def calculate_pa(body_weight, rmr, pal_factor=PAL_FACTORS["sedentary"]):
     """
     Calculate physical activity energy expenditure (PA) in MJ/day, adjusted for PAL.
 
     Parameters:
         body_weight (float): Total body weight in kilograms.
+        rmr (float): Resting metabolic rate (RMR) in MJ/day.
         pal_factor (float): Physical activity level (PAL). Default is 1.4 for sedentary.
 
     Returns:
         float: Physical activity energy expenditure in MJ/day.
     """
-    delta_adjusted = DELTA * (pal_factor / PAL_FACTORS["sedentary"])
-    return delta_adjusted * body_weight
+    delta = ((1 - BETA_TEF) * pal_factor - 1) * rmr / body_weight
+    return delta * body_weight
 
 
 # Functions
@@ -206,7 +210,7 @@ def calculate_adaptive_thermogenesis(delta_ei, at_old):
     return at_new
 
 # Function to simulate weight changes over time
-def simulate_hall_model(duration_days, sex, age, body_weight, height, energy_intake, baseline_ci, baseline_ei, body_fat_percentage=None):
+def simulate_hall_model(duration_days, sex, age, body_weight, height, energy_intake, baseline_ci, baseline_ei, body_fat_percentage=None, pal_factor=PAL_FACTORS["sedentary"]):
     """
     Simulate weight changes using the Hall model.
 
@@ -225,15 +229,18 @@ def simulate_hall_model(duration_days, sex, age, body_weight, height, energy_int
     glycogen = 0.5  # Initial glycogen stores in kg
     ecf = 2.0       # Initial extracellular fluid in kg
     lean_mass = calculate_initial_lean_mass(body_weight, fat_mass, glycogen, ecf)
-    adaptive_thermogenesis = 0 # Initial adaptive thermogenesis
+    at = 0 # Initial adaptive thermogenesis
 
     results = []
 
     for day in range(duration_days):
         # Update TEE components
         delta_ei = energy_intake - baseline_ei # Energy intake change from baseline
-        adaptive_thermogenesis = calculate_adaptive_thermogenesis(delta_ei, adaptive_thermogenesis)
-        tee = calculate_tee(body_weight, age, sex, energy_intake, adaptive_thermogenesis)
+        at = calculate_adaptive_thermogenesis(delta_ei, at)
+        rmr = calculate_rmr(body_weight, age, sex)
+        pa = calculate_pa(body_weight, rmr, pal_factor)
+        tef = calculate_tef(energy_intake)
+        tee = rmr + pa + tef + at
         delta_energy = energy_intake - tee # Energy imbalance
         
         # Energy partitioning
@@ -262,10 +269,11 @@ def simulate_hall_model(duration_days, sex, age, body_weight, height, energy_int
             "body_fat_percentage": fat_mass / body_weight,
             "fat_mass": fat_mass,
             "lean_mass": lean_mass,
-            "tee": tee,
-            "rmr": calculate_rmr(body_weight, age, sex),
-            "tef": calculate_tef(energy_intake),
-            "pa": calculate_pa(body_weight),
+            "tee": tee * MJ_TO_KCAL, 
+            "at": at * MJ_TO_KCAL,
+            "rmr": rmr * MJ_TO_KCAL,
+            "tef": tef * MJ_TO_KCAL,
+            "pa": pa * MJ_TO_KCAL,
             "glycogen": glycogen,
             "ecf": ecf
         })

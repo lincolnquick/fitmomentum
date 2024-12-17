@@ -71,12 +71,14 @@ def create_energy_expenditure_plot(results, model_name="Energy Expenditure Model
     matplotlib.use('Agg')
     days = [res['day'] for res in results]
     tee = [res['tee'] for res in results]
+    at =  [res['at'] for res in results]
     rmr = [res['rmr'] for res in results]
     tef = [res['tef'] for res in results]
     pa =  [res['pa'] for res in results]
 
     plt.figure(figsize=(10, 6))
     tee_line, = plt.plot(days, tee, label='Total Energy Expenditure (TEE)', linewidth=2)
+    at_line, = plt.plot(days, at, label='Adaptive Thermogenesis (AT)', linewidth=2, linestyle='--')
     rmr_line, = plt.plot(days, rmr, label='Resting Metabolic Rate (RMR)', linewidth=2, linestyle='--')
     tef_line, = plt.plot(days, tef, label='Thermic Effect of Food (TEF)', linewidth=2, linestyle=':')
     pa_line, = plt.plot(days, pa, label='Physical Activity (PA)', linewidth=2, linestyle=':')
@@ -88,7 +90,7 @@ def create_energy_expenditure_plot(results, model_name="Energy Expenditure Model
     plt.grid(True)
 
     # Add interactive hover for local display
-    cursor = mplcursors.cursor([tee_line, rmr_line, tef_line, pa_line], hover=True)
+    cursor = mplcursors.cursor([tee_line, at_line, rmr_line, tef_line, pa_line], hover=True)
     cursor.connect(
         "add",
         lambda sel: sel.annotation.set_text(
