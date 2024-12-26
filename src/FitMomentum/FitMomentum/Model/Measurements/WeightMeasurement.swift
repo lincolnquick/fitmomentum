@@ -12,4 +12,11 @@ class WeightMeasurement: Measurement {
         self.weight = weight
         super.init(timestamp: timestamp)
     }
+    
+    /// Validate that the weight is greater than 0
+    override func validate() throws {
+        guard weight > 0 else {
+            throw MeasurementError.invalidValue("Weight must be greater than zero.")
+        }
+    }
 }

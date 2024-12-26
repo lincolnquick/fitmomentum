@@ -19,6 +19,13 @@ class EnergyBalanceResult: Measurement {
         super.init(timestamp: timestamp)
         
     }
+    
+    /// Validate that all kcal and kg values are non-negative.
+    override func validate() throws {
+        guard rmrKcal >= 0, teeKcal >= 0, fmKg >= 0, ffmKg >= 0 else {
+            throw MeasurementError.invalidValue("Energy Balance values must be non-negative.")
+        }
+    }
 }
 
 

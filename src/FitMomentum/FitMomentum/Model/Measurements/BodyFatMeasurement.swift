@@ -12,4 +12,11 @@ class BodyFatMeasurement: Measurement {
         self.bodyFatPercentage = bodyFatPercentage
         super.init(timestamp: timestamp)
     }
+    
+    /// Validate that the body fat percentage is between 0.0 and 1.0.
+    override func validate() throws {
+        guard bodyFatPercentage >= 0 && bodyFatPercentage <= 1.0 else {
+            throw MeasurementError.invalidValue("Body fat percentage must be between 0.0 and 1.0.")
+        }
+    }
 }

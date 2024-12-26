@@ -20,18 +20,19 @@ class EnergyBalanceCalculator {
      Calculates the energy balance metrics over time.
      
      - Parameters:
-        - weights: Array of weight measurements.
-        - intakes: Array of nutrition measurements.
-        - bodyFatMeasurements: Optional array of body fat measurements.
+        - weights: A `MeasurementCollection` of weight measurements.
+        - intakes: A `MeasurementCollection` of nutrition measurements.
+        - bodyFatMeasurements: Optional `MeasurementCollection` of body fat measurements.
      
-     - Returns: Array of energy balance results.
+     - Returns: A `MeasurementCollection` of energy balance results.
      */
     func calculateEnergyBalance(
-        weights: [WeightMeasurement],
-        intakes: [NutritionMeasurement],
-        bodyFatMeasurements: [BodyFatMeasurement] = []
-    ) -> [EnergyBalanceResult] {
+        weights: MeasurementCollection<WeightMeasurement>,
+        intakes: MeasurementCollection<NutritionMeasurement>,
+        bodyFatMeasurements: MeasurementCollection<BodyFatMeasurement>? = nil
+    ) -> MeasurementCollection<EnergyBalanceResult> {
         validateInputData(weights: weights, intakes: intakes)
+        
         let initialBodyFatPercentage = determineInitialBodyFatPercentage(
             weights: weights,
             bodyFatMeasurements: bodyFatMeasurements
@@ -45,32 +46,36 @@ class EnergyBalanceCalculator {
     }
     
     /// Ensures input data validity.
-    private func validateInputData(weights: [WeightMeasurement], intakes: [NutritionMeasurement]) {
+    private func validateInputData(
+        weights: MeasurementCollection<WeightMeasurement>,
+        intakes: MeasurementCollection<NutritionMeasurement>
+    ) {
         guard !weights.isEmpty, !intakes.isEmpty else {
             fatalError("Weight and intake collections must not be empty.")
         }
         
-        let sortedWeights = weights.sorted { $0.timestamp < $1.timestamp }
-        let sortedIntakes = intakes.sorted { $0.timestamp < $1.timestamp }
+        let weightDates = weights.getAllMeasurements().map { $0.timestamp }
+        let intakeDates = intakes.getAllMeasurements().map { $0.timestamp }
         
-        guard sortedWeights.count == sortedIntakes.count,
-              sortedWeights.map({ $0.timestamp }) == sortedIntakes.map({ $0.timestamp }) else {
+        guard weightDates == intakeDates else {
             fatalError("Weight and intake collections must have matching timestamps.")
         }
     }
     
     /// Determines the initial body fat percentage using measurements or estimation.
     private func determineInitialBodyFatPercentage(
-        weights: [WeightMeasurement],
-        bodyFatMeasurements: [BodyFatMeasurement]
+        weights: MeasurementCollection<WeightMeasurement>,
+        bodyFatMeasurements: MeasurementCollection<BodyFatMeasurement>?
     ) -> Double {
-        if !bodyFatMeasurements.isEmpty {
-            let sortedMeasurements = bodyFatMeasurements.sorted { $0.timestamp < $1.timestamp }
+        if let bodyFatMeasurements = bodyFatMeasurements, !bodyFatMeasurements.isEmpty {
+            let sortedMeasurements = bodyFatMeasurements.getAllMeasurements()
             let values = sortedMeasurements.prefix(3).map { $0.bodyFatPercentage }
             return values.median()
         } else {
-            let initialWeight = weights.first!.weight
-            let initialAge = person.getAge(asOf: weights.first!.timestamp)
+            guard let initialWeight = weights.getAllMeasurements().first?.weight else {
+                fatalError("No weight measurements available.")
+            }
+            let initialAge = person.getAge(asOf: weights.getAllMeasurements().first!.timestamp)
             return HealthMetricsCalculator.estimateInitialFatMass(
                 sex: person.sex,
                 age: initialAge,
@@ -80,39 +85,47 @@ class EnergyBalanceCalculator {
         }
     }
     
-    /// Computes energy balance metrics for each measurement.
+    /// Computes energy balance metrics for each measurement and returns them as a `MeasurementCollection`.
     private func computeEnergyBalance(
-        weights: [WeightMeasurement],
-        intakes: [NutritionMeasurement],
+        weights: MeasurementCollection<WeightMeasurement>,
+        intakes: MeasurementCollection<NutritionMeasurement>,
         initialBodyFatPercentage: Double
-    ) -> [EnergyBalanceResult] {
-        var results: [EnergyBalanceResult] = []
+    ) -> MeasurementCollection<EnergyBalanceResult> {
+        let energyBalanceCollection = MeasurementCollection<EnergyBalanceResult>()
+        let weightMeasurements = weights.getAllMeasurements()
+        let intakeMeasurements = intakes.getAllMeasurements()
         
-        for i in 0..<weights.count {
-            let weight = weights[i].weight
-            let intake = intakes[i].kilocalories
-            let date = weights[i].timestamp
+        for i in 0..<weightMeasurements.count {
+            let weight = weightMeasurements[i].weight
+            let intake = intakeMeasurements[i].kilocalories
+            let date = weightMeasurements[i].timestamp
             
             let age = person.getAge(asOf: date)
             let rmr = HealthMetricsCalculator.calculateRMR(weight: weight, age: age, sex: person.sex)
             let fm = weight * initialBodyFatPercentage
             let ffm = weight - fm
-            let deltaBW = i > 0 ? weight - weights[i - 1].weight : 0.0
+            let deltaBW = i > 0 ? weight - weightMeasurements[i - 1].weight : 0.0
             let deltaFFM = calculateDeltaFFM(fmInitial: fm, deltaBW: deltaBW)
             let deltaFM = deltaBW - deltaFFM
             let energyImbalance = calculateEnergyImbalance(deltaFFM: deltaFFM, deltaFM: deltaFM)
             let tee = intake - energyImbalance
             
-            results.append(EnergyBalanceResult(
+            let result = EnergyBalanceResult(
                 rmrKcal: rmr,
                 teeKcal: tee,
                 fmKg: fm,
                 ffmKg: ffm,
                 timestamp: date
-            ))
+            )
+            do {
+                try energyBalanceCollection.addOrUpdateMeasurement(result)
+            } catch {
+                print("Failed to add or update measurement \(result): on date \(date)\n) Error: \(error.localizedDescription)")
+            }
+            
         }
         
-        return results
+        return energyBalanceCollection
     }
     
     /// Calculates the change in fat-free mass using Forbes Equation 7.

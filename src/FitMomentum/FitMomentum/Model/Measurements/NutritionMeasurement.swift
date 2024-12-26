@@ -25,4 +25,12 @@ class NutritionMeasurement: Measurement {
         super.init(timestamp: timestamp)
         
     }
+    
+    /// Validate that all nutrition values are non-negative.
+    override func validate() throws {
+        guard kilocalories >= 0, protein >= 0, carbohydrates >= 0, fats >= 0 else {
+            throw MeasurementError.invalidValue("Nutrition values must be non-negative.")
+        }
+    }
+
 }
