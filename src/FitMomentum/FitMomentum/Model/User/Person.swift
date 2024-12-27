@@ -6,6 +6,7 @@
 //
 import Foundation
 
+/// Represents a person's generally immutable characteristics (sex, dob, height)
 class Person {
     var sex: String // "male", "female", or "unknown"
     var dateOfBirth: Date

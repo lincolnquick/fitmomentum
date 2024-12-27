@@ -124,7 +124,7 @@ class EnergyBalanceCalculator {
             }
             
         }
-        
+    
         return energyBalanceCollection
     }
     

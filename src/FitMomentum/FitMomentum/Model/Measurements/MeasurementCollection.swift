@@ -47,6 +47,12 @@ class MeasurementCollection<T: MeasurementProtocol> {
         return measurements.values.max(by: { $0.timestamp < $1.timestamp })
     }
     
+    /// Get the earliest measurement
+    /// - Returns: The first measurement, if available
+    func getEarliestMeasurement() -> T? {
+        return measurements.values.min(by: { $0.timestamp < $1.timestamp })
+    }
+    
     /// Get measurements within a specified date range.
     /// - Parameters:
     ///   - startDate: The start date of the range (inclusive).
