@@ -10,17 +10,25 @@ class TrendWeightMeasurement: WeightMeasurement, TrendMeasurementProtocol {
     var calculationMethod: String
     var calculatedAt: Date
     
-    init(
-        weight: Double,
-        timestamp: Date,
+    required init(timestamp: Date, value: Double) {
+        self.hasRecordedMeasurement = false
+        self.calculationMethod = ""
+        self.calculatedAt = Date()
+        super.init(timestamp: timestamp, value: value)
+    }
+    
+    convenience init(
         hasRecordedMeasurement: Bool,
         calculationMethod: String,
-        calculatedAt: Date = Date()
+        calculatedAt: Date = Date(),
+        timestamp: Date,
+        weight: Double
     ) {
+        self.init(timestamp: timestamp, weight: weight)
         self.hasRecordedMeasurement = hasRecordedMeasurement
         self.calculationMethod = calculationMethod
         self.calculatedAt = calculatedAt
-        super.init(weight: weight, timestamp: timestamp)
+        
     }
     
     override func validate() throws {

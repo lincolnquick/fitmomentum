@@ -7,12 +7,16 @@
 import Foundation
 class Measurement : MeasurementProtocol {
     var timestamp: Date
+    var value: Double // generic value for the measurement
     
-    init(timestamp: Date = Date()) {
+    required init(timestamp: Date = Date(), value: Double) {
         self.timestamp = timestamp
+        self.value = value
     }
     
     func validate() throws {
-        // Default implementation is no validation
+        guard value >= 0 else {
+            throw MeasurementError.invalidValue("Value must be non-negative.")
+        }
     }
 }

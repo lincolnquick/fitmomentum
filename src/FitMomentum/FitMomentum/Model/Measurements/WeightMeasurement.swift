@@ -6,16 +6,21 @@
 //
 import Foundation
 class WeightMeasurement: Measurement {
-    var weight: Double // in kg
     
-    init(weight: Double, timestamp: Date = Date()) {
-        self.weight = weight
-        super.init(timestamp: timestamp)
+    required init(timestamp: Date, value: Double){
+        super.init(timestamp: timestamp, value: value)
     }
+    
+    convenience init(timestamp: Date = Date(), weight: Double) {
+        self.init(timestamp: timestamp, value: weight)
+    }
+    
+    /// Weight in kg
+    var weight: Double { return value }
     
     /// Validate that the weight is greater than 0
     override func validate() throws {
-        guard weight > 0 else {
+        guard value > 0 else {
             throw MeasurementError.invalidValue("Weight must be greater than zero.")
         }
     }
