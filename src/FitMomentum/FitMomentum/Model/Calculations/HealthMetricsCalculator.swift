@@ -10,7 +10,6 @@
 
 import Foundation
 class HealthMetricsCalculator {
-    
 
     /**
      `Calculates BMI defined as weight (in kg) / height (in m)^2

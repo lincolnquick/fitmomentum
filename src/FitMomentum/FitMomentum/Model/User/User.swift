@@ -16,6 +16,7 @@ class User {
     var nutritionMeasurements: MeasurementCollection<NutritionMeasurement>
     var weightTrends: TrendMeasurementCollection<TrendWeightMeasurement>
     var bodyFatTrends: TrendMeasurementCollection<TrendBodyFatMeasurement>
+    var energyBalanceResults: TrendMeasurementCollection<EnergyBalanceResult>
     
     init(
         person: Person,
@@ -23,7 +24,10 @@ class User {
         weightGoals: [WeightGoal] = [],
         weightMeasurements: MeasurementCollection<WeightMeasurement> = MeasurementCollection(),
         bodyFatMeasurements: MeasurementCollection<BodyFatMeasurement> = MeasurementCollection(),
-        nutritionMeasurements: MeasurementCollection<NutritionMeasurement> = MeasurementCollection()
+        nutritionMeasurements: MeasurementCollection<NutritionMeasurement> = MeasurementCollection(),
+        weightTrends: TrendMeasurementCollection<TrendWeightMeasurement> = TrendMeasurementCollection(),
+        bodyFatTrends: TrendMeasurementCollection<TrendBodyFatMeasurement> = TrendMeasurementCollection(),
+        energyBalanceResults: TrendMeasurementCollection<EnergyBalanceResult> = TrendMeasurementCollection()
     ){
         self.person = person
         self.preferences = preferences
@@ -31,6 +35,9 @@ class User {
         self.weightMeasurements = weightMeasurements
         self.bodyFatMeasurements = bodyFatMeasurements
         self.nutritionMeasurements = nutritionMeasurements
+        self.weightTrends = weightTrends
+        self.bodyFatTrends = bodyFatTrends
+        self.energyBalanceResults = energyBalanceResults
     }
     
     var mostRecentWeight: Double? {

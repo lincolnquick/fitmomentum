@@ -111,11 +111,14 @@ class EnergyBalanceCalculator {
             let tee = intake - energyImbalance
             
             let result = EnergyBalanceResult(
-                rmrKcal: rmr,
+                hasRecordedMeasurement: false,
+                calculationMethod: "Forbes Model",
+                calculatedAt: Date(),
+                timestamp: date,
                 teeKcal: tee,
+                rmrKcal: rmr,
                 fmKg: fm,
-                ffmKg: ffm,
-                timestamp: date
+                ffmKg: ffm
             )
             do {
                 try energyBalanceCollection.addOrUpdateMeasurement(result)
