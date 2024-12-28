@@ -8,7 +8,8 @@ import Foundation
 
 /// A class to calculate a TrendMeasurementCollection from a MeasurementCollection.
 class TrendCalculator {
-    /// Calculate trend measurements using a moving average.
+    
+    /// Calculate trend measurements using a moving average. Fills in gaps in measured data.
     /// - Parameters:
     ///   - measurements: The input collection of measurements.
     ///   - windowSize: The number of days in the moving average window.
