@@ -90,6 +90,8 @@ extension Date {
 protocol MeasurementProtocol {
     /// The date of the measurement.
     var timestamp: Date { get set }
+    /// The generic value representing the measurement
+    var value: Double { get set }
     
     /// Validates the measurement data.
     /// - Throws: An error if the measurement data is invalid.
