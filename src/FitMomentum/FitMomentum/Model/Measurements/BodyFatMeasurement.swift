@@ -15,13 +15,13 @@ class BodyFatMeasurement: Measurement {
         self.init(timestamp: timestamp, value: bodyFatPercentage)
     }
     
-    /// Body fat percentage as a decimal value (e.g. 0.25 for 25%)
+    /// Body fat percentage as a decimal value (25.0 for 25%)
     var bodyFatPercentage: Double { return value }
     
-    /// Validate that the body fat percentage is between 0.0 and 1.0.
+    /// Validate that the body fat percentage is between 0.0 and 100.0.
     override func validate() throws {
-        guard value >= 0 && value <= 1.0 else {
-            throw MeasurementError.invalidValue("Body fat percentage must be between 0.0 and 1.0.")
+        guard value >= 0 && value <= 100.0 else {
+            throw MeasurementError.invalidValue("Body fat percentage must be between 0 and 100.")
         }
     }
 }

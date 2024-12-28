@@ -10,17 +10,24 @@ class TrendBodyFatMeasurement : BodyFatMeasurement, TrendMeasurementProtocol {
     var calculationMethod: String
     var calculatedAt: Date
     
-    init(
+    required init(timestamp: Date, value: Double){
+        self.hasRecordedMeasurement = false
+        self.calculationMethod = ""
+        self.calculatedAt = Date()
+        super.init(timestamp: timestamp, value: value)
+        
+    }
+    convenience init(
         hasRecordedMeasurement: Bool,
         calculationMethod: String,
         calculatedAt: Date = Date(),
-        bodyFatPercentage: Double,
-        timestamp: Date
+        timestamp: Date,
+        bodyFatPercentage: Double
     ) {
+        self.init(timestamp: timestamp, value: bodyFatPercentage)
         self.hasRecordedMeasurement = hasRecordedMeasurement
         self.calculationMethod = calculationMethod
         self.calculatedAt = calculatedAt
-        super.init(bodyFatPercentage: bodyFatPercentage, timestamp: timestamp)
     }
     
     override func validate() throws {

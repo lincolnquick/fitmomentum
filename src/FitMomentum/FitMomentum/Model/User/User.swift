@@ -14,6 +14,8 @@ class User {
     var weightMeasurements: MeasurementCollection<WeightMeasurement>
     var bodyFatMeasurements: MeasurementCollection<BodyFatMeasurement>
     var nutritionMeasurements: MeasurementCollection<NutritionMeasurement>
+    var weightTrends: TrendMeasurementCollection<TrendWeightMeasurement>
+    var bodyFatTrends: TrendMeasurementCollection<TrendBodyFatMeasurement>
     
     init(
         person: Person,
