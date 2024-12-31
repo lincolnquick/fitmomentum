@@ -6,58 +6,58 @@
 //
 import Foundation
 class NutritionMeasurement: Measurement {
-    // macronutrients
-    var protein: Double // in grams
-    var carbohydrates: Double // in grams
-    var fats: Double // in grams
-    var dietaryFiber: Double // in grams
-    
-    // micronutrients
-    var sodium: Double // in milligrams
-    var potassium: Double // in milligrams
-    
-    // other micronutrients, minerals, and vitamins not used
-    
+    private var entries: [NutritionEntryMeasurement] = []
+
+    /// Calculated totals for macronutrients and micronutrients.
+    var protein: Double { entries.reduce(0) { $0 + $1.protein } }
+    var carbohydrates: Double { entries.reduce(0) { $0 + $1.carbohydrates } }
+    var fats: Double { entries.reduce(0) { $0 + $1.fats } }
+    var dietaryFiber: Double { entries.reduce(0) { $0 + $1.dietaryFiber } }
+    var sodium: Double { entries.reduce(0) { $0 + $1.sodium } }
+    var potassium: Double { entries.reduce(0) { $0 + $1.potassium } }
+    var kilocalories: Double { entries.reduce(0) { $0 + $1.value } }
+
     required init(
         timestamp: Date,
         value: Double
-    ){
-        self.protein = 0.0
-        self.carbohydrates = 0.0
-        self.fats = 0.0
-        self.dietaryFiber = 0.0
-        self.sodium = 0.0
-        self.potassium = 0.0
+    ) {
         super.init(timestamp: timestamp, value: value)
     }
-    
+
     convenience init(
-        timestamp: Date,
-        kilocalories: Double,
-        protein: Double,
-        carbohydrates: Double,
-        fats: Double,
-        dietaryFiber: Double,
-        sodium: Double,
-        potassium: Double
+        timestamp: Date
     ) {
-        self.init(timestamp: timestamp, value: kilocalories)
-        self.protein = protein
-        self.carbohydrates = carbohydrates
-        self.fats = fats
-        self.dietaryFiber = dietaryFiber
-        self.sodium = sodium
-        self.potassium = potassium
+        self.init(timestamp: timestamp, value: 0.0)
     }
-    
-    /// Kilocalories
-    var kilocalories: Double { return value }
-    
-    /// Validate that all nutrition values are non-negative.
-    override func validate() throws {
-        guard value >= 0, protein >= 0, carbohydrates >= 0, fats >= 0 else {
-            throw MeasurementError.invalidValue("Nutrition values must be non-negative.")
+
+    /// Add or update a nutrition entry. If an entry with the same ID exists, update it.
+    /// - Parameter entry: The nutrition entry to add or update.
+    func addOrUpdateEntry(_ entry: NutritionEntryMeasurement) {
+        guard Calendar.current.isDate(entry.timestamp, inSameDayAs: timestamp) else {
+            fatalError("Nutrition entries must have the same date as their parent NutritionMeasurement.")
+        }
+
+        if let index = entries.firstIndex(where: { $0.id == entry.id }) {
+            entries[index] = entry
+        } else {
+            entries.append(entry)
         }
     }
 
+    /// Remove a nutrition entry.
+    /// - Parameter entryID: The unique ID of the entry to remove.
+    func removeEntry(byID entryID: UUID) {
+        entries.removeAll { $0.id == entryID }
+    }
+
+    /// Retrieve all nutrition entries.
+    /// - Returns: An array of `NutritionEntryMeasurement` objects.
+    func getEntries() -> [NutritionEntryMeasurement] {
+        return entries
+    }
+
+    /// Validate that all entries are valid.
+    override func validate() throws {
+        try entries.forEach { try $0.validate() }
+    }
 }
