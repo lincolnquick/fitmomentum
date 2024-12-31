@@ -1,4 +1,3 @@
-//
 //  WeightGoal.swift
 //  FitMomentum
 //
@@ -9,104 +8,89 @@ import Foundation
 
 /// Represents a single milestone in the weight goal.
 struct Milestone {
-    var targetWeight: Double // Target weight in kg
+    var milestoneWeight: Double // Target weight in kg
     var isCompleted: Bool = false // Completion status
     let order: Int // Order of the milestone in the sequence
-}
 
-/// Represents the strategy for achieving a weight goal.
-struct Strategy {
-    var weightChangeRate: Double // kg per week; negative for weight loss
-    var macronutrientBalance: (protein: Double, carbs: Double, fats: Double) // Percentages (e.g., 30, 40, 30)
-    var activityLevel: Double // Range: 1.4 (sedentary) to 2.5 (extremely active)
-
-    init(weightChangeRate: Double, macronutrientBalance: (Double, Double, Double), activityLevel: Double) {
-        self.weightChangeRate = weightChangeRate
-
-        let total = macronutrientBalance.0 + macronutrientBalance.1 + macronutrientBalance.2
-        let tolerance = 0.01 // Allow for small deviations up to +-0.01
-        guard abs(total - 100.0) <= tolerance else {
-            fatalError("Macronutrient percentages must sum to 100.")
-        }
-
-        self.macronutrientBalance = macronutrientBalance
-
-        guard activityLevel >= 1.4 && activityLevel <= 2.5 else {
-            fatalError("Activity level must be between 1.4 and 2.5.")
-        }
-        self.activityLevel = activityLevel
+    /// Initializes a new Milestone.
+    /// - Parameters:
+    ///   - targetWeight: Target weight in kilograms.
+    ///   - order: The order of the milestone in the sequence.
+    init(milestoneWeight: Double, order: Int) {
+        self.milestoneWeight = milestoneWeight
+        self.order = order
     }
 }
 
-/// Represents a weight goal with milestones and progress tracking.
 class WeightGoal {
-    var targetWeight: Double // Target weight in kg
-    var strategy: Strategy
-    var defaultMilestones: [Milestone] = [] // Default milestones
-    var customMilestones: [Milestone]? // Custom milestones
-    var estimatedTargetDate: Date?
+    var startWeight: WeightMeasurement
+    var targetWeight: Double
+    var startDate: Date
+    var weightGoalStrategy: WeightGoalStrategy
+    var milestones: [Milestone] = []
 
-    init(targetWeight: Double, strategy: Strategy, currentWeight: Double, isMetric: Bool) {
+    /// Initializes a new WeightGoal.
+    /// - Parameters:
+    ///   - startWeight: Starting weight measurement.
+    ///   - targetWeight: Target weight in kilograms.
+    ///   - weightGoalStrategy: Strategy for achieving the weight goal.
+    init(startWeight: WeightMeasurement, targetWeight: Double, weightGoalStrategy: WeightGoalStrategy) {
+        self.startWeight = startWeight
         self.targetWeight = targetWeight
-        self.strategy = strategy
-        self.generateDefaultMilestones(currentWeight: currentWeight, isMetric: isMetric)
-        self.calculateTargetDate(currentWeight: currentWeight)
+        self.startDate = startWeight.timestamp
+        self.weightGoalStrategy = weightGoalStrategy
+        self.generateDefaultMilestones()
     }
 
-    /// Generates default milestones based on current weight and user preference for units.
-    private func generateDefaultMilestones(currentWeight: Double, isMetric: Bool) {
-        defaultMilestones = [] // Reset milestones
-        let increment = isMetric ? 5.0 : 4.53592 // 5kg or ~10lbs as default increments
+    /// Updates the start date and adjusts the starting weight to match the measurement on that date.
+    /// - Parameter newStartDate: New start date.
+    /// - Parameter measurementCollection: A collection of weight measurements.
+    func updateStartDate(newStartDate: Date, measurementCollection: MeasurementCollection<WeightMeasurement>) {
+        self.startDate = newStartDate
+        if let measurement = measurementCollection.getMeasurement(for: newStartDate) {
+            self.startWeight = measurement
+        }
+    }
 
-        var weight = currentWeight
-        let direction = strategy.weightChangeRate < 0 ? -1.0 : 1.0
+    /// Calculates the target weight range for maintenance.
+    /// - Parameter range: Plus or minus range in kilograms.
+    /// - Returns: A tuple representing the lower and upper bounds of the target range.
+    func calculateTargetRange(range: Double) -> (lower: Double, upper: Double) {
+        return (lower: targetWeight - range, upper: targetWeight + range)
+    }
+
+    /// Generates default milestones based on increments of 2 kg or 5 lbs (stored in kg).
+    func generateDefaultMilestones() {
+        milestones.removeAll()
+        let userPreferences = UserPreferences.shared
+        let increment: Double
+
+        if userPreferences.unitPreferences.weightUnit == .lbs {
+            increment = 5.0 / 2.20462 // Convert 5 lbs to kg
+        } else {
+            increment = 2.0 // 2 kg increment
+        }
+
+        var currentWeight = startWeight.value
         var order = 1
 
-        while (direction < 0 && weight > targetWeight) || (direction > 0 && weight < targetWeight) {
-            let nextMilestoneWeight = weight + direction * increment
-            let milestoneWeight = (direction < 0 && nextMilestoneWeight <= targetWeight) ||
-                                  (direction > 0 && nextMilestoneWeight >= targetWeight)
-                                  ? targetWeight
-                                  : nextMilestoneWeight
-            defaultMilestones.append(Milestone(targetWeight: milestoneWeight, order: order))
+        while abs(currentWeight - targetWeight) > increment {
+            currentWeight += (targetWeight > startWeight.value ? increment : -increment)
+            milestones.append(Milestone(milestoneWeight: currentWeight, order: order))
             order += 1
-            weight = milestoneWeight
-        }
-    }
-
-    /// Calculates the estimated target date based on the current weight and strategy.
-    private func calculateTargetDate(currentWeight: Double) {
-        guard strategy.weightChangeRate != 0 else {
-            estimatedTargetDate = nil
-            return
         }
 
-        let totalWeightChange = abs(targetWeight - currentWeight)
-        let weeksToTarget = totalWeightChange / abs(strategy.weightChangeRate)
-        let daysToTarget = Int(weeksToTarget * 7)
-
-        estimatedTargetDate = Calendar.current.date(byAdding: .day, value: daysToTarget, to: Date())
+        // Add the final milestone for the exact target weight
+        milestones.append(Milestone(milestoneWeight: targetWeight, order: order))
     }
 
-    /// Updates progress by checking if milestones are achieved.
-    func updateProgress(currentWeight: Double) {
-        let milestones = customMilestones ?? defaultMilestones
-        for i in 0..<milestones.count {
-            if currentWeight <= milestones[i].targetWeight {
-                customMilestones?[i].isCompleted = true
-            } else {
-                customMilestones?[i].isCompleted = false
-            }
+    /// Updates the completion status of milestones based on the current weight.
+    /// - Parameter currentWeight: The current weight in kilograms.
+    func updateMilestoneCompletion(currentWeight: Double) {
+        for index in milestones.indices {
+            milestones[index].isCompleted = targetWeight > startWeight.value
+                ? currentWeight >= milestones[index].milestoneWeight
+                : currentWeight <= milestones[index].milestoneWeight
         }
-    }
-
-    /// Allows the user to set custom milestones.
-    func setCustomMilestones(_ milestones: [Milestone]) {
-        customMilestones = milestones.sorted(by: { $0.order < $1.order })
-    }
-
-    /// Resets to default milestones.
-    func resetToDefaultMilestones() {
-        customMilestones = nil
     }
 }
