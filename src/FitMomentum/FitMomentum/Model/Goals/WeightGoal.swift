@@ -97,14 +97,14 @@ class WeightGoal {
     }
     
     /// Calculates the target caloric imbalance for the weight goal.
-      /// - Parameters:
-      ///   - energyBalanceCalculator: Instance of EnergyBalanceCalculator.
-      /// - Returns: The target caloric imbalance in kcal/day.
-      func calculateTargetCaloricImbalance(using energyBalanceCalculator: EnergyBalanceCalculator) -> Double {
-          return energyBalanceCalculator.calculateCaloricImbalanceForWeightChange(
-              initialWeight: startWeight.value,
-              targetWeight: targetWeight,
-              weightGoalStrategy: self.weightGoalStrategy
-          )
-      }
+    /// - Parameters:
+    ///   - energyBalanceCalculator: Instance of EnergyBalanceCalculator.
+    /// - Returns: The target caloric imbalance in kcal/day.
+  func calculateTargetCaloricImbalance(using energyBalanceCalculator: EnergyBalanceCalculator) -> Double {
+      return energyBalanceCalculator.calculateCaloricImbalanceForWeightChange(
+          initialWeight: startWeight.value,
+          targetWeight: targetWeight,
+          weightGoalStrategy: self.weightGoalStrategy
+      )
+  }
 }
