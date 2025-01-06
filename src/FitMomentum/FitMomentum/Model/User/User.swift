@@ -14,6 +14,7 @@ class User {
     var weightMeasurements: MeasurementCollection<WeightMeasurement>
     var bodyFatMeasurements: MeasurementCollection<BodyFatMeasurement>
     var nutritionMeasurements: MeasurementCollection<NutritionMeasurement>
+    var activityMeasurements: MeasurementCollection<ActivityMeasurement>
     var weightTrends: TrendMeasurementCollection<TrendWeightMeasurement>
     var bodyFatTrends: TrendMeasurementCollection<TrendBodyFatMeasurement>
     var energyBalanceResults: TrendMeasurementCollection<EnergyBalanceResult>
@@ -25,6 +26,7 @@ class User {
         weightMeasurements: MeasurementCollection<WeightMeasurement> = MeasurementCollection(),
         bodyFatMeasurements: MeasurementCollection<BodyFatMeasurement> = MeasurementCollection(),
         nutritionMeasurements: MeasurementCollection<NutritionMeasurement> = MeasurementCollection(),
+        activityMeasurements: MeasurementCollection<ActivityMeasurement> = MeasurementCollection(),
         weightTrends: TrendMeasurementCollection<TrendWeightMeasurement> = TrendMeasurementCollection(),
         bodyFatTrends: TrendMeasurementCollection<TrendBodyFatMeasurement> = TrendMeasurementCollection(),
         energyBalanceResults: TrendMeasurementCollection<EnergyBalanceResult> = TrendMeasurementCollection()
@@ -35,6 +37,7 @@ class User {
         self.weightMeasurements = weightMeasurements
         self.bodyFatMeasurements = bodyFatMeasurements
         self.nutritionMeasurements = nutritionMeasurements
+        self.activityMeasurements = activityMeasurements
         self.weightTrends = weightTrends
         self.bodyFatTrends = bodyFatTrends
         self.energyBalanceResults = energyBalanceResults
