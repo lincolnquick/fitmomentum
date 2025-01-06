@@ -12,52 +12,40 @@ class MeasurementCollection<T: MeasurementProtocol> {
     private var measurements: [Date: T] = [:]  // Dictionary keyed by normalized date
     
     /// Add or update a measurement for the given day.
-    /// If a measurement for the same day already exists, it will be replaced.
-    /// - Parameter measurement: The measurement to add or update.
     func addOrUpdateMeasurement(_ measurement: T) throws {
-        try measurement.validate()  // Validate before adding
+        try measurement.validate()
         let normalizedDate = measurement.timestamp.onlyDate()
         measurements[normalizedDate] = measurement
     }
     
     /// Retrieve the measurement for a specific date.
-    /// - Parameter date: The date for which to retrieve the measurement.
-    /// - Returns: The measurement for the given date, if it exists.
     func getMeasurement(for date: Date) -> T? {
         let normalizedDate = date.onlyDate()
         return measurements[normalizedDate]
     }
     
     /// Delete the measurement for a specific date.
-    /// - Parameter date: The date for which to delete the measurement.
     func deleteMeasurement(for date: Date) {
         let normalizedDate = date.onlyDate()
         measurements.removeValue(forKey: normalizedDate)
     }
     
     /// Get all measurements in chronological order.
-    /// - Returns: A sorted array of all measurements.
     func getAllMeasurements() -> [T] {
         return measurements.values.sorted(by: { $0.timestamp < $1.timestamp })
     }
     
     /// Get the most recent measurement.
-    /// - Returns: The most recent measurement, if available.
     func getMostRecentMeasurement() -> T? {
         return measurements.values.max(by: { $0.timestamp < $1.timestamp })
     }
     
-    /// Get the earliest measurement
-    /// - Returns: The first measurement, if available
+    /// Get the earliest measurement.
     func getEarliestMeasurement() -> T? {
         return measurements.values.min(by: { $0.timestamp < $1.timestamp })
     }
     
     /// Get measurements within a specified date range.
-    /// - Parameters:
-    ///   - startDate: The start date of the range (inclusive).
-    ///   - endDate: The end date of the range (inclusive).
-    /// - Returns: An array of measurements within the specified range.
     func getMeasurements(from startDate: Date, to endDate: Date) -> [T] {
         let normalizedStart = startDate.onlyDate()
         let normalizedEnd = endDate.onlyDate()
@@ -75,11 +63,43 @@ class MeasurementCollection<T: MeasurementProtocol> {
     var isEmpty: Bool {
         return measurements.isEmpty
     }
+    
+    /// Calculate the average (mean) value for a date range.
+    func calculateAverage(from startDate: Date, to endDate: Date, using property: (T) -> Double = { $0.value }) -> Double? {
+        let rangeMeasurements = getMeasurements(from: startDate, to: endDate)
+        guard !rangeMeasurements.isEmpty else { return nil }
+        let total = rangeMeasurements.reduce(0) { $0 + property($1) }
+        return total / Double(rangeMeasurements.count)
+    }
+    
+    /// Calculate the median value for a date range.
+    func calculateMedian(from startDate: Date, to endDate: Date, using property: (T) -> Double = { $0.value }) -> Double? {
+        let rangeMeasurements = getMeasurements(from: startDate, to: endDate)
+        guard !rangeMeasurements.isEmpty else { return nil }
+        let sortedValues = rangeMeasurements.map(property).sorted()
+        let count = sortedValues.count
+        if count % 2 == 0 {
+            return (sortedValues[count / 2 - 1] + sortedValues[count / 2]) / 2
+        } else {
+            return sortedValues[count / 2]
+        }
+    }
+    
+    /// Calculate the minimum value for a date range.
+    func calculateMin(from startDate: Date, to endDate: Date, using property: (T) -> Double = { $0.value }) -> Double? {
+        let rangeMeasurements = getMeasurements(from: startDate, to: endDate)
+        return rangeMeasurements.map(property).min()
+    }
+    
+    /// Calculate the maximum value for a date range.
+    func calculateMax(from startDate: Date, to endDate: Date, using property: (T) -> Double = { $0.value }) -> Double? {
+        let rangeMeasurements = getMeasurements(from: startDate, to: endDate)
+        return rangeMeasurements.map(property).max()
+    }
 }
 
 /// Extension to normalize dates (strip time components).
 extension Date {
-    /// Normalize a date to include only the date components.
     func onlyDate() -> Date {
         let calendar = Calendar.current
         return calendar.startOfDay(for: self)
@@ -88,20 +108,14 @@ extension Date {
 
 /// A protocol that defines the basic structure for a measurement.
 protocol MeasurementProtocol {
-    /// The date of the measurement.
     var timestamp: Date { get set }
-    /// The generic value representing the measurement
     var value: Double { get set }
-    
-    /// Validates the measurement data.
-    /// - Throws: An error if the measurement data is invalid.
     func validate() throws
 }
 
 /// Example error for validation.
 enum MeasurementError: Error, CustomStringConvertible {
     case invalidValue(String)
-    
     var description: String {
         switch self {
         case .invalidValue(let message):
