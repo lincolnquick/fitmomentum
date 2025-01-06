@@ -27,6 +27,7 @@ class WeightGoal {
     var targetWeight: Double
     var startDate: Date
     var weightGoalStrategy: WeightGoalStrategy
+    var person: Person
     var milestones: [Milestone] = []
 
     /// Initializes a new WeightGoal.
@@ -34,11 +35,12 @@ class WeightGoal {
     ///   - startWeight: Starting weight measurement.
     ///   - targetWeight: Target weight in kilograms.
     ///   - weightGoalStrategy: Strategy for achieving the weight goal.
-    init(startWeight: WeightMeasurement, targetWeight: Double, weightGoalStrategy: WeightGoalStrategy) {
+    init(startWeight: WeightMeasurement, targetWeight: Double, weightGoalStrategy: WeightGoalStrategy, person: Person) {
         self.startWeight = startWeight
         self.targetWeight = targetWeight
         self.startDate = startWeight.timestamp
         self.weightGoalStrategy = weightGoalStrategy
+        self.person = person
         self.generateDefaultMilestones()
     }
 
@@ -93,4 +95,16 @@ class WeightGoal {
                 : currentWeight <= milestones[index].milestoneWeight
         }
     }
+    
+    /// Calculates the target caloric imbalance for the weight goal.
+      /// - Parameters:
+      ///   - energyBalanceCalculator: Instance of EnergyBalanceCalculator.
+      /// - Returns: The target caloric imbalance in kcal/day.
+      func calculateTargetCaloricImbalance(using energyBalanceCalculator: EnergyBalanceCalculator) -> Double {
+          return energyBalanceCalculator.calculateCaloricImbalanceForWeightChange(
+              initialWeight: startWeight.value,
+              targetWeight: targetWeight,
+              weightGoalStrategy: self.weightGoalStrategy
+          )
+      }
 }

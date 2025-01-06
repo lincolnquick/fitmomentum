@@ -166,6 +166,87 @@ class EnergyBalanceCalculator {
         
         return w
     }
+    
+    /**
+         Calculates the required caloric deficit or surplus for a target weight change using Hall's modified Forbes equation.
+         
+         - Parameters:
+            - initialWeight: Starting weight in kilograms.
+            - targetWeight: Target weight in kilograms.
+            - initialBodyFat: Optional initial body fat in kilograms. If not provided, it is estimated.
+         - Returns: The daily caloric deficit or surplus required (kcal/day).
+         */
+        func calculateCaloricImbalanceForWeightChange(
+            initialWeight: Double,
+            targetWeight: Double,
+            weightGoalStrategy: WeightGoalStrategy,
+            initialBodyFat: Double? = nil
+        ) -> Double {
+            // Estimate body fat if not provided
+            let bodyFat = initialBodyFat ?? estimateInitialBodyFat(initialWeight: initialWeight)
+
+            // Calculate the energy densities of fat mass (FM) and lean body mass (LBM)
+            let rhoF = 39.5 // MJ/kg for fat mass
+            let rhoL = 7.6  // MJ/kg for lean body mass
+
+            // Calculate the proportion of lean body mass lost using Hall's modification of Forbes' equation
+            let deltaBW = targetWeight - initialWeight
+            let deltaLDivDeltaBW = calculateLeanMassProportionChange(deltaBW: deltaBW, bodyFat: bodyFat)
+
+            // Calculate the energy density of weight change
+            let energyDensity = rhoF + (rhoL - rhoF) * deltaLDivDeltaBW // MJ/kg
+
+            // Convert energy density to kcal/kg and calculate daily caloric imbalance
+            let energyDensityKcal = energyDensity * 239.00573614 // MJ/kg to kcal/kg
+            let totalCaloricImbalance = deltaBW * energyDensityKcal
+            let daysToAchieve = abs(deltaBW / (initialWeight * weightGoalStrategy.bodyWeightChangeRate / 7.0))
+            return totalCaloricImbalance / daysToAchieve
+        }
+    
+    /**
+         Estimates the initial body fat based on the person's parameters.
+         - Parameters:
+            - initialWeight: Starting weight in kilograms.
+         - Returns: Estimated body fat in kilograms.
+         */
+        private func estimateInitialBodyFat(initialWeight: Double) -> Double {
+            let age = person.getAge()
+            return HealthMetricsCalculator.estimateInitialFatMass(
+                sex: person.sex,
+                age: age,
+                bodyWeight: initialWeight,
+                height: person.height
+            )
+        }
+
+        /**
+         Calculates the proportion of lean mass lost during weight change.
+         - Parameters:
+            - deltaBW: Change in body weight (kg).
+            - bodyFat: Initial body fat (kg).
+         - Returns: The proportion of lean mass lost.
+         */
+        private func calculateLeanMassProportionChange(deltaBW: Double, bodyFat: Double) -> Double {
+            let fi = bodyFat
+            let argument = (1 / 10.4) * exp((deltaBW / 10.4) + (fi / 10.4)) * fi
+            let lambertResult = lambertW(argument)
+            let deltaLDivDeltaBW = 1 + (fi / deltaBW) - (10.4 / deltaBW) * lambertResult
+            return deltaLDivDeltaBW
+        }
+
+    
+    func calculateEnergyDensityOfWeightLoss(
+        initialBodyFat: Double,
+        weightLoss: Double
+    ) -> Double {
+        let rhoF = 39.5 // MJ/kg for fat
+        let rhoL = 7.6  // MJ/kg for lean mass
+        let deltaL = (1 + (initialBodyFat / weightLoss) - (10.4 / weightLoss)) *
+                     exp(weightLoss / 10.4) * initialBodyFat *
+                     exp(initialBodyFat / 10.4)
+        let proportionLean = deltaL / weightLoss
+        return rhoF + (rhoL - rhoF) * proportionLean
+    }
 }
 
 extension Array where Element == Double {

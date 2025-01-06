@@ -59,4 +59,10 @@ class User {
     var height: Double {
         return person.height
     }
+    
+    // Treat the most recent weight goal as the current
+    var currentWeightGoal: WeightGoal {
+        return weightGoals.last!
+    }
+    
 }

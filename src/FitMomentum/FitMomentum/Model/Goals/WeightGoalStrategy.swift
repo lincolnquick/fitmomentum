@@ -10,11 +10,13 @@ import Foundation
 /// Represents the strategy for achieving a weight goal.
 class WeightGoalStrategy {
     var bodyWeightChangeRate: Double // Percentage of weekly weight change, e.g., -1.0 = -1% for loss, 1.0 = 1% for gain
+    var activityFactor: Double // Activity multiplier (e.g., 1.2 for sedentary, 1.55 for moderately active)
 
     /// Initializes the WeightGoalStrategy with a body weight change rate.
     /// - Parameter bodyWeightChangeRate: Percentage of weekly body weight change.
-    init(bodyWeightChangeRate: Double) {
+    init(bodyWeightChangeRate: Double, activityFactor: Double = 1.2) {
         self.bodyWeightChangeRate = bodyWeightChangeRate
+        self.activityFactor = activityFactor
     }
 
     /// Calculates the body weight change rate given a starting weight, target weight, and target date.
@@ -88,5 +90,6 @@ class WeightGoalStrategy {
         }
         return Calendar.current.date(byAdding: .weekOfYear, value: weeks, to: startDate) ?? startDate
     }
+
 }
 
