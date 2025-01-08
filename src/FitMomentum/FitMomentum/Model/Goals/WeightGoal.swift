@@ -27,7 +27,7 @@ class WeightGoal {
     var targetWeight: Double
     var startDate: Date
     var weightGoalStrategy: WeightGoalStrategy
-    var person: Person
+    var user: User
     var milestones: [Milestone] = []
     private var nutritionStrategies: [(Date, NutritionStrategy)] = [] // Sorted array of strategies
 
@@ -36,12 +36,12 @@ class WeightGoal {
     ///   - startWeight: Starting weight measurement.
     ///   - targetWeight: Target weight in kilograms.
     ///   - weightGoalStrategy: Strategy for achieving the weight goal.
-    init(startWeight: WeightMeasurement, targetWeight: Double, weightGoalStrategy: WeightGoalStrategy, person: Person) {
+    init(startWeight: WeightMeasurement, targetWeight: Double, weightGoalStrategy: WeightGoalStrategy, user: User) {
         self.startWeight = startWeight
         self.targetWeight = targetWeight
         self.startDate = startWeight.timestamp
         self.weightGoalStrategy = weightGoalStrategy
-        self.person = person
+        self.user = user
         self.generateDefaultMilestones()
     }
     
@@ -128,4 +128,25 @@ class WeightGoal {
       )
   }
     
+}
+extension WeightGoal {
+    /// Calculates the daily calorie target.
+    func calculateCalorieTarget(using energyBalanceCalculator: EnergyBalanceCalculator) -> Double {
+        let caloricImbalance = calculateTargetCaloricImbalance(using: energyBalanceCalculator)
+        let rmr = HealthMetricsCalculator.calculateRMR(
+            weight: user.mostRecentWeight ?? 0.0,
+            age: user.age,
+            sex: user.sex)
+        var tdee: Double = 0.0
+        do {
+            try tdee = HealthMetricsCalculator.calculateTDEEWithActivityFactor(
+                rmr: rmr,
+                activityFactor: weightGoalStrategy.activityFactor
+            )
+        } catch {
+            print("Activity factor out of range when calculating TDEE.")
+        }
+        
+        return max(tdee - caloricImbalance, 0.0)
+    }
 }

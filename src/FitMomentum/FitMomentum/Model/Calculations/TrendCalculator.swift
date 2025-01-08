@@ -14,7 +14,7 @@ class TrendCalculator {
     ///   - measurements: The input collection of measurements.
     ///   - windowSize: The number of days in the moving average window.
     /// - Returns: A `TrendMeasurementCollection` containing smoothed measurements.
-    func calculateTrend<T: Measurement>(for measurements: MeasurementCollection<T>, windowSize: Int) -> TrendMeasurementCollection<T> {
+    func calculateTrend<T: TrendWeightMeasurement>(for measurements: MeasurementCollection<T>, windowSize: Int) -> TrendMeasurementCollection<T> {
         let allMeasurements = measurements.getAllMeasurements()
         guard !allMeasurements.isEmpty else {
             return TrendMeasurementCollection<T>() // Empty collection
