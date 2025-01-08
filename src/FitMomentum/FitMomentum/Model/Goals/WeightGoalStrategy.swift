@@ -11,59 +11,19 @@ import Foundation
 class WeightGoalStrategy {
     var bodyWeightChangeRate: Double // Percentage of weekly weight change, e.g., -1.0 = -1% for loss, 1.0 = 1% for gain
     var activityFactor: Double // Activity multiplier (e.g., 1.2 for sedentary, 1.55 for moderately active)
-    var macroDistribution: (protein: Double, carbs: Double, fat: Double)
-    
-    // Preset macronutrient distributions
-    static let presets: [String: (protein: Double, carbs: Double, fat: Double)] = [
-        "high protein": (36.0, 42.0, 22.0),
-        "very high protein": (40.0, 40.0, 20.0),
-        "low carb": (40.0, 20.0, 40.0),
-        "low fat": (35.0, 50.0, 15.0)
-    ]
+
     
     /// Initializes the WeightGoalStrategy with a body weight change rate.
     /// - Parameter bodyWeightChangeRate: Percentage of weekly body weight change.
     init(
         bodyWeightChangeRate: Double,
-        activityFactor: Double = 1.2,
-        macroDistribution: (protein: Double, carbs: Double, fat: Double)? = nil) {
-            self.bodyWeightChangeRate = bodyWeightChangeRate
-            self.activityFactor = activityFactor
-            self.macroDistribution = macroDistribution ?? WeightGoalStrategy.presets["high protein"]!
-        }
-    
-    // Method to set macronutrient distribution from a preset
-    func setMacroDistribution(preset: String) {
-        if let distribution = WeightGoalStrategy.presets[preset] {
-            self.macroDistribution = distribution
-        } else {
-            fatalError("Preset \(preset) not found.")
-        }
+        activityFactor: Double = 1.2
+        ){
+        self.bodyWeightChangeRate = bodyWeightChangeRate
+        self.activityFactor = activityFactor
     }
     
-    // Method to customize macronutrient distribution manually
-    func customizeMacroDistribution(protein: Double? = nil, carbs: Double? = nil, fat: Double? = nil) {
-        var remaining = 100.0
-        let newProtein = protein ?? macroDistribution.protein
-        let newCarbs = carbs ?? macroDistribution.carbs
-        let newFat = fat ?? macroDistribution.fat
-        
-        if protein != nil { remaining -= newProtein }
-        if carbs != nil { remaining -= newCarbs }
-        if fat != nil { remaining -= newFat }
-        
-        if remaining < 0 {
-            fatalError("Macronutrient percentages exceed 100%")
-        }
-        
-        // Adjust the remaining nutrient to fill the gap
-        if protein == nil { macroDistribution.protein = remaining }
-        else if carbs == nil { macroDistribution.carbs = remaining }
-        else if fat == nil { macroDistribution.fat = remaining }
-        
-        self.macroDistribution = (newProtein, newCarbs, newFat)
-    }
-
+    
 
     /// Calculates the body weight change rate given a starting weight, target weight, and target date.
     /// - Parameters:
@@ -137,18 +97,5 @@ class WeightGoalStrategy {
         return Calendar.current.date(byAdding: .weekOfYear, value: weeks, to: startDate) ?? startDate
     }
 
-}
-extension WeightGoalStrategy {
-    func calculateMacroGrams(for caloricTarget: Double) -> (protein: Double, carbs: Double, fat: Double) {
-        let proteinKcal = caloricTarget * (macroDistribution.protein / 100.0)
-        let carbsKcal = caloricTarget * (macroDistribution.carbs / 100.0)
-        let fatKcal = caloricTarget * (macroDistribution.fat / 100.0)
-
-        return (
-            protein: proteinKcal / 4.0, // 4 kcal/g for protein
-            carbs: carbsKcal / 4.0,    // 4 kcal/g for carbs
-            fat: fatKcal / 9.0         // 9 kcal/g for fat
-        )
-    }
 }
 

@@ -29,6 +29,7 @@ class WeightGoal {
     var weightGoalStrategy: WeightGoalStrategy
     var person: Person
     var milestones: [Milestone] = []
+    private var nutritionStrategies: [(Date, NutritionStrategy)] = [] // Sorted array of strategies
 
     /// Initializes a new WeightGoal.
     /// - Parameters:
@@ -42,6 +43,25 @@ class WeightGoal {
         self.weightGoalStrategy = weightGoalStrategy
         self.person = person
         self.generateDefaultMilestones()
+    }
+    
+    /// Adds a new 'NutritionStrategy' for a specific date.
+    ///  - Parameters:
+    ///   - strategy: The 'NutritionStrategy' to add.
+    ///   - date: The date for which the strategy to apply.
+    func addNutritionStrategy(strategy: NutritionStrategy, for date: Date = Date()){
+        nutritionStrategies.append((date, strategy))
+        nutritionStrategies.sort { $0.0 < $1.0 }
+    }
+    
+    /// Retrieves the most recent 'NutritionStrategy' on or before a given date.
+    ///    - Parameters:
+    ///     - date: The date for which to find the applicable strategy.
+    ///    - Returns:
+    ///     - The relevant 'NutritionStrategy' or 'nil' if no strategies exist.
+    func getNutritionStrategy(for date: Date) -> NutritionStrategy? {
+        let strategy = nutritionStrategies.last(where: { $0.0 <= date })
+        return strategy?.1
     }
 
     /// Updates the start date and adjusts the starting weight to match the measurement on that date.
@@ -107,4 +127,5 @@ class WeightGoal {
           weightGoalStrategy: self.weightGoalStrategy
       )
   }
+    
 }
