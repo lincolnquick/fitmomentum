@@ -81,6 +81,10 @@ class UserPreferences {
     var weighInReminderTime: Date? {
         didSet { saveToUserDefaults() }
     }
+    
+    var useRecommendedMinimumCalorieTarget: Bool {
+        didSet { saveToUserDefaults() }
+    }
 
     private init() {
         let defaults = UserDefaults.standard
@@ -89,6 +93,7 @@ class UserPreferences {
         self.dailyStepGoal = defaults.integer(forKey: "dailyStepGoal")
         self.weighInReminderEnabled = defaults.bool(forKey: "weighInReminderEnabled")
         self.weighInReminderTime = defaults.object(forKey: "weighInReminderTime") as? Date
+        self.useRecommendedMinimumCalorieTarget = defaults.bool(forKey: "useRecommendedMinimumCalorieTarget")
     }
 
     private func saveToUserDefaults() {
@@ -97,5 +102,6 @@ class UserPreferences {
         defaults.set(dailyStepGoal, forKey: "dailyStepGoal")
         defaults.set(weighInReminderEnabled, forKey: "weighInReminderEnabled")
         defaults.set(weighInReminderTime, forKey: "weighInReminderTime")
+        defaults.set(useRecommendedMinimumCalorieTarget, forKey: "useRecommendedMinimumCalorieTarget")
     }
 }
