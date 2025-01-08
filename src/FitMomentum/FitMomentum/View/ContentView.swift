@@ -23,11 +23,12 @@ struct ContentView: View {
                 .tabItem {
                     Label("Progress", systemImage: "flag.fill")
                 }
-
-            Text("More")
-                .tabItem {
-                    Label("More", systemImage: "ellipsis")
-                }
+            NavigationView {
+                MoreMenu()
+            }
+            .tabItem {
+                Label("More", systemImage: "ellipsis")
+            }
         }
     }
 }

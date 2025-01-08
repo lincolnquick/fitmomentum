@@ -12,7 +12,9 @@ class Person {
     var dateOfBirth: Date
     var height: Double // in cm
     
-    init(sex: String = "unknown", dateOfBirth: Date, height: Double = 170.0) {
+    init(sex: String = "unknown",
+         dateOfBirth: Date = Date(timeIntervalSince1970: 0),
+         height: Double = 150.0) {
         self.sex = sex.lowercased() == "male" || sex.lowercased() == "female" ? sex : "unknown"
         self.dateOfBirth = dateOfBirth
         self.height = max(height, 0) // Ensures height is always positive

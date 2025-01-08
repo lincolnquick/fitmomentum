@@ -86,7 +86,7 @@ class UserPreferences {
         didSet { saveToUserDefaults() }
     }
 
-    private init() {
+    init() {
         let defaults = UserDefaults.standard
         self.appearanceMode = AppearanceMode(rawValue: defaults.string(forKey: "appearanceMode") ?? "System Settings") ?? .system
         self.unitPreferences = UnitPreferences.loadFromUserDefaults()
