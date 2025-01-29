@@ -6,27 +6,19 @@
 //
 
 import SwiftUI
-import SwiftData
 
 @main
 struct FitMomentumApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
+    // Provide a single instance for the app's lifetime
+    @StateObject private var userViewModel = UserViewModel()
+    @StateObject private var userPreferences = UserPreferences.shared
 
     var body: some Scene {
         WindowGroup {
+            // The top-level ContentView (or tab bar, etc.)
             ContentView()
+                .environmentObject(userViewModel)
+                .environmentObject(userPreferences)
         }
-        .modelContainer(sharedModelContainer)
     }
 }

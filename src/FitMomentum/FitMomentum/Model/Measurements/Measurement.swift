@@ -13,6 +13,10 @@ class Measurement : MeasurementProtocol {
         self.timestamp = timestamp
         self.value = value
     }
+    var description: String {
+        let formattedDate = timestamp.formatted(.dateTime.month(.abbreviated).day().year())
+        return "Measurement: \(type(of: self)), Value: \(value), Timestamp: \(formattedDate)"
+    }
     
     func validate() throws {
         guard value >= 0 else {

@@ -12,7 +12,11 @@ struct MoreMenu: View {
         NavigationView {
             List {
                 NavigationLink(destination: ProfilePage()) {
-                    Text("Profile")
+                    Label("Profile", systemImage: "person.fill")
+                    
+                }
+                NavigationLink(destination: PreferencesPage()) {
+                    Label("Settings", systemImage: "gearshape.fill")
                 }
 //                NavigationLink(destination: TutorialPage()) {
 //                    Text("Tutorial")

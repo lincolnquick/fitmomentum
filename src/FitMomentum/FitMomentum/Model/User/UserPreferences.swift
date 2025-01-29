@@ -6,23 +6,22 @@
 //
 
 import Foundation
+import Combine
 
 /// Represents the user's preferences for the FitMomentum app.
-class UserPreferences {
+class UserPreferences: ObservableObject {
+    
+    // MARK: - Singleton
     static let shared = UserPreferences()
-
-    // Appearance preferences
+    
+    // MARK: - Appearance Mode
     enum AppearanceMode: String {
         case light = "Light Mode"
         case dark = "Dark Mode"
         case system = "System Settings"
     }
 
-    var appearanceMode: AppearanceMode {
-        didSet { saveToUserDefaults() }
-    }
-
-    // Unit preferences
+    // MARK: - Units
     enum WeightUnit: String {
         case kg, lbs, stones
     }
@@ -45,6 +44,7 @@ class UserPreferences {
         var distanceUnit: DistanceUnit
         var energyUnit: EnergyUnit
 
+        // Saves the unit settings to UserDefaults
         func saveToUserDefaults() {
             let defaults = UserDefaults.standard
             defaults.set(weightUnit.rawValue, forKey: "weightUnit")
@@ -53,6 +53,7 @@ class UserPreferences {
             defaults.set(energyUnit.rawValue, forKey: "energyUnit")
         }
 
+        // Loads the unit settings from UserDefaults
         static func loadFromUserDefaults() -> UnitPreferences {
             let defaults = UserDefaults.standard
             return UnitPreferences(
@@ -63,39 +64,59 @@ class UserPreferences {
             )
         }
     }
-
-    var unitPreferences: UnitPreferences {
-        didSet { unitPreferences.saveToUserDefaults() }
-    }
-
-    // Step goal
-    var dailyStepGoal: Int {
-        didSet { saveToUserDefaults() }
-    }
-
-    // Reminder notifications
-    var weighInReminderEnabled: Bool {
-        didSet { saveToUserDefaults() }
-    }
-
-    var weighInReminderTime: Date? {
-        didSet { saveToUserDefaults() }
-    }
     
-    var useRecommendedMinimumCalorieTarget: Bool {
+    // MARK: - @Published Properties
+
+    @Published var appearanceMode: AppearanceMode {
         didSet { saveToUserDefaults() }
     }
 
-    init() {
+    @Published var unitPreferences: UnitPreferences {
+        didSet {
+            unitPreferences.saveToUserDefaults()
+            saveToUserDefaults()
+        }
+    }
+
+    @Published var dailyStepGoal: Int {
+        didSet { saveToUserDefaults() }
+    }
+
+    @Published var weighInReminderEnabled: Bool {
+        didSet { saveToUserDefaults() }
+    }
+
+    @Published var weighInReminderTime: Date? {
+        didSet { saveToUserDefaults() }
+    }
+
+    @Published var useRecommendedMinimumCalorieTarget: Bool {
+        didSet { saveToUserDefaults() }
+    }
+
+    // MARK: - Initialization
+    private init() {
         let defaults = UserDefaults.standard
-        self.appearanceMode = AppearanceMode(rawValue: defaults.string(forKey: "appearanceMode") ?? "System Settings") ?? .system
+        
+        // Load appearance
+        let appearanceStr = defaults.string(forKey: "appearanceMode") ?? "System Settings"
+        self.appearanceMode = AppearanceMode(rawValue: appearanceStr) ?? .system
+        
+        // Load unit preferences
         self.unitPreferences = UnitPreferences.loadFromUserDefaults()
+        
+        // Load daily step goal
         self.dailyStepGoal = defaults.integer(forKey: "dailyStepGoal")
+        
+        // Load weigh-in reminder
         self.weighInReminderEnabled = defaults.bool(forKey: "weighInReminderEnabled")
         self.weighInReminderTime = defaults.object(forKey: "weighInReminderTime") as? Date
+        
+        // Load recommended calorie target
         self.useRecommendedMinimumCalorieTarget = defaults.bool(forKey: "useRecommendedMinimumCalorieTarget")
     }
 
+    // MARK: - Persistence
     private func saveToUserDefaults() {
         let defaults = UserDefaults.standard
         defaults.set(appearanceMode.rawValue, forKey: "appearanceMode")

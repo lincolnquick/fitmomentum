@@ -299,6 +299,8 @@
 				INFOPLIST_FILE = FitMomentum/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = FitMomentum;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "This app requires access to your Health data for tracking nutrition, body weight, and activity.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "This app uses Health data to display and analyze your health trends.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -343,6 +345,8 @@
 				INFOPLIST_FILE = FitMomentum/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = FitMomentum;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "This app requires access to your Health data for tracking nutrition, body weight, and activity.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "This app uses Health data to display and analyze your health trends.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;

@@ -1,8 +1,10 @@
 import SwiftUI
 
 struct ContentView: View {
+    
     var body: some View {
         TabView {
+            
             // Main Dashboard View
             DashboardView()
                 .tabItem {

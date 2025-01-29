@@ -1,6 +1,7 @@
 //
 //  WeightEntry.swift
 //  FitMomentum
+//  This file is only used for a quick demo of the early Dashboard mockup and is not part of the main model.
 //
 //  Created by Lincoln Quick on 12/13/24.
 //

@@ -29,6 +29,7 @@ class NutritionEntryMeasurement: Measurement {
     var calcium: Double // in milligrams
     var iron: Double // in milligrams
     var vitaminA: Double // in micrograms
+    var vitaminB12: Double
     var vitaminC: Double // in milligrams
     var vitaminD: Double // in micrograms
     var vitaminE: Double // in milligrams
@@ -50,7 +51,6 @@ class NutritionEntryMeasurement: Measurement {
     // Metadata
     var id: UUID // Unique identifier for the entry
     var name: String? // Optional name for the entry
-    var description: String? // Optional description for the entry
     var meal: MealType? // Meal type (e.g., breakfast, lunch, etc.)
 
     enum MealType: String {
@@ -79,6 +79,7 @@ class NutritionEntryMeasurement: Measurement {
         self.calcium = 0.0
         self.iron = 0.0
         self.vitaminA = 0.0
+        self.vitaminB12 = 0.0
         self.vitaminC = 0.0
         self.vitaminD = 0.0
         self.vitaminE = 0.0
@@ -120,6 +121,7 @@ class NutritionEntryMeasurement: Measurement {
         calcium: Double = 0.0,
         iron: Double = 0.0,
         vitaminA: Double = 0.0,
+        vitaminB12: Double = 0.0,
         vitaminC: Double = 0.0,
         vitaminD: Double = 0.0,
         vitaminE: Double = 0.0,
@@ -138,7 +140,6 @@ class NutritionEntryMeasurement: Measurement {
         biotin: Double = 0.0,
         choline: Double = 0.0,
         name: String? = nil,
-        description: String? = nil,
         meal: MealType? = nil
     ) {
         self.init(timestamp: timestamp, value: kilocalories)
@@ -159,6 +160,7 @@ class NutritionEntryMeasurement: Measurement {
         self.calcium = calcium
         self.iron = iron
         self.vitaminA = vitaminA
+        self.vitaminB12 = vitaminB12
         self.vitaminC = vitaminC
         self.vitaminD = vitaminD
         self.vitaminE = vitaminE
@@ -177,8 +179,12 @@ class NutritionEntryMeasurement: Measurement {
         self.biotin = biotin
         self.choline = choline
         self.name = name
-        self.description = description
         self.meal = meal
+    }
+    
+    override var description: String {
+        let formattedDate = timestamp.formatted(.dateTime.month(.abbreviated).day().year())
+        return "NutritionEntryMeasurement - Kilocalories: \(kilocalories), Name: \(name ?? "No name"), Timestamp: \(formattedDate)"
     }
 
     /// Validate that all nutrition values are non-negative.
@@ -186,7 +192,7 @@ class NutritionEntryMeasurement: Measurement {
         let properties = [
             protein, carbohydrates, fats, dietaryFiber, saturatedFat, transFat,
             polyunsaturatedFat, monounsaturatedFat, cholesterol, sugar, addedSugars,
-            sugarAlcohols, sodium, potassium, calcium, iron, vitaminA, vitaminC,
+            sugarAlcohols, sodium, potassium, calcium, iron, vitaminA, vitaminB12, vitaminC,
             vitaminD, vitaminE, vitaminK, magnesium, zinc, selenium, copper,
             manganese, phosphorus, folate, niacin, riboflavin, thiamin,
             pantothenicAcid, biotin, choline

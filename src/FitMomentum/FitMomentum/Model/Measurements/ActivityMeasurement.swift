@@ -41,6 +41,11 @@ class ActivityMeasurement: Measurement {
             return distanceWalked // Already in kilometers
         }
     }
+    
+    override var description: String {
+        let formattedDate = timestamp.formatted(.dateTime.month(.abbreviated).day().year())
+        return "ActivityMeasurement - Steps: \(steps), Distance: \(getConvertedDistance()), Active Calories: \(activeCalories)), Timestamp: \(formattedDate)"
+    }
 
     /// Validates that all measurement values are non-negative.
     override func validate() throws {

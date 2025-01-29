@@ -2,10 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSHealthShareUsageDescription</key>
-	<string>FitMomtentum uses your health data to provide insights and tracking for your weight loss goals.</string>
-	<key>NSHealthUpdateUsageDescription</key>
-	<string>FitMomentum updates your HealthKit data with manually entered weight and body fat percentage.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>

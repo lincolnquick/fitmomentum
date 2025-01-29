@@ -36,6 +36,7 @@ class NutritionMeasurement: Measurement {
     var calcium: Double { entries.reduce(0) { $0 + $1.calcium } }
     var iron: Double { entries.reduce(0) { $0 + $1.iron } }
     var vitaminA: Double { entries.reduce(0) { $0 + $1.vitaminA } }
+    var vitaminB12: Double { entries.reduce(0) { $0 + $1.vitaminB12 } }
     var vitaminC: Double { entries.reduce(0) { $0 + $1.vitaminC } }
     var vitaminD: Double { entries.reduce(0) { $0 + $1.vitaminD } }
     var vitaminE: Double { entries.reduce(0) { $0 + $1.vitaminE } }
@@ -88,6 +89,11 @@ class NutritionMeasurement: Measurement {
         return entries
     }
 
+    override var description: String {
+        let formattedDate = timestamp.formatted(.dateTime.month(.abbreviated).day().year())
+        return "NutritionMeasurement - Kilocalories: \(kilocalories), Timestamp: \(formattedDate)"
+    }
+    
     /// Validate that all entries are valid.
     override func validate() throws {
         try entries.forEach { try $0.validate() }
