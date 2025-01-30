@@ -16,7 +16,7 @@ struct MoreMenu: View {
                     
                 }
                 NavigationLink(destination: PreferencesPage()) {
-                    Label("Settings", systemImage: "gearshape.fill")
+                    Label("Preferences", systemImage: "gearshape.fill")
                 }
 //                NavigationLink(destination: TutorialPage()) {
 //                    Text("Tutorial")

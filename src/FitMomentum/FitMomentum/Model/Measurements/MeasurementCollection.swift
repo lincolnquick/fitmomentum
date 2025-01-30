@@ -49,7 +49,14 @@ class MeasurementCollection<T: MeasurementProtocol> {
     func getMeasurements(from startDate: Date, to endDate: Date) -> [T] {
         let normalizedStart = startDate.onlyDate()
         let normalizedEnd = endDate.onlyDate()
-        return measurements.filter { $0.key >= normalizedStart && $0.key <= normalizedEnd }
+
+        print("[DEBUG] Filtering measurements from \(normalizedStart) to \(normalizedEnd)")
+
+        return measurements
+            .filter { entry in
+                let measurementDate = entry.key.onlyDate() // Ensure stored date is normalized
+                return measurementDate >= normalizedStart && measurementDate <= normalizedEnd
+            }
             .map { $0.value }
             .sorted(by: { $0.timestamp < $1.timestamp })
     }

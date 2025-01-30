@@ -1,7 +1,8 @@
 import SwiftUI
 
 struct ContentView: View {
-    
+    @StateObject var userViewModel = UserViewModel() // Ensure `UserViewModel` is available
+
     var body: some View {
         TabView {
             
@@ -21,10 +22,16 @@ struct ContentView: View {
                     Label("Predictions", systemImage: "chart.bar.fill")
                 }
 
-            Text("Progress")
-                .tabItem {
-                    Label("Progress", systemImage: "flag.fill")
-                }
+            // Progress Page
+            NavigationView {
+                ProgressPage()
+            }
+            .tabItem {
+                Label("Progress", systemImage: "flag.fill")
+            }
+            .environmentObject(userViewModel) // Ensure the view model is passed down
+
+            // More Menu
             NavigationView {
                 MoreMenu()
             }
@@ -32,6 +39,7 @@ struct ContentView: View {
                 Label("More", systemImage: "ellipsis")
             }
         }
+        .environmentObject(userViewModel) // Ensures `userViewModel` is passed to all views
     }
 }
 
@@ -70,9 +78,7 @@ struct DashboardView: View {
             .padding()
             .background(Color.gray.opacity(0.1))
             .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
-            .safeAreaInset(edge: .top) { // Ensure the header respects safe areas
-                Color.clear.frame(height: 0)
-            }
+            .safeAreaInset(edge: .top) { Color.clear.frame(height: 0) } // Ensure the header respects safe areas
 
             // Scrollable Content
             ScrollView {
@@ -81,57 +87,38 @@ struct DashboardView: View {
                     WeightTrendsCard()
 
                     // Weight Loss Progress Card
-                    RoundedRectangle(cornerRadius: 15)
-                        .fill(Color.gray.opacity(0.2))
-                        .frame(height: UIScreen.main.bounds.height / 3.5)
-                        .overlay(
-                            Text("Weight Loss Progress")
-                                .font(.headline)
-                                .foregroundColor(.blue)
-                        )
+                    ProgressCard(title: "Weight Loss Progress")
 
                     // Daily Checklist Card
-                    RoundedRectangle(cornerRadius: 15)
-                        .fill(Color.gray.opacity(0.2))
-                        .frame(height: UIScreen.main.bounds.height / 3.5)
-                        .overlay(
-                            Text("Daily Checklist")
-                                .font(.headline)
-                                .foregroundColor(.blue)
-                        )
+                    ProgressCard(title: "Daily Checklist")
                     
                     // Predictions Card
-                    RoundedRectangle(cornerRadius: 15)
-                        .fill(Color.gray.opacity(0.2))
-                        .frame(height: UIScreen.main.bounds.height / 3.5)
-                        .overlay(
-                            Text("Predictions")
-                                .font(.headline)
-                                .foregroundColor(.blue)
-                        )
+                    ProgressCard(title: "Predictions")
                     
                     // Recent Nutrition Trends Card
-                    RoundedRectangle(cornerRadius: 15)
-                        .fill(Color.gray.opacity(0.2))
-                        .frame(height: UIScreen.main.bounds.height / 3.5)
-                        .overlay(
-                            Text("Recent Nutrition Trends")
-                                .font(.headline)
-                                .foregroundColor(.blue)
-                        )
+                    ProgressCard(title: "Recent Nutrition Trends")
 
                     // Recent Step Trends Card
-                    RoundedRectangle(cornerRadius: 15)
-                        .fill(Color.gray.opacity(0.2))
-                        .frame(height: UIScreen.main.bounds.height / 3.5)
-                        .overlay(
-                            Text("Recent Step Trends")
-                                .font(.headline)
-                                .foregroundColor(.blue)
-                        )
+                    ProgressCard(title: "Recent Step Trends")
                 }
                 .padding()
             }
         }
+    }
+}
+
+// MARK: - Reusable Progress Card
+struct ProgressCard: View {
+    var title: String
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: 15)
+            .fill(Color.gray.opacity(0.2))
+            .frame(height: UIScreen.main.bounds.height / 3.5)
+            .overlay(
+                Text(title)
+                    .font(.headline)
+                    .foregroundColor(.blue)
+            )
     }
 }

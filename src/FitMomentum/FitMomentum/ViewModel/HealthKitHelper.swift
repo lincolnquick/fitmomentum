@@ -25,7 +25,7 @@ class HealthKitHelper {
             return
         }
 
-        let readTypes: Set<HKObjectType> = [
+        var readTypes: Set<HKObjectType> = [
             HKObjectType.characteristicType(forIdentifier: .dateOfBirth)!,
             HKObjectType.characteristicType(forIdentifier: .biologicalSex)!,
             HKObjectType.quantityType(forIdentifier: .height)!,
@@ -77,7 +77,13 @@ class HealthKitHelper {
             .dietaryVitaminB6,
             .dietaryVitaminB12
         ]
-
+        
+        for type in nutritionTypes {
+            if let quantityType = HKQuantityType.quantityType(forIdentifier: type) {
+                readTypes.insert(quantityType)
+            }
+        }
+        
         healthStore.requestAuthorization(toShare: [], read: readTypes) { success, error in
             DispatchQueue.main.async {
                 if let error = error {
@@ -86,6 +92,8 @@ class HealthKitHelper {
                 completion(success)
             }
         }
+        
+        
     }
 
     // MARK: - Fetch Person Data (Date of Birth, Gender, Height)
@@ -136,8 +144,8 @@ class HealthKitHelper {
 
             DispatchQueue.main.async {
                 for sample in samples {
+                    let measurement = WeightMeasurement(timestamp: sample.startDate, weight: sample.quantity.doubleValue(for: .gramUnit(with: .kilo)))
                     do {
-                        let measurement = try WeightMeasurement(timestamp: sample.startDate, weight: sample.quantity.doubleValue(for: .gramUnit(with: .kilo)))
                         try self.user.weightMeasurements.addOrUpdateMeasurement(measurement)
                     } catch {
                         print("[HealthKitHelper] Error saving Weight Measurement: \(error.localizedDescription)")
@@ -147,8 +155,8 @@ class HealthKitHelper {
                 let firstWeight = self.user.weightMeasurements.getEarliestMeasurement()
                 
                 print("[HealthKitHelper] Fetched Weight Measurements.")
-                print("[HealthKitHelper] Most Recent Weight: \(mostRecentWeight?.description)")
-                print("[HealthKitHelper] Earliest Weight: \(firstWeight?.description)")
+                print("[HealthKitHelper] Most Recent Weight: \(mostRecentWeight?.description ?? "")")
+                print("[HealthKitHelper] Earliest Weight: \(firstWeight?.description ?? "")")
                 
                 
             }
@@ -170,14 +178,14 @@ class HealthKitHelper {
             DispatchQueue.main.async {
                 for sample in samples {
                     do {
-                        let measurement = try BodyFatMeasurement(timestamp: sample.startDate, value: sample.quantity.doubleValue(for: .percent()) * 100)
+                        let measurement = BodyFatMeasurement(timestamp: sample.startDate, value: sample.quantity.doubleValue(for: .percent()) * 100)
                         try self.user.bodyFatMeasurements.addOrUpdateMeasurement(measurement)
                     } catch {
                         print("[HealthKitHelper] Error saving Body Fat Measurement: \(error.localizedDescription)")
                     }
                 }
                 print("[HealthKitHelper] Fetched Body Fat Measurements")
-                print("[HealthKitHelper] Most Recent Body Fat Measurement: \(self.user.bodyFatMeasurements.getMostRecentMeasurement()?.description)")
+                print("[HealthKitHelper] Most Recent Body Fat Measurement: \(self.user.bodyFatMeasurements.getMostRecentMeasurement()?.description ?? "")")
             }
         }
         healthStore.execute(query)
@@ -225,11 +233,11 @@ class HealthKitHelper {
                       let distance = distanceData[date] ?? 0
 
                       do {
-                          let activityMeasurement = try self.user.activityMeasurements.getMeasurement(for: date) ??
+                          let activityMeasurement = self.user.activityMeasurements.getMeasurement(for: date) ??
                               ActivityMeasurement(timestamp: date, steps: 0, distanceWalked: 0, activeCalories: 0)
 
                           activityMeasurement.steps = Int(steps)
-                          activityMeasurement.distanceWalked = distance
+                          activityMeasurement.distanceWalked = distance  / 1000.0
                           activityMeasurement.activeCalories = activeCalories
 
                           try self.user.activityMeasurements.addOrUpdateMeasurement(activityMeasurement)
@@ -282,11 +290,8 @@ class HealthKitHelper {
 
     // MARK: - Fetch Nutrition Data
     func fetchNutritionData() {
-        guard let foodType = HKObjectType.correlationType(forIdentifier: .food) else {
-                   print("[HealthKitHelper] Warning: HKCorrelationType.food is unavailable.")
-                   return
-               }
-        let query = HKSampleQuery(sampleType: foodType, predicate: nil, limit: HKObjectQueryNoLimit,
+        let nutritionType = HKQuantityType.quantityType(forIdentifier: .dietaryEnergyConsumed)!
+        let query = HKSampleQuery(sampleType: nutritionType, predicate: nil, limit: HKObjectQueryNoLimit,
                                   sortDescriptors: [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)]) { _, results, error in
             guard let correlations = results as? [HKCorrelation] else {
                 if let error = error {
@@ -304,7 +309,7 @@ class HealthKitHelper {
 
                     do {
                         let date = entry.timestamp.onlyDate()
-                        let dailyMeasurement = try self.user.nutritionMeasurements.getMeasurement(for: date) ??
+                        let dailyMeasurement = self.user.nutritionMeasurements.getMeasurement(for: date) ??
                             NutritionMeasurement(timestamp: date)
 
                         dailyMeasurement.addOrUpdateEntry(entry)
