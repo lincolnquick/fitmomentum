@@ -61,6 +61,80 @@ class MeasurementCollection<T: MeasurementProtocol> {
             .sorted(by: { $0.timestamp < $1.timestamp })
     }
     
+    func extractGraphData<U: Measurement>(
+        primary: KeyPath<U, Double> = \U.value,
+        secondary: KeyPath<U, Double>? = nil
+    ) -> [(timestamp: Date, value: Double, secondaryValue: Double?)] {
+        return measurements.values.compactMap { measurement in
+            guard let typedMeasurement = measurement as? U else { return nil}
+            let timestamp = typedMeasurement.timestamp
+            let value = typedMeasurement[keyPath: primary]
+            let secondaryValue = secondary.map {typedMeasurement[keyPath: $0]}
+            return (timestamp, value, secondaryValue)
+        }
+    }
+    
+    func getBinnedData<U: Measurement>(
+        primary: KeyPath<U, Double> = \U.value,
+        secondary: KeyPath<U, Double>? = nil,
+        interval: Calendar.Component = .day
+    ) -> [(date: Date, value: Double, secondaryValue: Double?, startDate: Date?, endDate: Date?)] {
+        var bins: [Date: (valueSum: Double, secondarySum: Double?, count: Int, startDate: Date?, endDate: Date?)] = [:]
+        
+        let calendar = Calendar.current
+        
+        for measurement in measurements.values {
+            guard let typedMeasurement = measurement as? U else { continue }
+            let binDate = getStartDate(for: typedMeasurement.timestamp, interval: interval)
+
+            let value = typedMeasurement[keyPath: primary]
+            let secondaryValue = secondary.map { typedMeasurement[keyPath: $0] }
+
+            if let existing = bins[binDate] {
+                let updatedSecondarySum: Double?
+                if let existingSum = existing.secondarySum, let newValue = secondaryValue {
+                    updatedSecondarySum = existingSum + newValue
+                } else {
+                    updatedSecondarySum = secondaryValue ?? existing.secondarySum
+                }
+
+                bins[binDate] = (
+                    valueSum: existing.valueSum + value,
+                    secondarySum: updatedSecondarySum,
+                    count: existing.count + 1,
+                    startDate: min(existing.startDate ?? typedMeasurement.timestamp, typedMeasurement.timestamp),
+                    endDate: max(existing.endDate ?? typedMeasurement.timestamp, typedMeasurement.timestamp)
+                )
+            } else {
+                bins[binDate] = (value, secondaryValue, 1, typedMeasurement.timestamp, typedMeasurement.timestamp)
+            }
+        }
+        
+        return bins.map { (date, bin) in
+            let avgValue = bin.valueSum / Double(bin.count)
+            let avgSecondaryValue = bin.secondarySum.map { $0 / Double(bin.count) }
+            return (date, avgValue, avgSecondaryValue, bin.startDate, bin.endDate)
+        }.sorted { $0.date < $1.date }
+    }
+    
+    private func getStartDate(for date: Date, interval: Calendar.Component) -> Date {
+        let calendar = Calendar.current
+        switch interval {
+        case .weekOfYear:
+            return calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: date)) ?? date
+        case .month:
+            return calendar.date(from: calendar.dateComponents([.year, .month], from: date)) ?? date
+        case .quarter:
+            let quarterMonth = ((calendar.component(.month, from: date) - 1) / 3) * 3 + 1
+            return calendar.date(from: DateComponents(year: calendar.component(.year, from: date), month: quarterMonth, day: 1)) ?? date
+        case .year:
+            return calendar.date(from: DateComponents(year: calendar.component(.year, from: date), month: 1, day: 1)) ?? date
+        default:
+            return calendar.startOfDay(for: date)
+        }
+    }
+    
+    
     /// Get the count of measurements in the collection.
     var count: Int {
         return measurements.count

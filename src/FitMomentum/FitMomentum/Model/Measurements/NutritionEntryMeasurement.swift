@@ -184,7 +184,7 @@ class NutritionEntryMeasurement: Measurement {
     
     override var description: String {
         let formattedDate = timestamp.formatted(.dateTime.month(.abbreviated).day().year())
-        return "NutritionEntryMeasurement - Kilocalories: \(kilocalories), Name: \(name ?? "No name"), Timestamp: \(formattedDate)"
+        return "[NutritionEntryMeasurement] Kilocalories: \(kilocalories), Name: \(name ?? "No name"), Timestamp: \(formattedDate)"
     }
 
     /// Validate that all nutrition values are non-negative.

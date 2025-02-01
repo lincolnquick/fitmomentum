@@ -4,7 +4,9 @@ import Foundation
 class ActivityMeasurement: Measurement {
     var steps: Int // Number of steps taken
     var distanceWalked: Double // Distance walked in kilometers
-    var activeCalories: Double // Active calories burned (assumed inaccurate)
+    var activeCalories: Double { return value }
+    
+    var selectedSecondaryProperty: KeyPath<ActivityMeasurement, Double> = \ActivityMeasurement.distanceWalked
 
     /// Required initializer to meet the Measurement superclass contract.
     /// - Parameters:
@@ -13,7 +15,6 @@ class ActivityMeasurement: Measurement {
     required init(timestamp: Date, value: Double) {
         self.steps = 0
         self.distanceWalked = 0.0
-        self.activeCalories = 0.0
         super.init(timestamp: timestamp, value: value)
     }
 
@@ -24,10 +25,9 @@ class ActivityMeasurement: Measurement {
     ///   - distanceWalked: The distance walked in kilometers.
     ///   - activeCalories: The active calories burned (assumed inaccurate).
     convenience init(timestamp: Date, steps: Int, distanceWalked: Double, activeCalories: Double) {
-        self.init(timestamp: timestamp, value: Double(steps)) // Value defaults to steps
+        self.init(timestamp: timestamp, value: activeCalories) // Value defaults to activeCalories
         self.steps = steps
         self.distanceWalked = distanceWalked
-        self.activeCalories = activeCalories
     }
 
     /// Converts distance to the user's preferred units.
@@ -45,6 +45,10 @@ class ActivityMeasurement: Measurement {
     override var description: String {
         let formattedDate = timestamp.formatted(.dateTime.month(.abbreviated).day().year())
         return "ActivityMeasurement - Steps: \(steps), Distance: \(getConvertedDistance()), Active Calories: \(activeCalories)), Timestamp: \(formattedDate)"
+    }
+    
+    override var secondaryValue: Double? {
+        return self[keyPath: selectedSecondaryProperty]
     }
 
     /// Validates that all measurement values are non-negative.

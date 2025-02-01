@@ -7,6 +7,8 @@
 import Foundation
 class WeightMeasurement: Measurement {
     
+    var selectedSecondaryProperty: KeyPath<WeightMeasurement, Double> = \WeightMeasurement.weight
+    
     required init(timestamp: Date, value: Double){
         super.init(timestamp: timestamp, value: value)
     }
@@ -17,6 +19,15 @@ class WeightMeasurement: Measurement {
     
     /// Weight in kg
     var weight: Double { return value }
+    
+    override var secondaryValue: Double? {
+        return self[keyPath: selectedSecondaryProperty]
+    }
+    
+    override var description: String {
+        let formattedDate = timestamp.formatted(.dateTime.month(.abbreviated).day().year())
+        return "[Weight Measurement] Weight: \(value), Timestamp: \(formattedDate)"
+    }
     
     /// Validate that the weight is greater than 0
     override func validate() throws {

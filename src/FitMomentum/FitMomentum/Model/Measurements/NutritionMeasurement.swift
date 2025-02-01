@@ -11,6 +11,8 @@ import Foundation
 class NutritionMeasurement: Measurement {
     
     private var entries: [NutritionEntryMeasurement] = [] // Collection of individual entries
+    
+    var selectedSecondaryProperty: KeyPath<NutritionMeasurement, Double> = \NutritionMeasurement.protein // Defaults to protein
 
     // Computed totals for macronutrients
     var kilocalories: Double { entries.reduce(0) { $0 + $1.kilocalories } }
@@ -56,7 +58,7 @@ class NutritionMeasurement: Measurement {
     var choline: Double { entries.reduce(0) { $0 + $1.choline } }
 
     required init(timestamp: Date, value: Double) {
-        super.init(timestamp: timestamp, value: value)
+        super.init(timestamp: timestamp, value: 0.0)
     }
 
     convenience init(timestamp: Date) {
@@ -88,10 +90,19 @@ class NutritionMeasurement: Measurement {
     func getEntries() -> [NutritionEntryMeasurement] {
         return entries
     }
+    
+    override var value: Double {
+        get { kilocalories }
+        set {}
+    }
+    
+    override var secondaryValue: Double? {
+        return self[keyPath: selectedSecondaryProperty]
+    }
 
     override var description: String {
         let formattedDate = timestamp.formatted(.dateTime.month(.abbreviated).day().year())
-        return "NutritionMeasurement - Kilocalories: \(kilocalories), Timestamp: \(formattedDate)"
+        return "[NutritionMeasurement] Kilocalories: \(kilocalories), Timestamp: \(formattedDate)"
     }
     
     /// Validate that all entries are valid.

@@ -34,30 +34,16 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-				View/ProgressView/ChartBinning.swift,
-				View/ProgressView/ChartUtils.swift,
 			);
 			target = 12AAA41C2D01004B00A83AAC /* FitMomentum */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-		1200FA812D4C2DCE00A7F333 /* Exceptions for "FitMomentum" folder in "Copy Bundle Resources" phase from "FitMomentum" target */ = {
-			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
-			buildPhase = 12AAA41B2D01004B00A83AAC /* Resources */;
-			membershipExceptions = (
-				View/ProgressView/ChartBinning.swift,
-				View/ProgressView/ChartUtils.swift,
-			);
-		};
-/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		12AAA41F2D01004B00A83AAC /* FitMomentum */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				12AAA4432D01004D00A83AAC /* Exceptions for "FitMomentum" folder in "FitMomentum" target */,
-				1200FA812D4C2DCE00A7F333 /* Exceptions for "FitMomentum" folder in "Copy Bundle Resources" phase from "FitMomentum" target */,
 			);
 			path = FitMomentum;
 			sourceTree = "<group>";

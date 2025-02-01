@@ -8,6 +8,7 @@ import Foundation
 class Measurement : MeasurementProtocol {
     var timestamp: Date
     var value: Double // generic value for the measurement
+    var secondaryValue: Double? { nil }
     
     required init(timestamp: Date = Date(), value: Double) {
         self.timestamp = timestamp
