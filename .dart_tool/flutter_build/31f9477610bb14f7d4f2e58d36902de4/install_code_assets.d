@@ -1,0 +1,1 @@
+ /Users/lincolnquick/projects/fitmomentum/.dart_tool/flutter_build/31f9477610bb14f7d4f2e58d36902de4/native_assets.json: 
