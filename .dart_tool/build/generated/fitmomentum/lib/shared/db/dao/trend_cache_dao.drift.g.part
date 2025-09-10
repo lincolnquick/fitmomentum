@@ -1,0 +1,4 @@
+// ignore_for_file: type=lint
+mixin _$TrendCacheDaoMixin on DatabaseAccessor<AppDatabase> {
+  $TrendCacheTable get trendCache => attachedDatabase.trendCache;
+}

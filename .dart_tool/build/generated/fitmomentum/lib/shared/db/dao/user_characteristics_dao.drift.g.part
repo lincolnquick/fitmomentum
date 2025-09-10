@@ -1,0 +1,5 @@
+// ignore_for_file: type=lint
+mixin _$UserCharacteristicsDaoMixin on DatabaseAccessor<AppDatabase> {
+  $UserCharacteristicsTable get userCharacteristics =>
+      attachedDatabase.userCharacteristics;
+}

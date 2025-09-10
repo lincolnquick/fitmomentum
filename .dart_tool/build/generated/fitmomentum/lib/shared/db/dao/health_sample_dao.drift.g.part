@@ -1,0 +1,4 @@
+// ignore_for_file: type=lint
+mixin _$HealthSampleDaoMixin on DatabaseAccessor<AppDatabase> {
+  $HealthSampleTable get healthSample => attachedDatabase.healthSample;
+}

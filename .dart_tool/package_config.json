@@ -3,15 +3,15 @@
   "packages": [
     {
       "name": "_fe_analyzer_shared",
-      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/_fe_analyzer_shared-61.0.0",
+      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/_fe_analyzer_shared-88.0.0",
       "packageUri": "lib/",
-      "languageVersion": "2.17"
+      "languageVersion": "3.7"
     },
     {
       "name": "analyzer",
-      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/analyzer-5.13.0",
+      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/analyzer-8.1.1",
       "packageUri": "lib/",
-      "languageVersion": "2.19"
+      "languageVersion": "3.7"
     },
     {
       "name": "args",
@@ -33,15 +33,15 @@
     },
     {
       "name": "build",
-      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/build-2.4.1",
+      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/build-4.0.0",
       "packageUri": "lib/",
-      "languageVersion": "2.19"
+      "languageVersion": "3.7"
     },
     {
       "name": "build_config",
-      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/build_config-1.1.2",
+      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/build_config-1.2.0",
       "packageUri": "lib/",
-      "languageVersion": "3.6"
+      "languageVersion": "3.7"
     },
     {
       "name": "build_daemon",
@@ -51,21 +51,21 @@
     },
     {
       "name": "build_resolvers",
-      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/build_resolvers-2.4.2",
+      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/build_resolvers-3.0.4",
       "packageUri": "lib/",
-      "languageVersion": "3.0"
+      "languageVersion": "3.7"
     },
     {
       "name": "build_runner",
-      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/build_runner-2.4.13",
+      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/build_runner-2.7.2",
       "packageUri": "lib/",
-      "languageVersion": "3.5"
+      "languageVersion": "3.7"
     },
     {
       "name": "build_runner_core",
-      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/build_runner_core-7.3.2",
+      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/build_runner_core-9.3.2",
       "packageUri": "lib/",
-      "languageVersion": "3.5"
+      "languageVersion": "3.7"
     },
     {
       "name": "built_collection",
@@ -92,10 +92,22 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "charcode",
+      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/charcode-1.4.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
       "name": "checked_yaml",
       "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/checked_yaml-2.0.4",
       "packageUri": "lib/",
       "languageVersion": "3.8"
+    },
+    {
+      "name": "cli_util",
+      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/cli_util-0.4.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
     },
     {
       "name": "clock",
@@ -135,15 +147,9 @@
     },
     {
       "name": "dart_style",
-      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/dart_style-2.3.2",
+      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/dart_style-3.1.2",
       "packageUri": "lib/",
-      "languageVersion": "2.19"
-    },
-    {
-      "name": "dartx",
-      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/dartx-1.2.0",
-      "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "3.7"
     },
     {
       "name": "device_info_plus",
@@ -156,6 +162,18 @@
       "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/device_info_plus_platform_interface-7.0.3",
       "packageUri": "lib/",
       "languageVersion": "3.7"
+    },
+    {
+      "name": "drift",
+      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/drift-2.28.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
+      "name": "drift_dev",
+      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/drift_dev-2.28.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
     },
     {
       "name": "fake_async",
@@ -254,30 +272,6 @@
       "languageVersion": "3.4"
     },
     {
-      "name": "isar",
-      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/isar-3.1.0+1",
-      "packageUri": "lib/",
-      "languageVersion": "2.17"
-    },
-    {
-      "name": "isar_flutter_libs",
-      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/isar_flutter_libs-3.1.0+1",
-      "packageUri": "lib/",
-      "languageVersion": "2.17"
-    },
-    {
-      "name": "isar_generator",
-      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/isar_generator-3.1.0+1",
-      "packageUri": "lib/",
-      "languageVersion": "2.17"
-    },
-    {
-      "name": "js",
-      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/js-0.6.7",
-      "packageUri": "lib/",
-      "languageVersion": "2.19"
-    },
-    {
       "name": "json_annotation",
       "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/json_annotation-4.9.0",
       "packageUri": "lib/",
@@ -336,6 +330,12 @@
       "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/mime-2.0.0",
       "packageUri": "lib/",
       "languageVersion": "3.2"
+    },
+    {
+      "name": "nested",
+      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/nested-1.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
     },
     {
       "name": "package_config",
@@ -404,6 +404,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "provider",
+      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/provider-6.1.5+1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "pub_semver",
       "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/pub_semver-2.2.0",
       "packageUri": "lib/",
@@ -414,6 +420,12 @@
       "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/pubspec_parse-1.5.0",
       "packageUri": "lib/",
       "languageVersion": "3.6"
+    },
+    {
+      "name": "recase",
+      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/recase-4.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
     },
     {
       "name": "shelf",
@@ -435,15 +447,33 @@
     },
     {
       "name": "source_gen",
-      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/source_gen-1.5.0",
+      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/source_gen-4.0.1",
       "packageUri": "lib/",
-      "languageVersion": "3.0"
+      "languageVersion": "3.7"
     },
     {
       "name": "source_span",
       "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/source_span-1.10.1",
       "packageUri": "lib/",
       "languageVersion": "3.1"
+    },
+    {
+      "name": "sqlite3",
+      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/sqlite3-2.9.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
+    },
+    {
+      "name": "sqlite3_flutter_libs",
+      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/sqlite3_flutter_libs-0.5.39",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "sqlparser",
+      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/sqlparser-0.41.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
     },
     {
       "name": "stack_trace",
@@ -480,12 +510,6 @@
       "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/test_api-0.7.6",
       "packageUri": "lib/",
       "languageVersion": "3.5"
-    },
-    {
-      "name": "time",
-      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/time-2.1.5",
-      "packageUri": "lib/",
-      "languageVersion": "2.12"
     },
     {
       "name": "timing",
@@ -552,12 +576,6 @@
       "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/xdg_directories-1.1.0",
       "packageUri": "lib/",
       "languageVersion": "3.3"
-    },
-    {
-      "name": "xxh3",
-      "rootUri": "file:///Users/lincolnquick/.pub-cache/hosted/pub.dev/xxh3-1.2.0",
-      "packageUri": "lib/",
-      "languageVersion": "2.16"
     },
     {
       "name": "yaml",
