@@ -43,6 +43,9 @@ dependencies:
   sqlite3: ^2.9.0
   crypto: ^3.0.6
   provider: ^6.1.5+1
+  fl_chart: ^1.1.0
+  shared_preferences: ^2.5.3
+  background_fetch: ^1.4.0
 
 dev_dependencies:
   flutter_test:

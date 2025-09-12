@@ -1,65 +1,48 @@
-# Xcode
-#
-# gitignore contributors: remember to update Global/Xcode.gitignore, Objective-C.gitignore & Swift.gitignore
+# Flutter/Dart/Pub related
+.dart_tool/
+.packages
+.pub-cache/
+build/
+flutter_*.png
 
-## User settings
+# iOS
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/.symlinks/
+ios/Pods/
+ios/build/
+ios/Runner.xcworkspace/
 xcuserdata/
+DerivedData/
 
-## Private scripts
-/private/
+# Android
+android/.gradle/
+android/captures/
+android/app/build/
+*.keystore
+*.jks
 
-## Obj-C/Swift specific
-*.hmap
+# macOS
+macos/Flutter/ephemeral/
+macos/build/
 
-## App packaging
-*.ipa
-*.dSYM.zip
-*.dSYM
+# Windows
+windows/Flutter/ephemeral/
+windows/build/
 
-## Playgrounds
-timeline.xctimeline
-playground.xcworkspace
+# Linux
+linux/Flutter/ephemeral/
+linux/build/
 
-# Swift Package Manager
-#
-# Add this line if you want to avoid checking in source code from Swift Package Manager dependencies.
-# Packages/
-# Package.pins
-# Package.resolved
-# *.xcodeproj
-#
-# Xcode automatically generates this directory with a .xcworkspacedata file and xcuserdata
-# hence it is not needed unless you have added a package configuration file to your project
-# .swiftpm
+# VS Code & IntelliJ
+.vscode/
+.idea/
+*.iml
 
-.build/
+# Xcode user settings
+*.xcuserstate
+*.xcuserdatad
+*.xcscmblueprint
 
-# CocoaPods
-#
-# We recommend against adding the Pods directory to your .gitignore. However
-# you should judge for yourself, the pros and cons are mentioned at:
-# https://guides.cocoapods.org/using/using-cocoapods.html#should-i-check-the-pods-directory-into-source-control
-#
-# Pods/
-#
-# Add this line if you want to avoid checking in source code from the Xcode workspace
-# *.xcworkspace
-
-# Carthage
-#
-# Add this line if you want to avoid checking in source code from Carthage dependencies.
-# Carthage/Checkouts
-
-Carthage/Build/
-
-# fastlane
-#
-# It is recommended to not store the screenshots in the git repo.
-# Instead, use fastlane to re-generate the screenshots whenever they are needed.
-# For more information about the recommended setup visit:
-# https://docs.fastlane.tools/best-practices/source-control/#source-control
-
-fastlane/report.xml
-fastlane/Preview.html
-fastlane/screenshots/**/*.png
-fastlane/test_output
+# Others
+pubspec.lock
