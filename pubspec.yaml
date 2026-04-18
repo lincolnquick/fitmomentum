@@ -45,7 +45,6 @@ dependencies:
   provider: ^6.1.5+1
   fl_chart: ^1.1.0
   shared_preferences: ^2.5.3
-  background_fetch: ^1.4.0
 
 dev_dependencies:
   flutter_test:
@@ -102,3 +101,6 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+dependency_overrides:
+  device_info_plus: 12.3.0

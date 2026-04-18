@@ -1,29 +1,27 @@
-import 'package:fitmomentum/features/weight/weight_page.dart';
+import 'package:fitmomentum/features/charts/charts_page.dart';
+import 'package:fitmomentum/features/dashboard/dashboard_page.dart';
+import 'package:fitmomentum/features/goals/goals_page.dart';
+import 'package:fitmomentum/features/settings/settings_page.dart';
 import 'package:fitmomentum/shared/db/app_database.dart';
 import 'package:fitmomentum/shared/repo/metrics_repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'features/profile/view/profile_onboarding_page.dart';
-import 'features/metrics/view/metrics_page.dart';
 import 'package:provider/provider.dart';
 import 'package:fitmomentum/shared/sync/sync_bootstrap.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Open DB once
   final db = await AppDatabase.open();
-
-  // Create repo instance
   final repo = MetricsRepository(db);
 
-  // Wire up Health sync (app resume + manual triggers)
   final sync = SyncBootstrap.ensure(
     db: db,
     repo: repo,
     platform: defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android',
   );
-  await sync.init(); // configures health & attaches lifecycle observer
+  await sync.init();
 
   runApp(
     Provider<MetricsRepository>.value(
@@ -43,7 +41,7 @@ class FitMomentumApp extends StatelessWidget {
       brightness: Brightness.light,
     );
     return MaterialApp(
-      title: 'Fit Momentum',
+      title: 'FitMomentum',
       theme: ThemeData(
         colorScheme: scheme,
         useMaterial3: true,
@@ -66,9 +64,7 @@ class FitMomentumApp extends StatelessWidget {
       ),
       routes: {
         '/profile': (context) =>
-            const ProfileOnboardingPage(onFinishedRoute: '/metrics'),
-        '/metrics': (context) => const MetricsPage(),
-        '/weight': (context) => const WeightPage(),
+            const ProfileOnboardingPage(onFinishedRoute: '/'),
       },
       home: const HomePage(),
     );
@@ -85,54 +81,43 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
 
-  Widget _buildPage(int index) {
-    switch (index) {
-      case 0:
-        return const ProfileOnboardingPage();
-      case 1:
-        return const MetricsPage();
-      case 2:
-        return const WeightPage();
-      case 3:
-        return const _SettingsPlaceholder();
-      default:
-        return const Center(child: Text('Unknown page'));
-    }
-  }
+  static const _pages = [
+    DashboardPage(),
+    ChartsPage(),
+    GoalsPage(),
+    SettingsPage(),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('FitMomentum')),
-      body: _buildPage(_currentIndex),
+      body: IndexedStack(index: _currentIndex, children: _pages),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
           BottomNavigationBarItem(
-            icon: Icon(Icons.analytics),
-            label: "Metrics",
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+            label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.monitor_weight),
-            label: "Weight",
+            icon: Icon(Icons.show_chart),
+            activeIcon: Icon(Icons.show_chart),
+            label: 'Charts',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: "Settings",
+            icon: Icon(Icons.flag_outlined),
+            activeIcon: Icon(Icons.flag),
+            label: 'Goals',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings_outlined),
+            activeIcon: Icon(Icons.settings),
+            label: 'Settings',
           ),
         ],
         onTap: (i) => setState(() => _currentIndex = i),
       ),
     );
-  }
-}
-
-class _SettingsPlaceholder extends StatelessWidget {
-  const _SettingsPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Settings coming soon!'));
   }
 }
